@@ -3,10 +3,13 @@ Type: Package
 Title: Algorithms to Preprocess Imbalanced Datasets
 Version: 0.1.0
 Author: ncordon
-Maintainer: Ignacio Cordón <nacho.cordon.castillo at gmail.com>
 Description: Algorithms to treat imbalanced datasets
 License: GPL-2 or later
 Encoding: UTF-8
 LazyData: true
 BugReports: http://github.com/ncordon/imbalance/issues
 URL: http://github.com/ncordon/imbalance
+Depends:
+    R (>= 3.2.3)
+Imports:
+    bnlearn
