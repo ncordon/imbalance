@@ -29,15 +29,32 @@ racog <- function(dataset, burn.in.period, lag, iterations){
 
 
   DT <- bnlearn::chow.liu(minority)$arcs
-  tree <- DT[ seq(1, nrow(DT), 2), ]
+  tree <- unname(DT[ seq(1, nrow(DT), 2), ])
+
+  # Reverse arcs in tree if not adirected tree
+  if(length(unique(tree[,2])) < nrow(tree)){
+    tree <- tree[,c(2,1)]
+  }
+
+  # Calculate prob distributions
+  # Cols are variables to which we are conditioning to
+  probs <- apply(tree, MARGIN = 1, function(x){
+    contingency <- table(dataset[,x[2]], dataset[,x[1]])
+    apply(contingency, MARGIN=2, function(x){ x/sum(x) })
+  })
 
 
-  apply(minority, MARGIN=1, function(row){
+  apply(minority, MARGIN=1, function(x)
     for(t in 1:iterations){
       for(i in 1:size(attrs)){
-        from <- tree[,2][tree[,1] == attrs[i]]
-        to <- tree[,1][tree[,2] == attrs[i]]
+        from <- which(tree[,1] == attrs[i])
+        to <- which(tree[,2] == attrs[i])
+
+        #sapply(from, probs[,x[i]])
+
       }
+
+      x.prev <- x
     }
   })
 
