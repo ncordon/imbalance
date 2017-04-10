@@ -39,23 +39,45 @@ racog <- function(dataset, burn.in.period, lag, iterations){
   # Calculate prob distributions
   # Cols are variables to which we are conditioning to
   probs <- apply(tree, MARGIN = 1, function(x){
-    contingency <- table(dataset[,x[2]], dataset[,x[1]])
-    apply(contingency, MARGIN=2, function(x){ x/sum(x) })
+    table(dataset[,x[2]], dataset[,x[1]])
   })
 
 
-  apply(minority, MARGIN=1, function(x)
+  apply(minority, MARGIN=1, function(x){
+    new.samples <- list()
+
     for(t in 1:iterations){
-      for(i in 1:size(attrs)){
-        from <- which(tree[,1] == attrs[i])
-        to <- which(tree[,2] == attrs[i])
+      for(attr in attrs){
+        from <- which(tree[,1] == attr)
+        to <- which(tree[,2] == attr)
 
-        #sapply(from, probs[,x[i]])
+        first <- sapply(from, function(k){
+          r <- probs[[k]][ x[, tree[,2][k]], ]
+          r/sum(r)
+        })
 
+        second <- sapply(to, function(k){
+          r <- probs[[k]][ ,x[, tree[,1][k]]]
+          r/sum(r)
+        })
+
+        prob.vectors <- cbind(first, second)
+
+
+        ith.prob <- apply(prob.vectors, MARGIN = 1, function(r){
+          prod(unlist(r))
+        })
+
+        # Take a look at this
+        x[, attr] = sample( row.names(prob.vectors), 1, prob = ith.prob )
       }
 
-      x.prev <- x
+      if(t > burn.in.period && t%%lag == 0){
+        new.samples <- append(new.samples, x)
+      }
     }
+
+    new.samples
   })
 
 }
