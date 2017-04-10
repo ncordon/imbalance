@@ -6,6 +6,7 @@ racog <- function(dataset, burn.in.period, lag, iterations){
   minority.class <- classes[ which.min(classes.counts) ]
 
   minority <- dataset[dataset$class == minority.class, ]
+  minority <- as.data.frame( apply(minority, MARGIN=2, function(column) if(is.factor(column)) factor(column) else column) )
 
   attrs <- names(minority)
   attrs <- attrs[attrs != "class"]
