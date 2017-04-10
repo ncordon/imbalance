@@ -1,20 +1,4 @@
 
-# Rings is the class attribute for abalone
-abalone <- read.csv2("../Data/abalone.data", header=T, sep=",")
-# class is the class attribute for cars
-cars <- read.csv2("../Data/car.data", header=T, sep=",")
-
-# No funciona con datasets no categóricos
-bnlearn::chow.liu(abalone)
-head(abalone)
-head(cars)
-cars.tree <- bnlearn::chow.liu(cars)
-cars.tree$arcs
-dataset <- cars
-
-
-
-
 
 racog <- function(dataset, burn.in.period, lag, iterations){
   classes <- unique(dataset$class)
@@ -43,8 +27,10 @@ racog <- function(dataset, burn.in.period, lag, iterations){
   })
 
 
-  apply(minority, MARGIN=1, function(x){
-    new.samples <- list()
+  new.samples <- list()
+
+  for(i in 1:nrow(minority)){
+    x <- minority[i,]
 
     for(t in 1:iterations){
       for(attr in attrs){
@@ -68,16 +54,15 @@ racog <- function(dataset, burn.in.period, lag, iterations){
           prod(unlist(r))
         })
 
-        # Take a look at this
         x[, attr] = sample( row.names(prob.vectors), 1, prob = ith.prob )
       }
 
       if(t > burn.in.period && t%%lag == 0){
-        new.samples <- append(new.samples, x)
+        new.samples[[length(new.samples)+1]] <- x
       }
     }
+  }
 
-    new.samples
-  })
-
+  # Output
+  new.samples
 }
