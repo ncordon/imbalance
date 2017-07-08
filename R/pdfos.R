@@ -1,48 +1,68 @@
-pdfos <- function(dataset, ratio){
-  classes <- unique(dataset$class)
-  classes.counts <- sapply(classes, function(c){ length(which(dataset$class==c)) })
+balance.dataset <- function( dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
+  # Check of arguments
+  if (missing(dataset))
+    stop("dataset must not be empty")
+  if (missing(ratio) || !is.numeric(ratio) || ratio < 1 )
+    stop("ratio must be a number greater or equal than 1")
+  if ( !(class.attr %in% names(dataset)) )
+    stop(paste("Class attribute '", class.attr, "' not found in dataset", sep=""))
+  
+  
+  classes <- unique(dataset[, class.attr])
+  classes.counts <- sapply(classes, function(c){ length(which(dataset[, class.attr]==c)) })
   minority.class <- classes[ which.min(classes.counts) ]
-
-  minority <- dataset[dataset$class == minority.class, ]
+  
+  minority <- dataset[dataset[, class.attr] == minority.class, ]
   minority.size <- nrow(minority)
-  minority.class <- unique(minority["class"])
+  
   # Delete class attribute
-  minority <- minority[, names(minority) != "class"]
+  minority <- minority[, names(minority) != class.attr]
   
-  # Total new instances to generate
-  n.instances <- minority.size * ratio
-  n <- nrow(dataset)
-  #n.sqrt <- sqrt(n)
+  
+  if (method == "pdfos"){
+    n.instances <- minority.size * ratio
+    new.samples <- pdfos(minority, n.instances)
+    names(new.samples) <- names(minority)
+    # Add minority class attribute and bind new instances
+    new.samples[ class.attr ] <- minority.class
+    result <- rbind(dataset, new.samples)
+    rownames(result) <- 1:nrow(result)
+  }
+  
+  result
+}
 
-  
-  
-  # samples.mean <- apply(samples, MARGIN=2, mean)
-  
-  # Covariance of the positive class
-  minority.cov <- cov(minority[, names(minority) != "class"])
-  cov.inv.sqrt <- minority.cov**(-1/2)
-  
+
+pdfos <- function(dataset, n.instances){
+  # Variance of the positive class
+  dataset.var <- var(dataset)
+  var.inv.sqrt <- dataset.var**(-1/2)
+  m <- dim(dataset)[2]
+  n <- nrow(dataset)
+    
   # Kernel function
   phi <- function(sigma, vector){
-    m <- length(vector)
     sigma**(-m) / (2*pi)**(m/2) * exp(-(1/2*sigma**2)* as.numeric(vector %*% vector))
   }
   
+  
   # Cross value function to minimize
   cross.val.score <- function(sigma){
-    value <- 2*minority.size**(-1) * phi(sigma, 0)
+    value <- 2/n * phi(sigma, 0)
     
     value <- value + 
-      sum(apply(minority, MARGIN=1, function(row.i){
-        apply(minority, MARGIN=1, function(row.j){
-          ev.point <- as.vector( cov.inv.sqrt %*% (row.j - row.i) )
-          phi(sqrt(2) * sigma,  ev.point) - 2*phi(sigma, ev.point)
+      sum(apply(dataset, MARGIN=1, function(row.i){
+        apply(dataset, MARGIN=1, function(row.j){
+          ev.point <- as.vector( var.inv.sqrt %*% (row.j - row.i) )
+          phi(sqrt(2) * sigma,  ev.point) - 2 * phi(sigma, ev.point)
         })
-      })) * (minority.size**(-2))
+      })) / (n * n)
+    
     value
   }
   
-  # grid search to find sigma parameter
+  
+  # grid search to find approximation to best sigma parameter
   grid <- seq(from = 0, to = 2, by = 0.05)
   # erase 0 from grid search
   grid <- grid[2:length(grid)]
@@ -50,20 +70,18 @@ pdfos <- function(dataset, ratio){
   
   opt.sigma <- grid[ min.index ]
 
-  samples <- minority[sample(1:minority.size, n.instances, replace = T), ]
-  # Choleski form of covariance matrix, upper triangular matrix
-  cov.choleski <- chol(minority.cov)
+  # Choleski form of variance matrix, upper triangular matrix
+  var.choleski <- chol(dataset.var)
   
+  samples <- dataset[sample(1:n, n.instances, replace = T), ]
   new.samples <- apply(samples, MARGIN=1, function(row){
-    row + t( opt.sigma * cov.choleski %*% rnorm( length(row), mean = 0, sd = 1) )
+    row + t( opt.sigma * var.choleski %*% rnorm( m, mean = 0, sd = 1) )
   })
   
   new.samples <- t(new.samples)
-  
   new.samples <- data.frame(new.samples)
-  names(new.samples) <- names(minority)
-  # Add minority class attribute
-  new.samples["class"] <- minority.class
-  
   new.samples
 }
+
+
+resultado <- balance.dataset(dataset = iris, ratio=1, method = "pdfos", class.attr = "Species")
