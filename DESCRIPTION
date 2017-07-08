@@ -1,9 +1,12 @@
 Package: imbalance
 Type: Package
 Title: Algorithms to Preprocess Imbalanced Datasets
-Version: 0.1.0
+Version: 0.0.0.9000
 Author: ncordon
-Description: Algorithms to treat imbalanced datasets
+Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
+             the performance of the classifiers. Thus, it is important to treat data before
+             applying a classifier algorith. This package includes recent preprocessing algorithms
+             in the literature.
 License: GPL-2 or later
 Encoding: UTF-8
 LazyData: true

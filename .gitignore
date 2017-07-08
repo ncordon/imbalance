@@ -25,3 +25,6 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 packrat/lib*/
+# Ignore notes about package generation
+notes.org
+packrat/src
