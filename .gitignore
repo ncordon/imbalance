@@ -28,3 +28,4 @@ packrat/lib*/
 # Ignore notes about package generation
 notes.org
 packrat/src
+packrat/src/

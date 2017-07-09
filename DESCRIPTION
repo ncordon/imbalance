@@ -15,4 +15,5 @@ URL: http://github.com/ncordon/imbalance
 Depends:
     R (>= 3.2.3)
 Imports:
-    bnlearn
+    bnlearn,
+    FNN
