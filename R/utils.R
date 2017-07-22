@@ -1,8 +1,20 @@
-
 which.minority <- function(dataset, class.attr){
   classes <- dataset[, class.attr]
   counts <- table(classes)
-  names(which.min(result))
+  names(which.min(counts))
+}
+
+
+make.directed <- function(tree){
+  visited <- c()
+  for (k in 1:nrow(tree)){
+    if(tree[k,2] %in% visited){
+      tree[k,] <- tree[k,c(2,1)]
+    }
+    visited <- c(visited, tree[k,2])
+  }
+
+  tree
 }
 
 

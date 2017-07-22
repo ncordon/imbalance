@@ -3,10 +3,17 @@
 # lag <- 10
 # iterations <- 1000
 # burn.in.period <- 50
-
+# class.attr = "Species"
 
 racog <- function(dataset, burn.in.period, lag, iterations, class.attr = "class", minority.class){
-  minority.class <- which.minority(dataset, class.attr)
+  if(! class.attr %in% names(dataset))
+    stop("class attribute not found in dataset. Please provide a valid class attribute")
+  if(missing(minority.class))
+    minority.class <- which.minority(dataset, class.attr)
+  else if(! minority.class %in% names(dataset))
+    stop("Minority class not found in dataset")
+
+
   minority <- dataset[dataset[, class.attr] == minority.class, ]
   #minority <- as.data.frame( apply(minority, MARGIN=2, factor) )
   attrs <- names(minority)
@@ -14,41 +21,43 @@ racog <- function(dataset, burn.in.period, lag, iterations, class.attr = "class"
   minority <- minority[, attrs]
 
   DT <- bnlearn::chow.liu(minority)$arcs
-  # Choose only one direction for the arcs (the even ones)
+  # Choose only one direction for the arcs (the odd ones) and make tree directed
   tree <- unname(DT[ seq(1, nrow(DT), 2), ])
+  make.directed(tree)
 
-  # Reverse arcs in tree if not adirected tree
-  if(length(unique(tree[,2])) < nrow(tree)){
-    tree <- tree[,c(2,1)]
-  }
-
-  # Calculate prob distributions
+  # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
-  probs <- apply(tree, MARGIN = 1, function(x){
-    table(minority[,x[2]], minotiry[,x[1]])
+  cond.probs <- apply(tree, MARGIN = 1, function(r){
+    table(minority[, r[2]], minority[, r[1]])
   })
 
-  #table(dataset[,tree[1,2]], dataset[,tree[1,1]])
+  # Calculate absolute probability distributions
+  absolute.probs <- apply(minority, MARGIN = 2, function(col){
+    table(col)
+  })
+  absolute.probs <- lapply(absolute.probs, function(x){ x/sum(x) })
+
 
   new.samples <- list()
 
+  # For each minority example, create (iterations - burn.in.period)/lag
+  # new examples, approximating minority distribution with a Gibss sampler
   for(i in 1:nrow(minority)){
     x <- minority[i,]
     for(t in 1:iterations){
       for(attr in attrs){
         # Calc vars that are being conditioned to attr
-        from <- which(tree[,1] == attr)
+        conditioned <- which(tree[,1] == attr)
         # Calc var that attr is conditioned to
-        to <- which(tree[,2] == attr)
+        conditioning <- which(tree[,2] == attr)
 
-        first <- sapply(from, function(k){
-          r <- probs[[k]][ x[, tree[,2][k]], ]
-          prob.attr <- as.vector(table(minority[, attr]))
-          r/sum(r) * prob.attr/sum(prob.attr)
+        first <- sapply(conditioned, function(k){
+          r <- cond.probs[[k]][toString(x[, tree[,2][k]]), ]
+          r/sum(r) * absolute.probs[[attr]]
         })
 
-        second <- sapply(to, function(k){
-          r <- probs[[k]][ ,x[, tree[,1][k]]]
+        second <- sapply(conditioning, function(k){
+          r <- cond.probs[[k]][, toString(x[, tree[,1][k]])]
           r/sum(r)
         })
 
@@ -73,5 +82,7 @@ racog <- function(dataset, burn.in.period, lag, iterations, class.attr = "class"
   }
 
   # Output
+  new.samples <- do.call(rbind, new.samples)
+  new.samples[, class.attr] <- minority.class
   new.samples
 }
