@@ -13,8 +13,9 @@ LazyData: true
 BugReports: http://github.com/ncordon/imbalance/issues
 URL: http://github.com/ncordon/imbalance
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.4.1)
 Imports:
     bnlearn,
     FNN
-Suggests: testthat
+Suggests:
+    testthat
