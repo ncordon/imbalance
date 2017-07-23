@@ -1,46 +1,39 @@
-# dataset <- iris
-# class.attr <- "Species"
-# lag <- 10
-# iterations <- 1000
-# burn.in.period <- 50
-# class.attr = "Species"
-
-racog <- function(dataset, burn.in.period, lag, iterations, class.attr = "class", minority.class){
-  if(! class.attr %in% names(dataset))
+racog <- function(dataset, burnInPeriod, lag, iterations, classAttr = "class", minorityClass){
+  if(! classAttr %in% names(dataset))
     stop("class attribute not found in dataset. Please provide a valid class attribute")
-  if(missing(minority.class))
-    minority.class <- which.minority(dataset, class.attr)
-  else if(! minority.class %in% names(dataset))
+  if(missing(minorityClass))
+    minorityClass <- whichMinorityClass(dataset, classAttr)
+  else if(! minorityClass %in% names(dataset))
     stop("Minority class not found in dataset")
 
 
-  minority <- dataset[dataset[, class.attr] == minority.class, ]
+  minority <- dataset[dataset[, classAttr] == minorityClass, ]
   #minority <- as.data.frame( apply(minority, MARGIN=2, factor) )
   attrs <- names(minority)
-  attrs <- attrs[attrs != class.attr]
+  attrs <- attrs[attrs != classAttr]
   minority <- minority[, attrs]
 
   DT <- bnlearn::chow.liu(minority)$arcs
   # Choose only one direction for the arcs (the odd ones) and make tree directed
   tree <- unname(DT[ seq(1, nrow(DT), 2), ])
-  make.directed(tree)
+  makeDirected(tree)
 
   # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
-  cond.probs <- apply(tree, MARGIN = 1, function(r){
+  condProbs <- apply(tree, MARGIN = 1, function(r){
     table(minority[, r[2]], minority[, r[1]])
   })
 
   # Calculate absolute probability distributions
-  absolute.probs <- apply(minority, MARGIN = 2, function(col){
+  absoluteProbs <- apply(minority, MARGIN = 2, function(col){
     table(col)
   })
-  absolute.probs <- lapply(absolute.probs, function(x){ x/sum(x) })
+  absoluteProbs <- lapply(absoluteProbs, function(x){ x/sum(x) })
 
 
-  new.samples <- list()
+  newSamples <- list()
 
-  # For each minority example, create (iterations - burn.in.period)/lag
+  # For each minority example, create (iterations - burnInPeriod)/lag
   # new examples, approximating minority distribution with a Gibss sampler
   for(i in 1:nrow(minority)){
     x <- minority[i,]
@@ -52,37 +45,37 @@ racog <- function(dataset, burn.in.period, lag, iterations, class.attr = "class"
         conditioning <- which(tree[,2] == attr)
 
         first <- sapply(conditioned, function(k){
-          r <- cond.probs[[k]][toString(x[, tree[,2][k]]), ]
-          r/sum(r) * absolute.probs[[attr]]
+          r <- condProbs[[k]][toString(x[, tree[,2][k]]), ]
+          r/sum(r) * absoluteProbs[[attr]]
         })
 
         second <- sapply(conditioning, function(k){
-          r <- cond.probs[[k]][, toString(x[, tree[,1][k]])]
+          r <- condProbs[[k]][, toString(x[, tree[,1][k]])]
           r/sum(r)
         })
 
-        prob.vectors <- cbind(first, second)
+        probVectors <- cbind(first, second)
 
         # Prob of attr. is product of probabilites from the dependence tree
-        ith.prob <- apply(prob.vectors, MARGIN = 1, function(r){
+        ithProb <- apply(probVectors, MARGIN = 1, function(r){
           prod(unlist(r))
         })
 
         # If all probabilities are zero, create vector with same probabilities
-        if(! any(ith.prob != 0))
-          ith.prob <- rep(1,length(ith.prob))
+        if(! any(ithProb != 0))
+          ithProb <- rep(1,length(ithProb))
 
-        x[, attr] = sample( row.names(prob.vectors), 1, prob = ith.prob )
+        x[, attr] = sample( row.names(probVectors), 1, prob = ithProb )
       }
 
-      if(t > burn.in.period && t%%lag == 0){
-        new.samples[[length(new.samples)+1]] <- x
+      if(t > burnInPeriod && t%%lag == 0){
+        newSamples[[length(newSamples)+1]] <- x
       }
     }
   }
 
   # Output
-  new.samples <- do.call(rbind, new.samples)
-  new.samples[, class.attr] <- minority.class
-  new.samples
+  newSamples <- do.call(rbind, newSamples)
+  newSamples[, classAttr] <- minorityClass
+  newSamples
 }

@@ -1,12 +1,27 @@
 PackratFormat: 1.4
 PackratVersion: 0.4.8.1
-RVersion: 3.3.1
+RVersion: 3.4.1
 Repos: CRAN=https://cran.rstudio.com/
 
 Package: BH
 Source: CRAN
 Version: 1.62.0-1
 Hash: 14dfb3e8ffe20996118306ff4de1fab2
+
+Package: DBI
+Source: CRAN
+Version: 0.7
+Hash: 1ab72df487f06ad5f0de05446cdd4bd6
+
+Package: FNN
+Source: CRAN
+Version: 1.1
+Hash: c057509dc46a5303c20514f256f79a5e
+
+Package: Formula
+Source: CRAN
+Version: 1.2-2
+Hash: 31c4658e6ae879eee45fcf7b6d109464
 
 Package: NMF
 Source: CRAN
@@ -25,6 +40,12 @@ Source: CRAN
 Version: 1.1-2
 Hash: c0d56cd15034f395874c870141870c25
 
+Package: RSQLite
+Source: CRAN
+Version: 2.0
+Hash: b0888fd43bcfd555107dc0a908c04d7d
+Requires: BH, DBI, Rcpp, bit64, blob, memoise, pkgconfig, plogr
+
 Package: Rcpp
 Source: CRAN
 Version: 0.12.10
@@ -40,14 +61,42 @@ Source: CRAN
 Version: 1.0.5
 Hash: 8b835bdc5447f2c76fda198e17d6bda4
 
+Package: binr
+Source: CRAN
+Version: 1.1
+Hash: 3cca1fabbb4e9ae470424a8dee7730f3
+
+Package: bit
+Source: CRAN
+Version: 1.1-12
+Hash: a4cdb11cf9fd6dd38f9f40c413b81e93
+
+Package: bit64
+Source: CRAN
+Version: 0.9-7
+Hash: 4b195615d19ba49c114eb04e09e30a96
+Requires: bit
+
+Package: blob
+Source: CRAN
+Version: 1.1.0
+Hash: e29764e47f2faf0cd5b74cbcddc3fa9c
+Requires: tibble
+
 Package: bnlearn
 Source: CRAN
 Version: 4.2
+Hash: e725f516599e32da8bea1ce851424df1
 
 Package: brew
 Source: CRAN
 Version: 1.0-6
 Hash: 931f9972deae0f205e1c78a51f33149b
+
+Package: chron
+Source: CRAN
+Version: 2.3-50
+Hash: 86ef5f32dd2ef3c4076e52e7c89740b3
 
 Package: colorspace
 Source: CRAN
@@ -125,6 +174,12 @@ Package: gridBase
 Source: CRAN
 Version: 0.4-7
 Hash: d4b7f73c0fdf11d18d1e1ae1643ac4ec
+
+Package: gsubfn
+Source: CRAN
+Version: 0.6-6
+Hash: cc1999b8ee76bbf10c968ac973290421
+Requires: proto
 
 Package: gtable
 Source: CRAN
@@ -224,11 +279,27 @@ Source: CRAN
 Version: 0.4.8-1
 Hash: 6ad605ba7b4b476d84be6632393f5765
 
+Package: partykit
+Source: CRAN
+Version: 1.1-1
+Hash: 93b03d6d651f47287909e13d7b1ef5be
+Requires: Formula
+
+Package: pkgconfig
+Source: CRAN
+Version: 2.0.1
+Hash: 0dda4a2654a22b36a715c2b0b6fbacac
+
 Package: pkgmaker
 Source: CRAN
 Version: 0.22
 Hash: 2e5fc2a6b7eaeb1e1d397a8dc5f54480
 Requires: digest, registry, stringr, xtable
+
+Package: plogr
+Source: CRAN
+Version: 0.1-1
+Hash: fb19215402e2d9f1c7f803dcaa806fc2
 
 Package: plyr
 Source: CRAN
@@ -240,6 +311,11 @@ Package: praise
 Source: CRAN
 Version: 1.0.0
 Hash: 77da8f1df873a4b91e5c4a68fe2fb1b6
+
+Package: proto
+Source: CRAN
+Version: 1.0.0
+Hash: f9a2528572320c1e0bc8783dfd6e0fae
 
 Package: registry
 Source: CRAN
@@ -292,6 +368,18 @@ Source: CRAN
 Version: 0.4.1
 Hash: 2d008b6e3fb9938255669ddf3c85f1f3
 Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
+
+Package: smbinning
+Source: CRAN
+Version: 0.3
+Hash: 293876c5522db3ebbd5dcefb0c7d48eb
+Requires: Formula, gsubfn, partykit, sqldf
+
+Package: sqldf
+Source: CRAN
+Version: 0.4-11
+Hash: e083fd1980e39fc2df6e5519bd4eb5ab
+Requires: DBI, RSQLite, chron, gsubfn, proto
 
 Package: stringdist
 Source: CRAN

@@ -18,4 +18,5 @@ Imports:
     bnlearn,
     FNN
 Suggests:
-    testthat
+    testthat,
+    ifotheo
