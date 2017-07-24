@@ -28,6 +28,20 @@ plotComparison <- function(dataset, ampliedDataset, classAttr = "Class", cols = 
 }
 
 
+#' Returns minority class for a dataset
+#'
+#' Given a \code{dataset} and a \code{classAttr} attribute indicating the class,
+#' it calculates the minority class value.
+#'
+#' @param dataset
+#' @param classAttr Attribute indicating class attribute. For speed purposes, it
+#' doesn't check that \code{classAttr} exists in \code{dataset}
+#'
+#' @return the minority class value.
+#'
+#' @examples
+#' iris <- iris[1:125, ]
+#' whichMinorityClass(iris, "Species")
 whichMinorityClass <- function(dataset, classAttr = "Class"){
   classes <- levels(dataset[, classAttr])
   counts <- sapply(classes, function(c){
@@ -37,20 +51,7 @@ whichMinorityClass <- function(dataset, classAttr = "Class"){
 }
 
 
-makeDirected <- function(tree){
-  visited <- c()
-  for (k in 1:nrow(tree)){
-    if(tree[k,2] %in% visited){
-      tree[k,] <- tree[k,c(2,1)]
-    }
-    visited <- c(visited, tree[k,2])
-  }
-
-  tree
-}
-
-
-balance.dataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
+balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
   # Check of arguments
   if (missing(dataset))
     stop("dataset must not be empty")

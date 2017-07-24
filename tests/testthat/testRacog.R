@@ -6,7 +6,7 @@ abalone19$Sex <- sapply(abalone19$Sex, function(x){ ifelse(x=="M", 0, 1) })
 
 
 classToNumeric <- function(dataset, classAttr = "Class"){
-  minClass<- whichMinorityClass(dataset)
+  minClass<- whichMinorityClass(dataset, classAttr)
 
   dataset[, classAttr] <- as.factor(
     sapply(dataset[, classAttr], function(x){

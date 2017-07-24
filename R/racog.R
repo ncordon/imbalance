@@ -1,7 +1,7 @@
 #' Rapidy Converging Gibbs algorithm
 #'
 #' Allows you to treat imabalanced datasets and \code{racog} generate synthetic
-#' minority examples approximating their probability distribution
+#' minority examples approximating their probability distribution.
 #'
 #' Aproximates minority distribution using Gibbs Sampler. Dataset must be
 #' discretized and numeric. In each iteration, it builds a new sample using a
@@ -27,7 +27,6 @@
 #' @examples
 #' # Makes a dataset imbalanced
 #' iris <- iris[1:125, ]
-#' racog(iris, iterations = 1000, classAttr = "Species")
 #'
 #' # Generates 25 new examples of class 'virginica'
 #' newSamples <- racog(iris, burnin = 95, iterations = 100,
@@ -49,9 +48,9 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
   minority <- minority[, attrs]
 
   DT <- bnlearn::chow.liu(minority)$arcs
-  # Choose only one direction for the arcs (the odd ones) and make tree directed
+  # Choose only one sense for the arcs (the odd ones) and make tree directed
   tree <- unname(DT[ seq(1, nrow(DT), 2), ])
-  makeDirected(tree)
+  .makeDirected(tree)
 
   # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
@@ -114,4 +113,37 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
   newSamples[, classAttr] <- factor(minorityClass, levels = levels(dataset[, classAttr]))
   rownames(newSamples) <- c()
   newSamples
+}
+
+
+
+#' Make tree directed
+#'
+#' Returns a directed tree build up from an undirected one, complying with the
+#' condition that each non-root node has a single parent.
+#'
+#' @param tree Matrix nx2 columns denoting undirected arcs of a tree.
+#' @return Matrix of directed arcs. Arcs are directed from the first coordinate
+#'   towards second
+#' @keywords internal
+#'
+#' @examples
+#' DT <- bnlearn::chow.liu(iris[, names(iris) != "Species"])$arcs
+#'
+#' tree <- unname(DT[ seq(1, nrow(DT), 2), ])
+#' makeDirected(tree)
+#'
+.makeDirected <- function(tree){
+  visited <- c()
+  # For each arc, marks the second node as visited
+  # If for a node second coordinate has already been visited, it inverts the sense
+  # of the arc
+  for (k in 1:nrow(tree)){
+    if(tree[k,2] %in% visited){
+      tree[k,] <- tree[k,c(2,1)]
+    }
+    visited <- c(visited, tree[k,2])
+  }
+
+  tree
 }

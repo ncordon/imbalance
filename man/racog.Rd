@@ -30,8 +30,8 @@ new samples, a \code{data.frame} with the same structure as
   \code{dataset} of the synthetic examples generated
 }
 \description{
-Used to treat imabalanced datasets and \code{racog} generate synthetic
-minority examples approximating their probability distribution
+Allows you to treat imabalanced datasets and \code{racog} generate synthetic
+minority examples approximating their probability distribution.
 }
 \details{
 Aproximates minority distribution using Gibbs Sampler. Dataset must be
