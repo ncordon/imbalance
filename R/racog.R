@@ -1,9 +1,10 @@
-racog <- function(dataset, burnInPeriod, lag, iterations, classAttr = "class", minorityClass){
+racog <- function(dataset, burnInPeriod, lag, iterations,
+                  classAttr = "class", minorityClass){
   if(! classAttr %in% names(dataset))
     stop("class attribute not found in dataset. Please provide a valid class attribute")
   if(missing(minorityClass))
     minorityClass <- whichMinorityClass(dataset, classAttr)
-  else if(! minorityClass %in% names(dataset))
+  else if(! minorityClass %in% levels(dataset[, classAttr]))
     stop("Minority class not found in dataset")
 
 
@@ -76,6 +77,6 @@ racog <- function(dataset, burnInPeriod, lag, iterations, classAttr = "class", m
 
   # Output
   newSamples <- do.call(rbind, newSamples)
-  newSamples[, classAttr] <- minorityClass
+  newSamples[, classAttr] <- factor(minorityClass, levels = levels(dataset[, classAttr]))
   newSamples
 }

@@ -16,7 +16,8 @@ Depends:
     R (>= 3.4.1)
 Imports:
     bnlearn,
-    FNN
+    FNN,
+    ggplot2
 Suggests:
     testthat,
     ifotheo

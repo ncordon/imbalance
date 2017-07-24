@@ -1,3 +1,33 @@
+plotComparison <- function(dataset, ampliedDataset, classAttr = "Class", cols = 2, attrs){
+  attrs <- attrs[attrs != classAttr]
+  plotGrid <- combn(attrs, 2)
+  nPlots <- 2*ncol(plotGrid)
+  rows <- ceiling(nPlots/cols)
+  colorPalette <-  c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                     "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(rows, cols)))
+
+  fillCells <- function(dataset, odds){
+    parity <- ifelse(odds, 0, 1)
+
+    sapply(1:ncol(plotGrid), function(index){
+      graph <-
+        ggplot(dataset, aes_string(plotGrid[1, index], plotGrid[2, index],
+                                   col = classAttr)) +
+        geom_point(alpha = 0.3) +  scale_color_manual(values = colorPalette)
+      vp <- viewport(layout.pos.row = (2 * (index-1) + parity) %/% cols + 1,
+                     layout.pos.col = (2 * (index-1) + parity) %% cols + 1)
+      print(graph, vp = vp)
+    })
+  }
+
+  fillCells(dataset, odds = T)
+  fillCells(ampliedDataset, odds = F)
+}
+
+
 whichMinorityClass <- function(dataset, classAttr = "Class"){
   classes <- levels(dataset[, classAttr])
   counts <- sapply(classes, function(c){
