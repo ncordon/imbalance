@@ -21,3 +21,4 @@ Imports:
 Suggests:
     testthat,
     ifotheo
+RoxygenNote: 6.0.1

@@ -1,4 +1,39 @@
-racog <- function(dataset, burnInPeriod, lag, iterations,
+#' Rapidy Converging Gibbs algorithm
+#'
+#' Allows you to treat imabalanced datasets and \code{racog} generate synthetic
+#' minority examples approximating their probability distribution
+#'
+#' Aproximates minority distribution using Gibbs Sampler. Dataset must be
+#' discretized and numeric. In each iteration, it builds a new sample using a
+#' Markov chain. It discards first \code{burnin} iterations, and from then on,
+#' it validates each \code{lag} example as a new minority example. It generates
+#' \code{d(iterations-burnin)/lag} where \code{d} is minority examples. number.
+#'
+#' @param dataset A \code{{data.frame}} to treat.
+#' @param burnin Integer. It determines how many examples generated for a given
+#'   one are going to be discarded firstly.
+#' @param lag Integer. Number of iterations between new generated example for a
+#'   minority one.
+#' @param iterations Integer. Number of iterations to run for each minority
+#'   example.
+#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#'   Must exsits in it.
+#' @param minorityClass Indicates the minority class value. If not present,
+#'   \code{racog} will calculate it authomatically.
+#'
+#' @return new samples, a \code{data.frame} with the same structure as
+#'   \code{dataset} of the synthetic examples generated
+#'
+#' @examples
+#' # Makes a dataset imbalanced
+#' iris <- iris[1:125, ]
+#' racog(iris, iterations = 1000, classAttr = "Species")
+#'
+#' # Generates 25 new examples of class 'virginica'
+#' newSamples <- racog(iris, burnin = 95, iterations = 100,
+#'                    classAttr = "Species", minorityClass = "virginica")
+#'
+racog <- function(dataset, burnin = 10, lag = 10, iterations,
                   classAttr = "class", minorityClass){
   if(! classAttr %in% names(dataset))
     stop("class attribute not found in dataset. Please provide a valid class attribute")
@@ -9,7 +44,6 @@ racog <- function(dataset, burnInPeriod, lag, iterations,
 
 
   minority <- dataset[dataset[, classAttr] == minorityClass, ]
-  #minority <- as.data.frame( apply(minority, MARGIN=2, factor) )
   attrs <- names(minority)
   attrs <- attrs[attrs != classAttr]
   minority <- minority[, attrs]
@@ -34,7 +68,7 @@ racog <- function(dataset, burnInPeriod, lag, iterations,
 
   newSamples <- list()
 
-  # For each minority example, create (iterations - burnInPeriod)/lag
+  # For each minority example, create (iterations - burnin)/lag
   # new examples, approximating minority distribution with a Gibss sampler
   for(i in 1:nrow(minority)){
     x <- minority[i,]
@@ -69,7 +103,7 @@ racog <- function(dataset, burnInPeriod, lag, iterations,
         x[, attr] = sample( row.names(probVectors), 1, prob = ithProb )
       }
 
-      if(t > burnInPeriod && t%%lag == 0){
+      if(t > burnin && t%%lag == 0){
         newSamples[[length(newSamples)+1]] <- x
       }
     }
@@ -78,5 +112,6 @@ racog <- function(dataset, burnInPeriod, lag, iterations,
   # Output
   newSamples <- do.call(rbind, newSamples)
   newSamples[, classAttr] <- factor(minorityClass, levels = levels(dataset[, classAttr]))
+  rownames(newSamples) <- c()
   newSamples
 }
