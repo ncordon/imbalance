@@ -1,4 +1,4 @@
-#' Rapidy Converging Gibbs algorithm
+#' Rapidy Converging Gibbs algorithm.
 #'
 #' Allows you to treat imabalanced datasets and \code{racog} generate synthetic
 #' minority examples approximating their probability distribution.
@@ -117,14 +117,14 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
 
 
 
-#' Make tree directed
+#' Make tree directed.
 #'
 #' Returns a directed tree build up from an undirected one, complying with the
 #' condition that each non-root node has a single parent.
 #'
 #' @param tree Matrix nx2 columns denoting undirected arcs of a tree.
 #' @return Matrix of directed arcs. Arcs are directed from the first coordinate
-#'   towards second
+#'   towards second.
 #' @keywords internal
 #'
 #' @examples
