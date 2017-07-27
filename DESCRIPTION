@@ -20,5 +20,8 @@ Imports:
     ggplot2
 Suggests:
     testthat,
-    ifotheo
+    infotheo,
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr
