@@ -1,0 +1,12 @@
+---
+title: |
+ | Working with imbalanced datasets:
+ | **imbalance** package
+author: "Ignacio Cordón"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Working with imbalanced dataset}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---

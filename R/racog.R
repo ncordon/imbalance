@@ -57,7 +57,7 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
       x <- gibbsSampler(x)
 
       if(t > burnin && t%%lag == 0){
-        newSamples[[length(newSamples)+1]] <- x
+        newSamples[[length(newSamples) + 1]] <- x
       }
     }
   }
@@ -69,6 +69,65 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
   newSamples
 }
 
+
+
+#' Wrapper for Rapidy Converging Gibbs algorithm.
+#'
+#' @param train
+#' @param validation
+#' @param wrapper
+#' @param classAttr
+#' @param minorityClass
+#' @param slideWin
+#' @param threshold
+#'
+#' @return
+#' @export
+#'
+#' @examples
+wracog <- function(train, validation, wrapper, classAttr = "class",
+                   minorityClass, slideWin = 10, threshold = 0.02){
+  if(! classAttr %in% names(train))
+    stop("class attribute not found in train. Please provide a valid class attribute")
+  if(missing(minorityClass))
+    minorityClass <- whichMinorityClass(train, classAttr)
+  else if(! minorityClass %in% levels(train[, classAttr]))
+    stop("Minority class not found in train")
+
+
+  minority <- train[train[, classAttr] == minorityClass,
+                    names(train) != classAttr]
+
+  # Function to replace a, if it's NA, by b
+  naReplace <- function(a, b){
+    ifelse(is.na(a), b, a)
+  }
+
+  gibbsSampler <- .makeGibbsSampler(minority)
+
+  # Value for lasts winSlides standard deviations
+  lastSlides <- rep(Inf, slideWin)
+  minority <- lapply(1:nrow(minority), function(i) minority[i,])
+
+  model <- wrapper(train)
+
+  while(naReplace(sd(lastSlides), Inf) >= threshold){
+    minority <- lapply(minority, gibbsSampler)
+    prediction <- model.predict(minority)
+    misclassified <- prediction != minorityClass
+    newTrain <- rbind.data.frame(train, minority[misclassified, ])
+    model <- wrapper(newTrain)
+    prediction <- model.predict(validation)
+
+    # Measure of the quality of the newTrain
+    qMeasure <- sensitivity(prediction)
+
+    lastSlides <- c(qMeaasure, lastSlides)
+    lastSlides <- lastSlides[1:slideWin]
+  }
+
+  newSamples
+}
 
 
 #' Make tree directed.
