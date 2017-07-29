@@ -32,7 +32,7 @@
 # newSamples <- racog(iris, burnin = 95, iterations = 100,
 #                    classAttr = "Species", minorityClass = "virginica")
 #'
-racog <- function(dataset, burnin = 10, lag = 10, iterations,
+racog <- function(dataset, burnin = 100, lag = 20, iterations,
                   classAttr = "class", minorityClass){
   if(! classAttr %in% names(dataset))
     stop("class attribute not found in dataset. Please provide a valid class attribute")
@@ -85,6 +85,8 @@ racog <- function(dataset, burnin = 10, lag = 10, iterations,
 #' @export
 #'
 #' @examples
+#'
+#'
 wracog <- function(train, validation, wrapper, classAttr = "class",
                    minorityClass, slideWin = 10, threshold = 0.02){
   if(! classAttr %in% names(train))
@@ -97,6 +99,10 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
 
   minority <- train[train[, classAttr] == minorityClass,
                     names(train) != classAttr]
+  trainClass <- train[, classAttr]
+  validationClass <- validation[, classAttr]
+  train <- train[, names(train) != classAttr]
+  validation <- validation[, names(train) != classAttr]
 
   # Function to replace a, if it's NA, by b
   naReplace <- function(a, b){
@@ -104,30 +110,34 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
   }
 
   gibbsSampler <- .makeGibbsSampler(minority)
+  dfGibbsSampler <- function(samples){
+    do.call(rbind.data.frame, lapply(samples, gibbsSampler))
+  }
 
   # Value for lasts winSlides standard deviations
   lastSlides <- rep(Inf, slideWin)
   minority <- lapply(1:nrow(minority), function(i) minority[i,])
 
-  model <- wrapper(train)
+  model <- wrapper(train, trainClass)
 
   while(naReplace(sd(lastSlides), Inf) >= threshold){
-    minority <- lapply(minority, gibbsSampler)
-    prediction <- model.predict(minority)
-    misclassified <- prediction != minorityClass
-    newTrain <- rbind.data.frame(train, minority[misclassified, ])
-    model <- wrapper(newTrain)
-    prediction <- model.predict(validation)
+    minority <- dfGibbsSampler(minority)
+    prediction <- predict(model, minority)
+    misclassified <- minority[prediction != minorityClass, ]
+    train <- rbind.data.frame(train, misclassified)
+    trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
+    model <- wrapper(train, trainClass)
+    prediction <- predict(model, validation)
 
     # Measure of the quality of the newTrain
-    qMeasure <- sensitivity(prediction)
-
-    lastSlides <- c(qMeaasure, lastSlides)
+    qMeasure <- .sensitivity(prediction, validationClass)
+    lastSlides <- c(qMeasure, lastSlides)
     lastSlides <- lastSlides[1:slideWin]
   }
 
   newSamples
 }
+
 
 
 #' Make tree directed.

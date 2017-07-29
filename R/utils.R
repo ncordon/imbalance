@@ -106,7 +106,18 @@ whichMinorityClass <- function(dataset, classAttr = "Class"){
   counts <- sapply(classes, function(c){
     length(which(dataset[, classAttr] == c))
   })
-  classes[which.min(counts)]
+  minClass <- factor(classes[which.min(counts)])
+  levels(minClass) <- classes
+  minClass
+}
+
+.appendfactor <- function(x, y){
+  as.factor(c(as.character(x), as.character(y)))
+}
+
+
+.sensitivity <- function(prediction, trueClass){
+  length(which(prediction == trueClass)) / length(prediction)
 }
 
 
