@@ -36,7 +36,7 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "clas
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(! classAttr %in% names(dataset))
-    stop("class attribute not found in dataset. Please provide a valid class attribute")
+    stop("class attribute not found in dataset")
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
      burnin < 0 || lag < 0 || iterations < 0)
     stop("burnin, lag and iterations must be positive integers")
@@ -101,10 +101,10 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
      names(train) != names(validation))
     stop("train and validation must be data.frames with the same colnames")
   if(! classAttr %in% names(train))
-    stop("class attribute not found in dataset. Please provide a valid class attribute")
+    stop("class attribute not found in dataset")
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
      slideWin < 0 || threshold < 0 || threshold > 1)
-    stop("slideWin must be a positive integer; threshold must be in ]0,1[")
+    stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
 
   # Calcs minority class
   minorityClass <- whichMinorityClass(train, classAttr)
@@ -218,7 +218,12 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
     conditioned <- which(tree[,1] == attr)
     # Calc var that attr is conditioned to
     conditioning <- which(tree[,2] == attr)
-    list(conditioned, conditioning)
+    if(length(conditioned) > 0)
+      values <- colnames(condProbs[[conditioned[1]]])
+    else
+      values <- rownames(condProbs[[conditioning[1]]])
+
+    list(conditioned, conditioning, values)
   })
 
   # Generate the Gibbs Sampler
@@ -252,7 +257,7 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
       if(! any(ithProb != 0))
         ithProb <- rep(1,length(ithProb))
 
-      x[, attr] = sample( row.names(probVectors), 1, prob = ithProb )
+      x[, attr] = sample( dependences[[k]][[3]], 1, prob = ithProb )
     }
     # Return new sample
     x

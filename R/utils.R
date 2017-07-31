@@ -17,7 +17,6 @@
 #'
 #' @examples
 #'data(datasets)
-#'abalone19 <- classToNumeric(abalone19)
 #'abaloneDiscretized <- discretizeDataset(abalone19)
 #'
 #'newSamples <- racog(abaloneDiscretized, burnInPeriod = 10, lag = 10,
@@ -34,18 +33,19 @@ plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2,
   colorPalette <-  c("#000000", "#E69F00", "#56B4E9", "#009E73",
                      "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-  grid.newpage()
-  pushViewport(viewport(layout = grid.layout(rows, cols)))
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(rows, cols)))
 
   fillCells <- function(dataset, odds){
     parity <- ifelse(odds, 0, 1)
 
     sapply(1:ncol(plotGrid), function(index){
       graph <-
-        ggplot(dataset, aes_string(plotGrid[1, index], plotGrid[2, index],
-                                   col = classAttr)) +
-        geom_point(alpha = 0.3) +  scale_color_manual(values = colorPalette)
-      vp <- viewport(layout.pos.row = (2 * (index-1) + parity) %/% cols + 1,
+        ggplot2::ggplot(dataset, ggplot2::aes_string(plotGrid[1, index],
+                                                     plotGrid[2, index],
+                        col = classAttr)) + ggplot2::geom_point(alpha = 0.3) +
+                        ggplot2::scale_color_manual(values = colorPalette)
+      vp <- grid::viewport(layout.pos.row = (2 * (index-1) + parity) %/% cols + 1,
                      layout.pos.col = (2 * (index-1) + parity) %% cols + 1)
       print(graph, vp = vp)
     })
@@ -53,12 +53,13 @@ plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2,
 
   fillCells(dataset, odds = T)
   fillCells(balancedData, odds = F)
+  NULL
 }
 
 
 discretizeDataset <- function(dataset, classAttr = "Class"){
   classes <- dataset[, classAttr]
-  dataset <- discretize(dataset[, names(dataset) != classAttr])
+  dataset <- infotheo::discretize(dataset[, names(dataset) != classAttr])
 
   for(name in names(dataset)){
     dataset[,name] <- as.numeric(dataset[,name])
@@ -102,13 +103,11 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' iris <- iris[1:125, ]
 #' whichMinorityClass(iris, "Species")
 whichMinorityClass <- function(dataset, classAttr = "Class"){
-  classes <- levels(dataset[, classAttr])
+  classes <- unique(dataset[, classAttr])
   counts <- sapply(classes, function(c){
     length(which(dataset[, classAttr] == c))
   })
-  minClass <- factor(classes[which.min(counts)])
-  levels(minClass) <- classes
-  minClass
+  classes[which.min(counts)]
 }
 
 .appendfactor <- function(x, y){
