@@ -28,20 +28,22 @@
 #' # Makes a dataset imbalanced
 #' iris <- iris[1:125, ]
 #'
-#' # Generates 25 new examples of class 'virginica'
+#' # Generates new minority examples
 # newSamples <- racog(iris, burnin = 95, iterations = 100,
-#                    classAttr = "Species", minorityClass = "virginica")
+#                    classAttr = "Species")
 #'
-racog <- function(dataset, burnin = 100, lag = 20, iterations,
-                  classAttr = "class", minorityClass){
+racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "class"){
+  if(!is.data.frame(dataset))
+    stop("dataset must be a data.frame")
   if(! classAttr %in% names(dataset))
     stop("class attribute not found in dataset. Please provide a valid class attribute")
-  if(missing(minorityClass))
-    minorityClass <- whichMinorityClass(dataset, classAttr)
-  else if(! minorityClass %in% levels(dataset[, classAttr]))
-    stop("Minority class not found in dataset")
+  if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
+     burnin < 0 || lag < 0 || iterations < 0)
+    stop("burnin, lag and iterations must be positive integers")
 
 
+  # Calcs minority class and instances
+  minorityClass <- whichMinorityClass(dataset, classAttr)
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
 
@@ -64,7 +66,7 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations,
 
   # Output
   newSamples <- do.call(rbind, newSamples)
-  newSamples[, classAttr] <- factor(minorityClass, levels = levels(dataset[, classAttr]))
+  newSamples[, classAttr] <- minorityClass
   rownames(newSamples) <- c()
   newSamples
 }
@@ -85,48 +87,57 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations,
 #' @export
 #'
 #' @examples
+#' trainWrapper <- function(wrapper, train, trainClass){ UseMethod("trainWrapper") }
+#' mywrapper <- structure(list(), class="C50Wrapper")
+#' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
+#'   C50::C5.0(train, trainClass)
+#' }
 #'
+#' wracog(iris[1:100, ], iris[100:150, ], mywrapper, "Species")
 #'
 wracog <- function(train, validation, wrapper, classAttr = "class",
-                   minorityClass, slideWin = 10, threshold = 0.02){
+                   slideWin = 10, threshold = 0.02){
+  if(!is.data.frame(train) || !is.data.frame(validation) ||
+     names(train) != names(validation))
+    stop("train and validation must be data.frames with the same colnames")
   if(! classAttr %in% names(train))
-    stop("class attribute not found in train. Please provide a valid class attribute")
-  if(missing(minorityClass))
-    minorityClass <- whichMinorityClass(train, classAttr)
-  else if(! minorityClass %in% levels(train[, classAttr]))
-    stop("Minority class not found in train")
+    stop("class attribute not found in dataset. Please provide a valid class attribute")
+  if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
+     slideWin < 0 || threshold < 0 || threshold > 1)
+    stop("slideWin must be a positive integer; threshold must be in ]0,1[")
 
+  # Calcs minority class
+  minorityClass <- whichMinorityClass(train, classAttr)
 
+  # Strip class column from both train and validation
   minority <- train[train[, classAttr] == minorityClass,
                     names(train) != classAttr]
   trainClass <- train[, classAttr]
   validationClass <- validation[, classAttr]
   train <- train[, names(train) != classAttr]
-  validation <- validation[, names(train) != classAttr]
+  validation <- validation[, names(validation) != classAttr]
 
-  # Function to replace a, if it's NA, by b
-  naReplace <- function(a, b){
-    ifelse(is.na(a), b, a)
-  }
-
+  # Wrapper for the Gibbs sampler with input and outpus as data.frame
   gibbsSampler <- .makeGibbsSampler(minority)
   dfGibbsSampler <- function(samples){
+    samples <- split(samples, seq(nrow(samples)))
     do.call(rbind.data.frame, lapply(samples, gibbsSampler))
   }
 
   # Value for lasts winSlides standard deviations
   lastSlides <- rep(Inf, slideWin)
-  minority <- lapply(1:nrow(minority), function(i) minority[i,])
 
-  model <- wrapper(train, trainClass)
+  model <- trainWrapper(wrapper, train, trainClass)
+  newSamples <- data.frame()
 
-  while(naReplace(sd(lastSlides), Inf) >= threshold){
+  while(.naReplace(sd(lastSlides), Inf) >= threshold){
     minority <- dfGibbsSampler(minority)
     prediction <- predict(model, minority)
     misclassified <- minority[prediction != minorityClass, ]
+    newSamples <- rbind.data.frame(newSamples, minority)
     train <- rbind.data.frame(train, misclassified)
     trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
-    model <- wrapper(train, trainClass)
+    model <- trainWrapper(wrapper, train, trainClass)
     prediction <- predict(model, validation)
 
     # Measure of the quality of the newTrain
@@ -135,6 +146,8 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
     lastSlides <- lastSlides[1:slideWin]
   }
 
+  newSamples[, classAttr] <- minorityClass
+  rownames(newSamples) <- c()
   newSamples
 }
 

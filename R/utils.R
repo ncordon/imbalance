@@ -112,7 +112,9 @@ whichMinorityClass <- function(dataset, classAttr = "Class"){
 }
 
 .appendfactor <- function(x, y){
-  as.factor(c(as.character(x), as.character(y)))
+  fcts <- as.factor(c(as.character(x), as.character(y)))
+  levels(fcts) <- c(levels(fcts), levels(x))
+  fcts
 }
 
 
@@ -120,37 +122,12 @@ whichMinorityClass <- function(dataset, classAttr = "Class"){
   length(which(prediction == trueClass)) / length(prediction)
 }
 
-
-balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
-  # Check of arguments
-  if (missing(dataset))
-    stop("dataset must not be empty")
-  if (missing(ratio) || !is.numeric(ratio) || ratio < 1)
-    stop("ratio must be a number greater or equal than 1")
-  if (!class.attr %in% names(dataset))
-    stop(paste("Class attribute '", class.attr, "' not found in dataset", sep = ""))
-
-
-  classes <- unique(dataset[, class.attr])
-  classes.counts <- sapply(classes, function(c){ length(which(dataset[, class.attr] == c)) })
-  minority.class <- classes[which.min(classes.counts)]
-
-  minority <- dataset[dataset[, class.attr] == minority.class, ]
-  minority.size <- nrow(minority)
-
-  # Delete class attribute
-  minority <- minority[, names(minority) != class.attr]
-
-
-  if (method == "pdfos"){
-    n.instances <- minority.size * ratio
-    new.samples <- pdfos(minority, n.instances)
-    names(new.samples) <- names(minority)
-    # Add minority class attribute and bind new instances
-    new.samples[ class.attr ] <- minority.class
-    result <- rbind(dataset, new.samples)
-    rownames(result) <- 1:nrow(result)
-  }
-
-  result
+# Function to replace a, if it's NA, by b
+.naReplace <- function(a, b){
+  sapply(a, function(x){
+    if(is.na(x))
+      b
+    else
+      x
+  })
 }
