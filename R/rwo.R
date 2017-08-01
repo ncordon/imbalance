@@ -1,32 +1,68 @@
+#' Random Walk Oversampling
+#'
+#' Generate synthetic minority examples for a dataset without modifying their
+#' variance or mean.
+#'
+#' Generates \code{numInstances} new minority examples for \code{dataset},
+#' adding to the each column of the j-th example its variance scalated by the
+#' inverse of the number of minority examples and a factor following a N(0,1)
+#' distribution which depends on the example.
+#'
+#' @param dataset data.frame to treat
+#' @param numInstances Integer. Number of new minority examples to generate.
+#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#'   Must exist in it.
+#'
+#' @return new samples, a \code{data.frame} with the same structure as
+#'   \code{dataset}, containing the synthetic examples generated
+#' @export
+#'
+#' @examples
+#'
+rwo <- function(dataset, numInstances, classAttr = "Class"){
+  if(!is.data.frame(dataset))
+    stop("dataset must be a data.frame")
+  if(!classAttr %in% names(dataset))
+    stop("class attribute not found in dataset")
+  if(!is.numeric(numInstances) || numInstances < 0)
+    stop("numInstances must be a positive integer")
 
-rwo <- function(dataset, num.instances){
-  classes <- unique(dataset$class)
-  classes.counts <- sapply(classes, function(c){ length(which(dataset$class==c)) })
-  minority.class <- classes[ which.min(classes.counts) ]
+  # Calcs minority class and instances
+  minorityClass <- .whichMinorityClass(dataset, classAttr)
+  minority <- dataset[dataset[, classAttr] == minorityClass,
+                      names(dataset) != classAttr]
 
-  minority <- dataset[dataset$class == minority.class, ]
+  n <- nrow(minority)
 
-  n <- nrow(dataset)
-  n.sqrt <- sqrt(n)
+  if(nrow(minority) > 0){
+    iterPerInstance <- ceiling(numInstances / nrow(minority))
+    # Multiplicative factors following a normal distribution that depend
+    # on each example
+    scaleFactors <- stats::rnorm(nrow(minority) * iterPerInstance, mean = 0, sd = 1)
+  }
 
-
-  new.samples <- apply(minority, MARGIN=2, function(col){
-    # If attribute is numeric, generate new minority sample preserving mean and variance of existent samples
+  newSamples <- apply(minority, MARGIN = 2, function(col){
+    # If attribute is numeric, generate new minority sample preserving
+    # mean and variance of existent samples
     if(is.numeric(col)){
       variance <- var(col)
-      col <- col[minority.indexes]
+      col - variance/sqrt(n) * scaleFactors
 
-      col - variance/n.sqrt * runif(length(col) * num.instances)
-
-    # Else if attribute is not numeric, make a roulette out of values for the attribute
+    # Else if attribute is not numeric, make a roulette out of possible
+    # values for the attribute and their frequency
     } else{
       dist <- table(col)
-      dist.values <- names(dist)
-      dist.probs <- unname(dist)
+      distValues <- names(dist)
+      distProbs <- unname(dist)
 
-      result <- sample(dist.values, length(col) * num.instances, replace=T, prob = dist.probs)
+      sample(distValues, length(col) * iterPerInstance, replace = T, prob = distProbs)
     }
   })
 
-  new.samples
+  # Select numInstances randomly (if we have generated more instances than
+  # required for each minority example) and output them
+  indexes <- sample(1:nrow(newSamples), numInstances, replace = F)
+  newSamples <- data.frame(newSamples[indexes, ])
+  names(newSamples) <- names(minority)
+  .normalizeNewSamples(newSamples, minorityClass, classAttr)
 }

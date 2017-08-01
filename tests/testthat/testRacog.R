@@ -1,6 +1,9 @@
 data(datasets)
 context("RACOG and wRACOG testing")
 
+####################################################################
+# Tests for RACOG
+####################################################################
 testOutput <- function(d){
   dataset <- eval(as.name(d))
   datasetDiscretized <- discretizeDataset(dataset)
@@ -25,8 +28,10 @@ test_that("Check of parameters is properly done in RACOG", {
   expect_error(racog(iris0, iterations = "foo"))
 })
 
-
-dataNames <- c("abalone19", "ecoli1", "glass", "haberman", "iris0",
+####################################################################
+# Tests for wRACOG
+####################################################################
+dataNames <- c("ecoli1", "glass", "haberman", "iris0",
                "wisconsin", "yeast4", "yeast6")
 
 myWrapper <- structure(list(), class="C50Wrapper")
@@ -40,9 +45,9 @@ lapply(dataNames, function(d){
   trainFold <- sample(1:nrow(dataset), nrow(dataset)/2, replace = F)
   train <- dataset[trainFold, ]
   validation <- dataset[-trainFold, ]
-  wracog(train, validation, myWrapper)
+
+  test_that(paste("wRACOG executes without error on dataset", d),{
+    expect_error(wracog(train, validation, myWrapper), NA)
+  })
 })
-
-
-#test_that("wRACOG outputs something")
 

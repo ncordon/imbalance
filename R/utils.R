@@ -98,11 +98,12 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' doesn't check that \code{classAttr} exists in \code{dataset}.
 #'
 #' @return the minority class value.
+#' @keywords internal
 #'
 #' @examples
 #' iris <- iris[1:125, ]
 #' whichMinorityClass(iris, "Species")
-whichMinorityClass <- function(dataset, classAttr = "Class"){
+.whichMinorityClass <- function(dataset, classAttr = "Class"){
   classes <- unique(dataset[, classAttr])
   counts <- sapply(classes, function(c){
     length(which(dataset[, classAttr] == c))
@@ -129,4 +130,14 @@ whichMinorityClass <- function(dataset, classAttr = "Class"){
     else
       x
   })
+}
+
+.normalizeNewSamples <- function(newSamples, minorityClass, classAttr){
+  if(nrow(newSamples) > 0)
+    newSamples[, classAttr] <- minorityClass
+  else
+    newSamples <- data.frame()
+
+  rownames(newSamples) <- c()
+  newSamples
 }

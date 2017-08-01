@@ -1,15 +1,15 @@
 #' Rapidy Converging Gibbs algorithm.
 #'
-#' Allows you to treat imabalanced datasets and \code{racog} generate synthetic
-#' minority examples approximating their probability distribution.
+#' Allows you to treat imabalanced discrete datasets by generating synthetic
+#' minority examples by approximating their probability distribution.
 #'
 #' Aproximates minority distribution using Gibbs Sampler. Dataset must be
 #' discretized and numeric. In each iteration, it builds a new sample using a
 #' Markov chain. It discards first \code{burnin} iterations, and from then on,
 #' it validates each \code{lag} example as a new minority example. It generates
-#' \eqn{d \frac{iterations-burnin}{lag}} where \eqn{d} is minority examples number.
+#' \eqn{d (iterations-burnin)/lag} where \eqn{d} is minority examples number.
 #'
-#' @param dataset A \code{{data.frame}} to treat.
+#' @param dataset data.frame to treat.
 #' @param burnin Integer. It determines how many examples generated for a given
 #'   one are going to be discarded firstly.
 #' @param lag Integer. Number of iterations between new generated example for a
@@ -17,13 +17,11 @@
 #' @param iterations Integer. Number of iterations to run for each minority
 #'   example.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exsits in it.
-#' @param minorityClass Indicates the minority class value. If not present,
-#'   \code{racog} will calculate it authomatically.
+#'   Must exist in it.
 #'
 #' @return new samples, a \code{data.frame} with the same structure as
-#'   \code{dataset} of the synthetic examples generated
-#'
+#'   \code{dataset}, containing the synthetic examples generated
+#' @export
 #' @examples
 #' # Makes a dataset imbalanced
 #' iris <- iris[1:125, ]
@@ -35,7 +33,7 @@
 racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
-  if(! classAttr %in% names(dataset))
+  if(!classAttr %in% names(dataset))
     stop("class attribute not found in dataset")
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
      burnin < 0 || lag < 0 || iterations < 0)
@@ -43,7 +41,7 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
 
 
   # Calcs minority class and instances
-  minorityClass <- whichMinorityClass(dataset, classAttr)
+  minorityClass <- .whichMinorityClass(dataset, classAttr)
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
 
@@ -64,14 +62,9 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
     }
   }
 
-  # Output
+  # Prepare newSamples output
   newSamples <- do.call(rbind, newSamples)
-  if(nrow(newSamples) > 0)
-    newSamples[, classAttr] <- minorityClass
-  else
-    newSamples <- data.frame()
-  rownames(newSamples) <- c()
-  newSamples
+  .normalizeNewSamples(newSamples, minorityClass, classAttr)
 }
 
 
@@ -103,14 +96,14 @@ wracog <- function(train, validation, wrapper, classAttr = "Class",
   if(!is.data.frame(train) || !is.data.frame(validation) ||
      names(train) != names(validation))
     stop("train and validation must be data.frames with the same colnames")
-  if(! classAttr %in% names(train))
+  if(!classAttr %in% names(train))
     stop("class attribute not found in dataset")
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
      slideWin < 0 || threshold < 0 || threshold > 1)
     stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
 
   # Calcs minority class
-  minorityClass <- whichMinorityClass(train, classAttr)
+  minorityClass <- .whichMinorityClass(train, classAttr)
 
   # Strip class column from both train and validation
   minority <- train[train[, classAttr] == minorityClass,
@@ -149,12 +142,7 @@ wracog <- function(train, validation, wrapper, classAttr = "Class",
     lastSlides <- lastSlides[1:slideWin]
   }
 
-  if(nrow(newSamples) > 0)
-    newSamples[, classAttr] <- minorityClass
-  else
-    newSamples <- data.frame()
-  rownames(newSamples) <- c()
-  newSamples
+  .normalizeNewSamples(newSamples, minorityClass, classAttr)
 }
 
 
@@ -165,6 +153,7 @@ wracog <- function(train, validation, wrapper, classAttr = "Class",
 #' condition that each non-root node has a single parent.
 #'
 #' @param tree Matrix nx2 columns denoting undirected arcs of a tree.
+#'
 #' @return Matrix of directed arcs. Arcs are directed from the first coordinate
 #'   towards second.
 #' @keywords internal
@@ -260,7 +249,7 @@ wracog <- function(train, validation, wrapper, classAttr = "Class",
       })
 
       # If all probabilities are zero, create vector with same probabilities
-      if(! any(ithProb != 0))
+      if(!any(ithProb != 0))
         ithProb <- rep(1,length(ithProb))
 
       x[, attr] = sample( dependences[[k]][[3]], 1, prob = ithProb )

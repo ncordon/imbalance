@@ -2,10 +2,9 @@
 % Please edit documentation in R/racog.R
 \name{racog}
 \alias{racog}
-\title{Rapidy Converging Gibbs algorithm}
+\title{Rapidy Converging Gibbs algorithm.}
 \usage{
-racog(dataset, burnin = 10, lag = 10, iterations, classAttr = "class",
-  minorityClass)
+racog(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class")
 }
 \arguments{
 \item{dataset}{A \code{{data.frame}} to treat.}
@@ -38,15 +37,12 @@ Aproximates minority distribution using Gibbs Sampler. Dataset must be
 discretized and numeric. In each iteration, it builds a new sample using a
 Markov chain. It discards first \code{burnin} iterations, and from then on,
 it validates each \code{lag} example as a new minority example. It generates
-\code{d(iterations-burnin)/lag} where \code{d} is minority examples. number.
+\eqn{d \frac{iterations-burnin}{lag}} where \eqn{d} is minority examples number.
 }
 \examples{
 # Makes a dataset imbalanced
 iris <- iris[1:125, ]
-racog(iris, iterations = 1000, classAttr = "Species")
 
-# Generates 25 new examples of class 'virginica'
-newSamples <- racog(iris, burnin = 95, iterations = 100,
-                   classAttr = "Species", minorityClass = "virginica")
+# Generates new minority examples
 
 }
