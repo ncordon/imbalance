@@ -17,10 +17,11 @@ Depends:
 Imports:
     bnlearn,
     FNN,
-    ggplot2
+    ggplot2,
+    infotheo
 Suggests:
     testthat,
-    infotheo,
+    C50,    
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1

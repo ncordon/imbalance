@@ -32,7 +32,7 @@
 # newSamples <- racog(iris, burnin = 95, iterations = 100,
 #                    classAttr = "Species")
 #'
-racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "class"){
+racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(! classAttr %in% names(dataset))
@@ -66,7 +66,10 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "clas
 
   # Output
   newSamples <- do.call(rbind, newSamples)
-  newSamples[, classAttr] <- minorityClass
+  if(nrow(newSamples) > 0)
+    newSamples[, classAttr] <- minorityClass
+  else
+    newSamples <- data.frame()
   rownames(newSamples) <- c()
   newSamples
 }
@@ -88,14 +91,14 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "clas
 #'
 #' @examples
 #' trainWrapper <- function(wrapper, train, trainClass){ UseMethod("trainWrapper") }
-#' mywrapper <- structure(list(), class="C50Wrapper")
+#' myWrapper <- structure(list(), class="C50Wrapper")
 #' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
 #'   C50::C5.0(train, trainClass)
 #' }
 #'
-#' wracog(iris[1:100, ], iris[100:150, ], mywrapper, "Species")
+#' wracog(iris[1:100, ], iris[100:150, ], myWrapper, "Species")
 #'
-wracog <- function(train, validation, wrapper, classAttr = "class",
+wracog <- function(train, validation, wrapper, classAttr = "Class",
                    slideWin = 10, threshold = 0.02){
   if(!is.data.frame(train) || !is.data.frame(validation) ||
      names(train) != names(validation))
@@ -134,7 +137,7 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
     minority <- dfGibbsSampler(minority)
     prediction <- predict(model, minority)
     misclassified <- minority[prediction != minorityClass, ]
-    newSamples <- rbind.data.frame(newSamples, minority)
+    newSamples <- rbind.data.frame(newSamples, misclassified)
     train <- rbind.data.frame(train, misclassified)
     trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
     model <- trainWrapper(wrapper, train, trainClass)
@@ -146,7 +149,10 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
     lastSlides <- lastSlides[1:slideWin]
   }
 
-  newSamples[, classAttr] <- minorityClass
+  if(nrow(newSamples) > 0)
+    newSamples[, classAttr] <- minorityClass
+  else
+    newSamples <- data.frame()
   rownames(newSamples) <- c()
   newSamples
 }
@@ -223,7 +229,7 @@ wracog <- function(train, validation, wrapper, classAttr = "class",
     else
       values <- rownames(condProbs[[conditioning[1]]])
 
-    list(conditioned, conditioning, values)
+    list(conditioned, conditioning, as.numeric(values))
   })
 
   # Generate the Gibbs Sampler
