@@ -3,3 +3,4 @@
 ^packrat/
 ^\.Rprofile$
 ^\.gitignore$
+^data-raw$
