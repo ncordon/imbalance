@@ -25,7 +25,7 @@ haberman <- dfnormalize(RKEEL::read.keel("../Data/haberman.dat"))
 iris0 <- dfnormalize(RKEEL::read.keel("../Data/iris0.dat"))
 glass0 <- dfnormalize(RKEEL::read.keel("../Data/glass0.dat"))
 newthyroid1 <- dfnormalize(RKEEL::read.keel("../Data/new-thyroid1.dat"))
-wisconsin <- dfnormalize(RKEEL::read.keel("../Data/wisconsin.dat"))
+wisconsin <- RKEEL::read.keel("../Data/wisconsin.dat")
 yeast4 <- dfnormalize(RKEEL::read.keel("../Data/yeast4.dat"))
 
 
@@ -70,6 +70,8 @@ yeast4 <- dfnormalize(RKEEL::read.keel("../Data/yeast4.dat"))
 # Further modifications
 ecoli1$Lip <- as.factor(ecoli1$Lip)
 ecoli1$Chg <- as.factor(ecoli1$Chg)
+yeast4$Pox <- as.factor(yeast4$Pox)
+yeast4$Erl <- as.factor(yeast4$Erl)
 # abalone19$Sex <- as.factor(abalone19$Sex)
 # abalone9.18$Sex <- as.factor(abalone9.18$Sex)
 

@@ -7,24 +7,24 @@
 #'
 #' \describe{
 #'   \item{Mgc}{McGeoch's method for signal sequence recognition.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Gvh}{Von Heijne's method for signal sequence recognition.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Lip}{von Heijne's Signal Peptidase II consensus sequence score.
-#'     Discrete variable}
+#'     Discrete attribute.}
 #'   \item{Chg}{Presence of charge on N-terminus of predicted lipoproteins.
-#'     Discrete variable.}
+#'     Discrete attribute.}
 #'   \item{Aac}{Score of discriminant analysis of the amino acid content of outer
-#'     membrane and periplasmic proteins. Numeric variable.}
+#'     membrane and periplasmic proteins. Continuous attribute.}
 #'   \item{Alm1}{Score of the ALOM membrane spanning region prediction program.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Alm2}{score of ALOM program after excluding putative cleavable signal
-#'     regions from the sequence. Numeric variable.}
-#'   \item{Class}{Two possible celular localization sites.}
+#'     regions from the sequence. Continuous attribute.}
+#'   \item{Class}{Two possible classes: positive (type im), negative (the rest).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "ecoli1"
 
 
@@ -36,20 +36,21 @@
 #' @format A data frame with 214 instances and 10 variables:
 #'
 #' \describe{
-#'   \item{RI}{Refractive Index. Numeric variable.}
-#'   \item{Na}{Sodium, weight percent in component. Numeric variable.}
-#'   \item{Mg}{Magnesium, weight percent in component. Numeric variable.}
-#'   \item{Al}{Aluminum, weight percent in component. Numeric variable.}
-#'   \item{Si}{Silicon, weight percent in component. Numeric variable.}
-#'   \item{K}{Potasium, weight percent in component. Numeric variable.}
-#'   \item{Ca}{Calcium, weight percent in component. Numeric variable.}
-#'   \item{Ba}{Barium, weight percent in component. Numeric variable.}
-#'   \item{Fe}{Iron, weight percent in component. Numeric variable.}
-#'   \item{Class}{Two possible glass types.}
+#'   \item{RI}{Refractive Index. Continuous attribute.}
+#'   \item{Na}{Sodium, weight percent in component. Continuous attribute.}
+#'   \item{Mg}{Magnesium, weight percent in component. Continuous attribute.}
+#'   \item{Al}{Aluminum, weight percent in component. Continuous attribute.}
+#'   \item{Si}{Silicon, weight percent in component. Continuous attribute.}
+#'   \item{K}{Potasium, weight percent in component. Continuous attribute.}
+#'   \item{Ca}{Calcium, weight percent in component. Continuous attribute.}
+#'   \item{Ba}{Barium, weight percent in component. Continuous attribute.}
+#'   \item{Fe}{Iron, weight percent in component. Continuous attribute.}
+#'   \item{Class}{Two possible glass types: positive (building windows, float processed)
+#'     and negative (the rest).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "glass0"
 
 
@@ -63,14 +64,15 @@
 #' @format A data frame with 306 instances and 4 variables:
 #'
 #' \describe{
-#'   \item{Age}{Age of patient at time of operation. Numeric variable.}
-#'   \item{Year}{Patient's year of operation. Numeric variable.}
-#'   \item{Positive}{Number of positive axillary nodes detected. Numeric variable.}
-#'   \item{Class}{Two possible survival status.}
+#'   \item{Age}{Age of patient at time of operation. Discrete attribute.}
+#'   \item{Year}{Patient's year of operation. Discrete attribute.}
+#'   \item{Positive}{Number of positive axillary nodes detected. Discrete attribute.}
+#'   \item{Class}{Two possible survival status: positive(survival rate of less than 5 years),
+#'     negative (survival rate or more than 5 years).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "haberman"
 
 
@@ -81,22 +83,22 @@
 #' @format A data frame with 215 instances and 6 variables:
 #'
 #' \describe{
-#'   \item{T3resin}{T3-resin uptake test, percentage. Numeric attribute.}
+#'   \item{T3resin}{T3-resin uptake test, percentage. Discrete attribute.}
 #'   \item{Thyroxin}{Total Serum thyroxin as measured by the isotopic
-#'     displacement method. Numeric attribute.}
+#'     displacement method. Continuous attribute.}
 #'   \item{Triiodothyronine}{Total serum triiodothyronine as measured by radioimmuno
-#'     assay. Numeric attribute.}
+#'     assay. Continuous attribute.}
 #'   \item{Thyroidstimulating}{Basal thyroid-stimulating hormone (TSH) as measured by
-#'     radioimmuno assay. Numeric attribute.}
+#'     radioimmuno assay. Continuous attribute.}
 #'   \item{TSH_value}{Maximal absolute difference of TSH value after injection of 200
 #'     micro grams of thyrotropin-releasing hormone as compared to the basal value.
-#'     Numeric attribute.}
+#'     Continuous attribute.}
 #'   \item{Class}{Two possible classes: positive as hyperthyroidism, negative as non
 #'     hyperthyroidism.}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "newthyroid1"
 
 
@@ -110,15 +112,15 @@
 #'
 #' @format A data frame with 150 instances and 5 variables:
 #' \describe{
-#'   \item{SepalLength}{Measurement of sepal length, in cm. Numeric attribute.}
-#'   \item{SepalWidth}{Measurement of sepal width, in cm. Numeric attribute.}
-#'   \item{PetalLength}{Measurement of petal length, in cm. Numeric attribute.}
-#'   \item{PetalWidth}{Measurement of petal width, in cm. Numeric attribute.}
+#'   \item{SepalLength}{Measurement of sepal length, in cm. Continuous attribute.}
+#'   \item{SepalWidth}{Measurement of sepal width, in cm. Continuous attribute.}
+#'   \item{PetalLength}{Measurement of petal length, in cm. Continuous attribute.}
+#'   \item{PetalWidth}{Measurement of petal width, in cm. Continuous attribute.}
 #'   \item{Class}{Two possible classes: positive (setosa) and negative (versicolor +
 #'     virginica).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
 "iris0"
 
 
@@ -129,20 +131,20 @@
 #'
 #' @format A data frame with 683 instances and 10 variables:
 #' \describe{
-#'   \item{ClumpThickness}{Nominal attribute.}
-#'   \item{CellSize}{Nominal attribute.}
-#'   \item{CellShape}{Nominal attribute.}
-#'   \item{MarginalAdhesion}{Nominal attribute.}
-#'   \item{EpithelialSize}{Nominal attribute.}
-#'   \item{BareNuclei}{Nominal attribute.}
-#'   \item{BlandChromatin}{Nominal attribute.}
-#'   \item{NormalNucleoli}{Nominal attribute.}
-#'   \item{Mitoses}{Nominal attribute.}
+#'   \item{ClumpThickness}{Discrete attribute.}
+#'   \item{CellSize}{Discrete attribute.}
+#'   \item{CellShape}{Discrete attribute.}
+#'   \item{MarginalAdhesion}{Discrete attribute.}
+#'   \item{EpithelialSize}{Discrete attribute.}
+#'   \item{BareNuclei}{Discrete attribute.}
+#'   \item{BlandChromatin}{Disrete attribute.}
+#'   \item{NormalNucleoli}{Discrete attribute.}
+#'   \item{Mitoses}{Discrete attribute.}
 #'   \item{Class}{Two possible classes: positive (cancer) and negative (not cancer).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "wisconsin"
 
 
@@ -155,26 +157,26 @@
 #'
 #' \describe{
 #'   \item{Mgc}{McGeoch's method for signal sequence recognition.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Gvh}{Von Heijne's method for signal sequence recognition.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Alm}{Score of the ALOM membrane spanning region prediction program.
-#'     Numeric variable.}
+#'     Continuous attribute.}
 #'   \item{Mit}{Score of discriminant analysis of the amino acid content of the
 #'     N-terminal region (20 residues long) of mitochondrial and non-mitochondrial
-#'     proteins. Numeric attribute.}
+#'     proteins. Continuous attribute.}
 #'   \item{Erl}{Presence of "HDEL" substring (thought to act as a signal for
 #'     retention in the endoplasmic reticulum lumen). Binary attribute. Numeric
-#'     attribute.}
-#'   \item{Pox}{Peroxisomal targeting signal in the C-terminus. Numeric attribute.}
+#'     attribute. Discrete attribute.}
+#'   \item{Pox}{Peroxisomal targeting signal in the C-terminus. Discrete attribute.}
 #'   \item{Vac}{Score of discriminant analysis of the amino acid content of vacuolar
-#'     and extracellular proteins. Numeric attribute.}
+#'     and extracellular proteins. Continuous attribute.}
 #'   \item{Nuc}{Score of discriminant analysis of nuclear localization signals of
-#'     nuclear and non-nuclear proteins. Numeric attribute.}
+#'     nuclear and non-nuclear proteins. Continuous attribute.}
 #'   \item{Class}{Two possible classes: positive (membrane protein, uncleaved signal),
 #'     negative (rest of localizations).}
 #' }
 #'
-#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{Keel Repository}.
-#' @seealso Original available in \href{https://archive.ics.uci.edu}{UCI Repository}.
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "yeast4"
