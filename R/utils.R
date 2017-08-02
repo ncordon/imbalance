@@ -53,7 +53,7 @@ plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2,
 
   fillCells(dataset, odds = T)
   fillCells(balancedData, odds = F)
-  NULL
+  print("Comparative grid plotted")
 }
 
 

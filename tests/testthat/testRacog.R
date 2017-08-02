@@ -3,7 +3,7 @@ data(ecoli1)
 data(haberman)
 data(iris0)
 data(yeast4)
-data(glass)
+data(glass0)
 
 context("RACOG and wRACOG testing")
 
@@ -64,13 +64,13 @@ test_that("Check of parameters is properly done in RACOG", {
 # wracogTestOutput("haberman")
 # wracogTestOutput("iris0")
 # wracogTestOutput("yeast4")
-# wracogTestOutput("glass")
+# wracogTestOutput("glass0")
 
 
 test_that("Check of parameters is properly done in wRACOG", {
-  expect_error(wracog(iris0, iris0, myWrapper, classAttr = "Species"))
+  expect_error(wracog(iris0, iris0, myWrapper, classAttr = "foo"))
   expect_error(wracog(iris0, iris0, C50::C5.0, classAttr = "Class"))
-  expect_error(wracog(iris0, iris0, myWrapper, slideWin = "hola"))
+  expect_error(wracog(iris0, iris0, myWrapper, slideWin = "foo"))
   expect_error(wracog(iris0, iris0, myWrapper, slideWin = -1))
   expect_error(wracog(iris0, iris0[,-1], myWrapper, classAttr = "Class"))
   expect_error(wracog(iris0, iris0, dummyWrapper, classAttr = "Class"))
