@@ -7,42 +7,38 @@
 racog(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class")
 }
 \arguments{
-\item{dataset}{A \code{{data.frame}} to treat.}
+\item{dataset}{data.frame to treat. All columns, except \code{classAttr} one,
+have to be numeric.}
 
 \item{burnin}{Integer. It determines how many examples generated for a given
-one are going to be discarded firstly.}
+one are going to be discarded firstly. By default, 100.}
 
 \item{lag}{Integer. Number of iterations between new generated example for a
-minority one.}
+minority one. By default, 20.}
 
 \item{iterations}{Integer. Number of iterations to run for each minority
 example.}
 
 \item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exsits in it.}
-
-\item{minorityClass}{Indicates the minority class value. If not present,
-\code{racog} will calculate it authomatically.}
+Must exist in it.}
 }
 \value{
 new samples, a \code{data.frame} with the same structure as
-  \code{dataset} of the synthetic examples generated
+  \code{dataset}, containing the synthetic examples generated
 }
 \description{
-Allows you to treat imabalanced datasets and \code{racog} generate synthetic
-minority examples approximating their probability distribution.
+Allows you to treat imabalanced discrete numeric datasets by generating
+synthetic minority examples by approximating their probability distribution.
 }
 \details{
 Aproximates minority distribution using Gibbs Sampler. Dataset must be
 discretized and numeric. In each iteration, it builds a new sample using a
 Markov chain. It discards first \code{burnin} iterations, and from then on,
 it validates each \code{lag} example as a new minority example. It generates
-\eqn{d \frac{iterations-burnin}{lag}} where \eqn{d} is minority examples number.
+\eqn{d (iterations-burnin)/lag} where \eqn{d} is minority examples number.
 }
 \examples{
-# Makes a dataset imbalanced
-iris <- iris[1:125, ]
-
+data(iris0)
 # Generates new minority examples
 
 }

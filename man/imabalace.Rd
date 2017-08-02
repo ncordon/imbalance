@@ -7,6 +7,14 @@
 \title{imabalance: A package to treat imbalanced datasets}
 \description{
 Focused on binary class datasets, the \code{imbalance} package provides
-methods to generate synthetic examples achieve balance between the minority
-and majority classes in dataset distributions
+methods to generate synthetic examples and achieve balance between the
+minority and majority classes in dataset distributions
 }
+\section{Class imbalance treatment functions functions \code{\link{racog}}}{
+NA
+}
+
+\section{Methods to evaluate algorithms function \code{\link{plotComparison}}}{
+NA
+}
+

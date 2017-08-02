@@ -1,6 +1,6 @@
 pdfos <- function(dataset, n.instances){
   # Variance of the positive class
-  dataset.var <- var(dataset)
+  dataset.var <- stats::var(dataset)
   var.inv.sqrt <- dataset.var ** (-1/2)
   m <- dim(dataset)[2]
   n <- nrow(dataset)
@@ -40,7 +40,7 @@ pdfos <- function(dataset, n.instances){
 
   samples <- dataset[sample(1:n, n.instances, replace = T), ]
   new.samples <- apply(samples, MARGIN=1, function(row){
-    row + t( opt.sigma * var.choleski %*% rnorm( m, mean = 0, sd = 1) )
+    row + t( opt.sigma * var.choleski %*% stats::rnorm( m, mean = 0, sd = 1) )
   })
 
   new.samples <- t(new.samples)

@@ -29,13 +29,13 @@ It plots a grid of one to one variables placing the former dataset graphic
 next to the balanced one, for each pair of attributes.
 }
 \examples{
-data(datasets)
-abaloneDiscretized <- discretizeDataset(abalone19)
+data(haberman)
+habermanDiscret <- discretizeDataset(haberman)
 
-newSamples <- racog(abaloneDiscretized, burnInPeriod = 10, lag = 10,
-                   iterations = 1000, classAttr = "Class")
-newSamples <- undiscretizeDataset(abalone19, abaloneDiscretized, newSamples)
-modifiedDataset <- do.call(rbind.data.frame, list(abalone19, newSamples))
+newSamples <- racog(habermanDiscret, burnin = 10, lag = 10,
+                    iterations = 100, classAttr = "Class")
+newSamples <- undiscretizeDataset(haberman, habermanDiscret, newSamples)
+modifiedDataset <- do.call(rbind.data.frame, list(haberman, newSamples))
 
-plotComparison(abalone19, modifiedDataset, "Class", col=2, c("Length", "Diameter"))
+plotComparison(haberman, modifiedDataset, "Class", col=2, names(haberman))
 }

@@ -14,20 +14,20 @@
 #'   each posible combination of attributes
 #'
 #' @return plot of 2D comparison between the variables.
-#'
+#' @export
 #' @examples
-#'data(datasets)
-#'abaloneDiscretized <- discretizeDataset(abalone19)
+#' data(haberman)
+#' habermanDiscret <- discretizeDataset(haberman)
 #'
-#'newSamples <- racog(abaloneDiscretized, burnInPeriod = 10, lag = 10,
-#'                    iterations = 1000, classAttr = "Class")
-#'newSamples <- undiscretizeDataset(abalone19, abaloneDiscretized, newSamples)
-#'modifiedDataset <- do.call(rbind.data.frame, list(abalone19, newSamples))
+#' newSamples <- racog(habermanDiscret, burnin = 10, lag = 10,
+#'                     iterations = 100, classAttr = "Class")
+#' newSamples <- undiscretizeDataset(haberman, habermanDiscret, newSamples)
+#' modifiedDataset <- do.call(rbind.data.frame, list(haberman, newSamples))
 #'
-#'plotComparison(abalone19, modifiedDataset, "Class", col=2, c("Length", "Diameter"))
+#' plotComparison(haberman, modifiedDataset, "Class", col=2, names(haberman))
 plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2, attrs){
   attrs <- attrs[attrs != classAttr]
-  plotGrid <- combn(attrs, 2)
+  plotGrid <- utils::combn(attrs, 2)
   nPlots <- 2*ncol(plotGrid)
   rows <- ceiling(nPlots/cols)
   colorPalette <-  c("#000000", "#E69F00", "#56B4E9", "#009E73",

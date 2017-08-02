@@ -1,20 +1,29 @@
 #' imabalance: A package to treat imbalanced datasets
 #'
 #' Focused on binary class datasets, the \code{imbalance} package provides
-#' methods to generate synthetic examples achieve balance between the minority
-#' and majority classes in dataset distributions
+#' methods to generate synthetic examples and achieve balance between the
+#' minority and majority classes in dataset distributions
 #'
-#' @section Class imbalance treatment functions
-#' functions \link{\code{racog}}
+#' @section Class imbalance treatment functions functions \code{\link{racog}}
 #'
-#' @section Methods to evaluate algorithms
-#' function \link{\code{plotComparison}}
+#' @section Methods to evaluate algorithms function \code{\link{plotComparison}}
 #'
 #' @docType package
 #' @name imabalace
 NULL
 
 
+#' Title
+#'
+#' @param dataset
+#' @param ratio
+#' @param method
+#' @param class.attr
+#'
+#' @return
+#' @export
+#'
+#' @examples
 balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
   # Check of arguments
   if (missing(dataset))

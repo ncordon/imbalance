@@ -45,7 +45,7 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
     # If attribute is numeric, generate new minority sample preserving
     # mean and variance of existent samples
     if(is.numeric(col)){
-      variance <- var(col)
+      variance <- stats::var(col)
       col - variance/sqrt(n) * scaleFactors
 
     # Else if attribute is not numeric, make a roulette out of possible

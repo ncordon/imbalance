@@ -1,24 +1,29 @@
-data(datasets)
+# Loads data
+data(ecoli1)
+data(haberman)
+data(iris0)
+data(yeast4)
+data(glass)
+
 context("RACOG and wRACOG testing")
 
 ####################################################################
 # Tests for RACOG
 ####################################################################
-testOutput <- function(d){
+racogTestOutput <- function(d){
   dataset <- eval(as.name(d))
   datasetDiscretized <- discretizeDataset(dataset)
   newSamples <- racog(datasetDiscretized, iterations = 100,
                       burnin = 10, lag = 10, classAttr = "Class")
 
   test_that(paste("Correct structure of examples from RACOG and dataset", d), {
-    expect_equal(nrow(newSamples), (100-10)/10 * length(which(dataset$Class == 1)))
-    expect_equal(as.character(unique(newSamples$Class)), "1")
+    expect_equal(nrow(newSamples), (100-10)/10 * length(which(dataset$Class == "positive")))
+    expect_equal(as.character(unique(newSamples$Class)), "positive")
   })
 }
 
-testOutput("ecoli1")
-testOutput("haberman")
-testOutput("iris0")
+racogTestOutput("haberman")
+racogTestOutput("iris0")
 
 
 test_that("Check of parameters is properly done in RACOG", {
@@ -31,23 +36,43 @@ test_that("Check of parameters is properly done in RACOG", {
 ####################################################################
 # Tests for wRACOG
 ####################################################################
-dataNames <- c("ecoli1", "glass", "haberman", "iris0",
-               "wisconsin", "yeast4", "yeast6")
 
-myWrapper <- structure(list(), class="C50Wrapper")
-trainWrapper <- function(wrapper, train, trainClass){ UseMethod("trainWrapper") }
-trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
-  C50::C5.0(train, trainClass)
-}
+# myWrapper <- structure(list(), class="C50Wrapper")
+# trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
+#   C50::C5.0(train, trainClass)
+# }
+#
+# dummyWrapper <- structure(list(), class="DummyWrapper")
+# trainWrapper.DummyWrapper <- function(wrapper, train, trainClass){
+#   NULL
+# }
+#
+# wracogTestOutput <- function(d){
+#   dataset <- eval(as.name(d))
+#   trainFold <- sample(1:nrow(dataset), nrow(dataset)/2, replace = F)
+#   train <- dataset[trainFold, ]
+#   validation <- dataset[-trainFold, ]
+#
+#   myWrapper <- structure(list(), class="C50Wrapper")
+#
+#   test_that(paste("wRACOG executes without error on dataset", d),{
+#     expect_error(wracog(train, validation, myWrapper), NA)
+#   })
+# }
+#
+# wracogTestOutput("ecoli1")
+# wracogTestOutput("haberman")
+# wracogTestOutput("iris0")
+# wracogTestOutput("yeast4")
+# wracogTestOutput("glass")
 
-lapply(dataNames, function(d){
-  dataset <- eval(as.name(d))
-  trainFold <- sample(1:nrow(dataset), nrow(dataset)/2, replace = F)
-  train <- dataset[trainFold, ]
-  validation <- dataset[-trainFold, ]
 
-  test_that(paste("wRACOG executes without error on dataset", d),{
-    expect_error(wracog(train, validation, myWrapper), NA)
-  })
+test_that("Check of parameters is properly done in wRACOG", {
+  expect_error(wracog(iris0, iris0, myWrapper, classAttr = "Species"))
+  expect_error(wracog(iris0, iris0, C50::C5.0, classAttr = "Class"))
+  expect_error(wracog(iris0, iris0, myWrapper, slideWin = "hola"))
+  expect_error(wracog(iris0, iris0, myWrapper, slideWin = -1))
+  expect_error(wracog(iris0, iris0[,-1], myWrapper, classAttr = "Class"))
+  expect_error(wracog(iris0, iris0, dummyWrapper, classAttr = "Class"))
 })
 
