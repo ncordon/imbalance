@@ -4,7 +4,8 @@
 \name{glass0}
 \alias{glass0}
 \title{Imbalanced binary glass identification}
-\format{A data frame with 214 instances and 10 variables:
+\format{A data frame with 214 instances, 70 of which belong to positve class,
+and 10 variables:
 
 \describe{
   \item{RI}{Refractive Index. Continuous attribute.}

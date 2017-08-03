@@ -29,5 +29,8 @@ inverse of the number of minority examples and a factor following a N(0,1)
 distribution which depends on the example.
 }
 \examples{
+data(iris0)
+
+newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 
 }

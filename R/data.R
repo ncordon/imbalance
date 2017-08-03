@@ -3,10 +3,11 @@
 #' Imbalanced binary dataset containing protein traits for predicting their cellular
 #' localization sites.
 #'
-#' @format A data frame with 336 instances and 8 variables:
+#' @format A data frame with 336 instances, 77 of which belong to positive class,
+#' and 8 variables:
 #'
 #' \describe{
-#'   \item{Mgc}{McGeoch's method for signal sequence recognition.
+#'   \item{Mcg}{McGeoch's method for signal sequence recognition.
 #'     Continuous attribute.}
 #'   \item{Gvh}{Von Heijne's method for signal sequence recognition.
 #'     Continuous attribute.}
@@ -33,7 +34,8 @@
 #' Imbalanced binary classification dataset containing variables to
 #' identify types of glass.
 #'
-#' @format A data frame with 214 instances and 10 variables:
+#' @format A data frame with 214 instances, 70 of which belong to positve class,
+#' and 10 variables:
 #'
 #' \describe{
 #'   \item{RI}{Refractive Index. Continuous attribute.}
@@ -61,7 +63,8 @@
 #' the survival of patients who had undergone surgery for breast
 #' cancer.
 #'
-#' @format A data frame with 306 instances and 4 variables:
+#' @format A data frame with 306 instances, 81 of which belong to positive class,
+#' and 4 variables:
 #'
 #' \describe{
 #'   \item{Age}{Age of patient at time of operation. Discrete attribute.}
@@ -80,7 +83,8 @@
 #'
 #' Data to predict patient's hyperthyroidism.
 #'
-#' @format A data frame with 215 instances and 6 variables:
+#' @format A data frame with 215 instances, 35 of which belong to positive class,
+#' and 6 variables:
 #'
 #' \describe{
 #'   \item{T3resin}{T3-resin uptake test, percentage. Discrete attribute.}
@@ -110,7 +114,8 @@
 #' possible classifications are positive (setosa) and negative (versicolor +
 #' virginica).
 #'
-#' @format A data frame with 150 instances and 5 variables:
+#' @format A data frame with 150 instances, 50 of which belong to positive class,
+#' and 5 variables:
 #' \describe{
 #'   \item{SepalLength}{Measurement of sepal length, in cm. Continuous attribute.}
 #'   \item{SepalWidth}{Measurement of sepal width, in cm. Continuous attribute.}
@@ -129,7 +134,9 @@
 #' Binary class dataset containing traits about patients with cancer. Original dataset was
 #' obtained from the University of Wisconsin Hospitals, Madison from Dr. William H. Wolberg.
 #'
-#' @format A data frame with 683 instances and 10 variables:
+#' @format A data frame with 683 instances, 239 of which belong to positive class,
+#' and 10 variables:
+#'
 #' \describe{
 #'   \item{ClumpThickness}{Discrete attribute.}
 #'   \item{CellSize}{Discrete attribute.}
@@ -153,10 +160,11 @@
 #' Imbalanced binary dataset containing protein traits for predicting their cellular
 #' localization sites.
 #'
-#' @format A data frame with 1484 instances and 9 variables:
+#' @format A data frame with 1484 instances, 51 of which belong to positive class,
+#' and 9 variables:
 #'
 #' \describe{
-#'   \item{Mgc}{McGeoch's method for signal sequence recognition.
+#'   \item{Mcg}{McGeoch's method for signal sequence recognition.
 #'     Continuous attribute.}
 #'   \item{Gvh}{Von Heijne's method for signal sequence recognition.
 #'     Continuous attribute.}

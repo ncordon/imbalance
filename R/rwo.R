@@ -18,6 +18,9 @@
 #' @export
 #'
 #' @examples
+#' data(iris0)
+#'
+#' newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 #'
 rwo <- function(dataset, numInstances, classAttr = "Class"){
   if(!is.data.frame(dataset))
@@ -41,28 +44,27 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
     scaleFactors <- stats::rnorm(nrow(minority) * iterPerInstance, mean = 0, sd = 1)
   }
 
-  newSamples <- apply(minority, MARGIN = 2, function(col){
+  newSamples <- lapply(minority, function(x){
     # If attribute is numeric, generate new minority sample preserving
     # mean and variance of existent samples
-    if(is.numeric(col)){
-      variance <- stats::var(col)
-      col - variance/sqrt(n) * scaleFactors
+    if(is.numeric(x)){
+      variance <- stats::var(x)
+      x - variance/sqrt(n) * scaleFactors
 
     # Else if attribute is not numeric, make a roulette out of possible
     # values for the attribute and their frequency
     } else{
-      dist <- table(col)
+      dist <- table(x)
       distValues <- names(dist)
       distProbs <- unname(dist)
-
-      sample(distValues, length(col) * iterPerInstance, replace = T, prob = distProbs)
+      sample(distValues, length(x) * iterPerInstance, replace = T, prob = distProbs)
     }
   })
 
   # Select numInstances randomly (if we have generated more instances than
   # required for each minority example) and output them
+  newSamples <- data.frame(newSamples)
   indexes <- sample(1:nrow(newSamples), numInstances, replace = F)
-  newSamples <- data.frame(newSamples[indexes, ])
-  names(newSamples) <- names(minority)
+  newSamples <- newSamples[indexes, ]
   .normalizeNewSamples(newSamples, minorityClass, classAttr)
 }

@@ -18,31 +18,31 @@ NULL
 #' @param dataset
 #' @param ratio
 #' @param method
-#' @param class.attr
+#' @param classAttr
 #'
 #' @return
 #' @export
 #'
 #' @examples
-balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.attr = "class"){
+balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), classAttr = "class"){
   # Check of arguments
   if (missing(dataset))
     stop("dataset must not be empty")
   if (missing(ratio) || !is.numeric(ratio) || ratio < 1)
     stop("ratio must be a number greater or equal than 1")
-  if (!class.attr %in% names(dataset))
-    stop(paste("Class attribute '", class.attr, "' not found in dataset", sep = ""))
+  if (!classAttr %in% names(dataset))
+    stop(paste("Class attribute '", classAttr, "' not found in dataset", sep = ""))
 
 
-  classes <- unique(dataset[, class.attr])
-  classes.counts <- sapply(classes, function(c){ length(which(dataset[, class.attr] == c)) })
+  classes <- unique(dataset[, classAttr])
+  classes.counts <- sapply(classes, function(c){ length(which(dataset[, classAttr] == c)) })
   minority.class <- classes[which.min(classes.counts)]
 
-  minority <- dataset[dataset[, class.attr] == minority.class, ]
+  minority <- dataset[dataset[, classAttr] == minority.class, ]
   minority.size <- nrow(minority)
 
   # Delete class attribute
-  minority <- minority[, names(minority) != class.attr]
+  minority <- minority[, names(minority) != classAttr]
 
 
   if (method == "pdfos"){
@@ -50,7 +50,7 @@ balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), class.a
     new.samples <- pdfos(minority, n.instances)
     names(new.samples) <- names(minority)
     # Add minority class attribute and bind new instances
-    new.samples[ class.attr ] <- minority.class
+    new.samples[ classAttr ] <- minority.class
     result <- rbind(dataset, new.samples)
     rownames(result) <- 1:nrow(result)
   }

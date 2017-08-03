@@ -29,13 +29,9 @@ It plots a grid of one to one variables placing the former dataset graphic
 next to the balanced one, for each pair of attributes.
 }
 \examples{
-data(haberman)
-habermanDiscret <- discretizeDataset(haberman)
+data(ecoli1)
+newSamples <- rwo(ecoli1, numInstances = 100)
+modifiedDataset <- rbind.data.frame(ecoli1, newSamples)
 
-newSamples <- racog(habermanDiscret, burnin = 10, lag = 10,
-                    iterations = 100, classAttr = "Class")
-newSamples <- undiscretizeDataset(haberman, habermanDiscret, newSamples)
-modifiedDataset <- do.call(rbind.data.frame, list(haberman, newSamples))
-
-plotComparison(haberman, modifiedDataset, "Class", col=2, names(haberman))
+plotComparison(ecoli1, modifiedDataset, "Class", col=2, names(ecoli1)[1:3])
 }

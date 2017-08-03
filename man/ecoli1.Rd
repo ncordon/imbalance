@@ -4,10 +4,11 @@
 \name{ecoli1}
 \alias{ecoli1}
 \title{Imbalanced binary ecoli protein localization sites}
-\format{A data frame with 336 instances and 8 variables:
+\format{A data frame with 336 instances, 77 of which belong to positive class,
+and 8 variables:
 
 \describe{
-  \item{Mgc}{McGeoch's method for signal sequence recognition.
+  \item{Mcg}{McGeoch's method for signal sequence recognition.
     Continuous attribute.}
   \item{Gvh}{Von Heijne's method for signal sequence recognition.
     Continuous attribute.}

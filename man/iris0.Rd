@@ -4,7 +4,8 @@
 \name{iris0}
 \alias{iris0}
 \title{Imbalanced binary iris dataset}
-\format{A data frame with 150 instances and 5 variables:
+\format{A data frame with 150 instances, 50 of which belong to positive class,
+and 5 variables:
 \describe{
   \item{SepalLength}{Measurement of sepal length, in cm. Continuous attribute.}
   \item{SepalWidth}{Measurement of sepal width, in cm. Continuous attribute.}

@@ -4,7 +4,9 @@
 \name{wisconsin}
 \alias{wisconsin}
 \title{Imbalanced binary breast cancer Wisconsin dataset}
-\format{A data frame with 683 instances and 10 variables:
+\format{A data frame with 683 instances, 239 of which belong to positive class,
+and 10 variables:
+
 \describe{
   \item{ClumpThickness}{Discrete attribute.}
   \item{CellSize}{Discrete attribute.}

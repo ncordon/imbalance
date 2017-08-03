@@ -47,7 +47,8 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
                       names(dataset) != classAttr]
 
   gibbsSampler <- .makeGibbsSampler(minority)
-  newSamples <- list()
+  newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
+  names(newSamples) <- names(minority)
 
   # For each minority example, create (iterations - burnin)/lag
   # new examples, approximating minority distribution with a Gibss sampler
@@ -58,13 +59,12 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
       x <- gibbsSampler(x)
 
       if(t > burnin && t%%lag == 0){
-        newSamples[[length(newSamples) + 1]] <- x
+        newSamples[nrow(newSamples) + 1, ] <- x
       }
     }
   }
 
   # Prepare newSamples output
-  newSamples <- do.call(rbind, newSamples)
   .normalizeNewSamples(newSamples, minorityClass, classAttr)
 }
 

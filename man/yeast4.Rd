@@ -4,10 +4,11 @@
 \name{yeast4}
 \alias{yeast4}
 \title{Imbalanced binary yeast protein localization sites}
-\format{A data frame with 1484 instances and 9 variables:
+\format{A data frame with 1484 instances, 51 of which belong to positive class,
+and 9 variables:
 
 \describe{
-  \item{Mgc}{McGeoch's method for signal sequence recognition.
+  \item{Mcg}{McGeoch's method for signal sequence recognition.
     Continuous attribute.}
   \item{Gvh}{Von Heijne's method for signal sequence recognition.
     Continuous attribute.}

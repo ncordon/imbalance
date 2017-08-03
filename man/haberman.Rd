@@ -4,7 +4,8 @@
 \name{haberman}
 \alias{haberman}
 \title{Haberman's survival data}
-\format{A data frame with 306 instances and 4 variables:
+\format{A data frame with 306 instances, 81 of which belong to positive class,
+and 4 variables:
 
 \describe{
   \item{Age}{Age of patient at time of operation. Discrete attribute.}

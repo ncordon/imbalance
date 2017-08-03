@@ -5,10 +5,10 @@
 \title{Title}
 \usage{
 balanceDataset(dataset, ratio, method = c("pdfos", "racog"),
-  class.attr = "class")
+  classAttr = "class")
 }
 \arguments{
-\item{class.attr}{}
+\item{classAttr}{}
 }
 \description{
 Title

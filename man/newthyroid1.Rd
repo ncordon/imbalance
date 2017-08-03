@@ -4,7 +4,8 @@
 \name{newthyroid1}
 \alias{newthyroid1}
 \title{Imbalanced binary thyroid gland data}
-\format{A data frame with 215 instances and 6 variables:
+\format{A data frame with 215 instances, 35 of which belong to positive class,
+and 6 variables:
 
 \describe{
   \item{T3resin}{T3-resin uptake test, percentage. Discrete attribute.}

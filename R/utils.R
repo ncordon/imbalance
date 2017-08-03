@@ -16,15 +16,11 @@
 #' @return plot of 2D comparison between the variables.
 #' @export
 #' @examples
-#' data(haberman)
-#' habermanDiscret <- discretizeDataset(haberman)
+#' data(ecoli1)
+#' newSamples <- rwo(ecoli1, numInstances = 100)
+#' modifiedDataset <- rbind.data.frame(ecoli1, newSamples)
 #'
-#' newSamples <- racog(habermanDiscret, burnin = 10, lag = 10,
-#'                     iterations = 100, classAttr = "Class")
-#' newSamples <- undiscretizeDataset(haberman, habermanDiscret, newSamples)
-#' modifiedDataset <- do.call(rbind.data.frame, list(haberman, newSamples))
-#'
-#' plotComparison(haberman, modifiedDataset, "Class", col=2, names(haberman))
+#' plotComparison(ecoli1, modifiedDataset, "Class", col=2, names(ecoli1)[1:3])
 plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2, attrs){
   attrs <- attrs[attrs != classAttr]
   plotGrid <- utils::combn(attrs, 2)
@@ -45,14 +41,19 @@ plotComparison <- function(dataset, balancedData, classAttr = "Class", cols = 2,
                                                      plotGrid[2, index],
                         col = classAttr)) + ggplot2::geom_point(alpha = 0.3) +
                         ggplot2::scale_color_manual(values = colorPalette)
+
+      # if(class(dataset[, plotGrid[1,index]]) %in% c("factor", "character"))
+      #   graph <- graph + ggplot2::scale_x_continuous(plotGrid[1, index],
+      #                                                breaks = NULL,
+      #
       vp <- grid::viewport(layout.pos.row = (2 * (index-1) + parity) %/% cols + 1,
                      layout.pos.col = (2 * (index-1) + parity) %% cols + 1)
       print(graph, vp = vp)
     })
   }
 
-  fillCells(dataset, odds = T)
-  fillCells(balancedData, odds = F)
+  fillCells(dataset, odds = TRUE)
+  fillCells(balancedData, odds = FALSE)
   print("Comparative grid plotted")
 }
 
@@ -140,4 +141,8 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 
   rownames(newSamples) <- c()
   newSamples
+}
+
+.getClasses <- function(dataset){
+  sapply(dataset, class)
 }
