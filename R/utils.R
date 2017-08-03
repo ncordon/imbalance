@@ -133,10 +133,11 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
   })
 }
 
-.normalizeNewSamples <- function(newSamples, minorityClass, classAttr){
-  if(nrow(newSamples) > 0)
+.normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr){
+  if(nrow(newSamples) > 0){
+    names(newSamples) <- colNames
     newSamples[, classAttr] <- minorityClass
-  else
+  } else
     newSamples <- data.frame()
 
   rownames(newSamples) <- c()

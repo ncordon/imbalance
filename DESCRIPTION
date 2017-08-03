@@ -2,7 +2,9 @@ Package: imbalance
 Type: Package
 Title: Algorithms to Preprocess Imbalanced Datasets
 Version: 0.0.0.9000
-Author: Nacho Cordón Castillo [aut,cre]
+Authors@R: c(
+   person("Nacho","Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
+ )
 Maintainer: Nacho Cordón Castillo <nacho.cordon.castillo@gmail.com>
 Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
              the performance of the classifiers. Thus, it is important to treat data before

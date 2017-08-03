@@ -1,14 +1,14 @@
 #' Random Walk Oversampling
 #'
-#' Generate synthetic minority examples for a dataset without modifying their
-#' variance or mean.
+#' Generate synthetic minority examples for a dataset trying to preserve the
+#' variance and mean of the minority class. Works on every type of dataset.
 #'
 #' Generates \code{numInstances} new minority examples for \code{dataset},
 #' adding to the each column of the j-th example its variance scalated by the
 #' inverse of the number of minority examples and a factor following a N(0,1)
 #' distribution which depends on the example.
 #'
-#' @param dataset data.frame to treat
+#' @param dataset \code{data.frame} to treat
 #' @param numInstances Integer. Number of new minority examples to generate.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
@@ -66,5 +66,5 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   newSamples <- data.frame(newSamples)
   indexes <- sample(1:nrow(newSamples), numInstances, replace = F)
   newSamples <- newSamples[indexes, ]
-  .normalizeNewSamples(newSamples, minorityClass, classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr)
 }
