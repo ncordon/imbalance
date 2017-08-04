@@ -13,8 +13,8 @@
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
 #'
-#' @return new samples, a \code{data.frame} with the same structure as
-#'   \code{dataset}, containing the synthetic examples generated
+#' @return A \code{data.frame} with the same structure as \code{dataset},
+#'   containing the synthetic examples generated
 #' @export
 #'
 #' @examples

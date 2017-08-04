@@ -13,7 +13,7 @@
 #' @param attrs Vector of String. Attributes to compare. The function generates
 #'   each posible combination of attributes
 #'
-#' @return plot of 2D comparison between the variables.
+#' @return Plot of 2D comparison between the variables.
 #' @export
 #' @examples
 #' data(ecoli1)

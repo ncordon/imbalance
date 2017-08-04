@@ -29,8 +29,8 @@ stopping criteria. By default, 10.}
 should reach. By default, 0.02.}
 }
 \value{
-new samples, a \code{data.frame} with the same structure as
-  \code{dataset}, containing the synthetic examples generated
+A \code{data.frame} with the same structure as \code{dataset},
+  containing the synthetic examples generated.
 }
 \description{
 Generates synthetic minority examples by approximating their probability

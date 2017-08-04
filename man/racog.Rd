@@ -23,8 +23,8 @@ example.}
 Must exist in it.}
 }
 \value{
-new samples, a \code{data.frame} with the same structure as
-  \code{dataset}, containing the synthetic examples generated
+A \code{data.frame} with the same structure as \code{dataset},
+  containing the synthetic examples generated.
 }
 \description{
 Allows you to treat imabalanced discrete numeric datasets by generating

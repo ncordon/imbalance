@@ -22,7 +22,7 @@ Default value of 2}
 each posible combination of attributes}
 }
 \value{
-plot of 2D comparison between the variables.
+Plot of 2D comparison between the variables.
 }
 \description{
 It plots a grid of one to one variables placing the former dataset graphic

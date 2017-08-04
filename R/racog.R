@@ -20,9 +20,8 @@
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
 #'
-#' @return new samples, a \code{data.frame} with the same structure as
-#'   \code{dataset}, containing the synthetic examples generated
-#' @export
+#' @return A \code{data.frame} with the same structure as \code{dataset},
+#'   containing the synthetic examples generated.
 #' @examples
 #' data(iris0)
 #' # Generates new minority examples
@@ -97,8 +96,8 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
 #' @param threshold Threshold that the last \code{slideWin} sensitivities mean
 #'   should reach. By default, 0.02.
 #'
-#' @return new samples, a \code{data.frame} with the same structure as
-#'   \code{dataset}, containing the synthetic examples generated
+#' @return A \code{data.frame} with the same structure as \code{dataset},
+#'   containing the synthetic examples generated.
 #' @importFrom stats predict
 #' @export
 #'

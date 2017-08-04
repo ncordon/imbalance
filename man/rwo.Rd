@@ -7,7 +7,7 @@
 rwo(dataset, numInstances, classAttr = "Class")
 }
 \arguments{
-\item{dataset}{data.frame to treat}
+\item{dataset}{\code{data.frame} to treat}
 
 \item{numInstances}{Integer. Number of new minority examples to generate.}
 
@@ -15,12 +15,12 @@ rwo(dataset, numInstances, classAttr = "Class")
 Must exist in it.}
 }
 \value{
-new samples, a \code{data.frame} with the same structure as
-  \code{dataset}, containing the synthetic examples generated
+A \code{data.frame} with the same structure as \code{dataset},
+  containing the synthetic examples generated
 }
 \description{
-Generate synthetic minority examples for a dataset without modifying their
-variance or mean.
+Generate synthetic minority examples for a dataset trying to preserve the
+variance and mean of the minority class. Works on every type of dataset.
 }
 \details{
 Generates \code{numInstances} new minority examples for \code{dataset},

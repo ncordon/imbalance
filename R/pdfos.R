@@ -1,12 +1,17 @@
 #' Probability density function estimation based over-sampling
 #'
-#' @param dataset \code{data.frame} to treat
-#' @param numInstances Integer. Number of new minority examples to generate.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exist in it.
+#' Generate synthetic minority examples for a numerical dataset approximating a
+#' Gaussian multivariate distribution which best fits the minority data.
 #'
-#' @return new samples, a \code{data.frame} with the same structure as
-#'   \code{dataset}, containing the synthetic examples generated
+#' To generate the synthetic data it approximates a normal distribution of mean
+#' a given example of such class, and the variance of the minority class \eqn{S}
+#' multiplied by a parameter which is approximated to minimize Mean Integrated
+#' Squared Error of a Gaussian multivariate kernel function.
+#'
+#' @inheritParams rwo
+#'
+#' @return A \code{data.frame} with the same structure as \code{dataset},
+#'   containing the synthetic examples generated
 #' @export
 #'
 #' @examples

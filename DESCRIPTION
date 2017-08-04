@@ -23,8 +23,7 @@ Imports:
     ggplot2,
     infotheo,
     utils,
-    stats,
-    kernelboot
+    stats
 Suggests:
     testthat,
     C50,    
