@@ -2,14 +2,29 @@
 % Please edit documentation in R/imbalance.R
 \name{balanceDataset}
 \alias{balanceDataset}
-\title{Title}
+\title{Wrapper to ease the class balancing preprocessing task for binary class
+\code{dataset}}
 \usage{
-balanceDataset(dataset, ratio, method = c("pdfos", "racog"),
-  classAttr = "class")
+balanceDataset(dataset, ratio, method, filter = FALSE, classAttr = "class")
 }
 \arguments{
-\item{classAttr}{}
+\item{dataset}{A binary class \code{data.frame} to balance.}
+
+\item{ratio}{Numeric greater than 1.}
+
+\item{method}{A \code{character} corresponding to method to apply. Possible
+methods are: \code{\link{racog}}, \code{\link{wracog}}, \code{\link{rwo}},
+\code{\link{pdfos}}.}
+
+\item{filter}{Logical wheter to apply filtering of oversampled instances.}
+
+\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
+Must exist in it.}
+}
+\value{
+\code{data.frame} with balanced classes.
 }
 \description{
-Title
+Wrapper to ease the class balancing preprocessing task for binary class
+\code{dataset}
 }

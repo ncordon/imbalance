@@ -16,6 +16,7 @@
 #'
 #' @examples
 #' data(iris0)
+#' set.seed(12345)
 #'
 #' newSamples <- pdfos(iris0, numInstances = 100)
 #'
@@ -23,7 +24,7 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(!classAttr %in% names(dataset))
-    stop("class attribute not found in dataset")
+    stop(paste(classAttr, "attribute not found in dataset"))
   if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
     stop("all columns of dataset must be numeric")
   if(!is.numeric(numInstances) || numInstances < 0)

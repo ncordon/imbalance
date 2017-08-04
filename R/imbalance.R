@@ -4,38 +4,47 @@
 #' methods to generate synthetic examples and achieve balance between the
 #' minority and majority classes in dataset distributions
 #'
-#' @section Class imbalance treatment functions functions \code{\link{racog}}
+#' @section Oversampling functions for the minority class: \code{\link{racog}},
+#'   \code{\link{wracog}}, \code{\link{rwo}}, \code{\link{pdfos}}.
 #'
-#' @section Methods to evaluate algorithms function \code{\link{plotComparison}}
+#' @section Methods to visually evaluate algorithms:
+#'   \code{\link{plotComparison}}.
+#'
+#' @section Methods to filter oversampled instances \code{\link{neater}}.
 #'
 #' @docType package
 #' @name imabalace
 NULL
 
 
-#' Title
+#' Wrapper to ease the class balancing preprocessing task for binary class
+#' \code{dataset}
 #'
-#' @param dataset
-#' @param ratio
-#' @param method
-#' @param classAttr
+#' @param dataset A binary class \code{data.frame} to balance.
+#' @param ratio Numeric greater than 1.
+#' @param method A \code{character} corresponding to method to apply. Possible
+#'   methods are: \code{\link{racog}}, \code{\link{wracog}}, \code{\link{rwo}},
+#'   \code{\link{pdfos}}.
+#' @param filter Logical wheter to apply filtering of oversampled instances.
+#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#'   Must exist in it.
 #'
-#' @return
+#' @return \code{data.frame} with balanced classes.
 #' @export
 #'
 #' @examples
-balanceDataset <- function(dataset, ratio, method = c("pdfos", "racog"), classAttr = "class"){
-  # Check of arguments
-  if (missing(dataset))
-    stop("dataset must not be empty")
-  if (missing(ratio) || !is.numeric(ratio) || ratio < 1)
-    stop("ratio must be a number greater or equal than 1")
+balanceDataset <- function(dataset, ratio, method, filter = FALSE,
+                           classAttr = "class"){
+  if(!is.data.frame(dataset))
+    stop("dataset must be a data.frame")
   if (!classAttr %in% names(dataset))
-    stop(paste("Class attribute '", classAttr, "' not found in dataset", sep = ""))
+    stop(paste(classAttr, "attribute not found in dataset"))
 
 
   classes <- unique(dataset[, classAttr])
-  classes.counts <- sapply(classes, function(c){ length(which(dataset[, classAttr] == c)) })
+  classes.counts <- sapply(classes, function(c){
+    length(which(dataset[, classAttr] == c))
+  })
   minority.class <- classes[which.min(classes.counts)]
 
   minority <- dataset[dataset[, classAttr] == minority.class, ]

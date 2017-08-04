@@ -23,7 +23,8 @@ Imports:
     ggplot2,
     infotheo,
     utils,
-    stats
+    stats,
+    smotefamily
 Suggests:
     testthat,
     C50,    

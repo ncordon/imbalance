@@ -39,6 +39,8 @@ it validates each \code{lag} example as a new minority example. It generates
 }
 \examples{
 data(iris0)
+set.seed(12345)
+
 # Generates new minority examples
 
 }

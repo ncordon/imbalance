@@ -24,9 +24,10 @@
 #'
 #' @examples
 #' data(iris0)
+#' set.seed(12345)
 #'
 #' newSamples <- smotefamily::SMOTE(iris0[,-5], iris0[,5])$syn_data
-#' # smote overrides Class attr turning it into class
+#' # SMOTE overrides Class attr turning it into class
 #' # and dataset must have same class attribute as newSamples
 #' names(newSamples) <- c(names(newSamples)[-5], "Class")
 #'

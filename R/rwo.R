@@ -19,6 +19,7 @@
 #'
 #' @examples
 #' data(iris0)
+#' set.seed(12345)
 #'
 #' newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 #'
@@ -26,7 +27,7 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(!classAttr %in% names(dataset))
-    stop("class attribute not found in dataset")
+    stop(paste(classAttr, "attribute not found in dataset"))
   if(!is.numeric(numInstances) || numInstances < 0)
     stop("numInstances must be a positive integer")
 

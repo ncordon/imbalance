@@ -25,6 +25,8 @@
 #' @export
 #' @examples
 #' data(iris0)
+#' set.seed(12345)
+#'
 #' # Generates new minority examples
 #  newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 #'
@@ -32,7 +34,7 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, " attribute not found in dataset"))
+    stop(paste(classAttr, "attribute not found in dataset"))
   if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
     stop("all columns of dataset must be numeric")
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
@@ -90,12 +92,12 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
 #'   \code{\link{trainWrapper}} implemented for the class of the object, and a
 #'   \code{\link[stats]{predict}} method implemented for the class of the model
 #'   returned by \code{trainWrapper}.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exist in it.
 #' @param slideWin Number of last sensitivities to take into account to meet the
 #'   stopping criteria. By default, 10.
 #' @param threshold Threshold that the last \code{slideWin} sensitivities mean
 #'   should reach. By default, 0.02.
+#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#'   Must exist in it.
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.
@@ -104,6 +106,7 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
 #'
 #' @examples
 #' data(haberman)
+#' set.seed(12345)
 #' myWrapper <- structure(list(), class="C50Wrapper")
 #' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
 #'   C50::C5.0(train, trainClass)
@@ -113,8 +116,8 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
 #' wracog(haberman[trainFold, ], haberman[-trainFold, ],
 #'        myWrapper, classAttr = "Class")
 #'
-wracog <- function(train, validation, wrapper, classAttr = "Class",
-                   slideWin = 10, threshold = 0.02){
+wracog <- function(train, validation, wrapper, slideWin = 10,
+                   threshold = 0.02, classAttr = "Class"){
   trainMethod <- paste("trainWrapper", class(wrapper), sep=".")
   colTypes <- sapply(train[, names(train) != classAttr], class)
 
@@ -125,7 +128,7 @@ wracog <- function(train, validation, wrapper, classAttr = "Class",
   if(any(! colTypes == "numeric"))
     stop("all columns of dataset must be numeric")
   if(!classAttr %in% names(train))
-    stop("class attribute not found in dataset")
+    stop(paste(classAttr, "attribute not found in dataset"))
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
      slideWin < 0 || threshold <= 0 || threshold >= 1)
     stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
@@ -208,7 +211,7 @@ trainWrapper <- function(wrapper, train, trainClass){
 #'
 #' @return Matrix of directed arcs. Arcs are directed from the first coordinate
 #'   towards second.
-#' @keywords internal
+#' @noRd
 #'
 #' @examples
 #' DT <- bnlearn::chow.liu(iris[, names(iris) != "Species"])$arcs
@@ -240,7 +243,7 @@ trainWrapper <- function(wrapper, train, trainClass){
 #'
 #' @return GibbsSampler. A function that receives a sample, and generates a new
 #'   one using the distribution
-#' @keywords internal
+#' @noRd
 .makeGibbsSampler <- function(samples){
   attrs <- names(samples)
   DT <- bnlearn::chow.liu(samples)$arcs

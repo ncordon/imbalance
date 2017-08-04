@@ -4,8 +4,8 @@
 \alias{wracog}
 \title{Wrapper for Rapidy Converging Gibbs algorithm.}
 \usage{
-wracog(train, validation, wrapper, classAttr = "Class", slideWin = 10,
-  threshold = 0.02)
+wracog(train, validation, wrapper, slideWin = 10, threshold = 0.02,
+  classAttr = "Class")
 }
 \arguments{
 \item{train}{\code{data.frame}. A initial dataset to generate first model.
@@ -19,14 +19,14 @@ consecutive classifiers. Must have the same structure of \code{train}.}
 \code{\link[stats]{predict}} method implemented for the class of the model
 returned by \code{trainWrapper}.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exist in it.}
-
 \item{slideWin}{Number of last sensitivities to take into account to meet the
 stopping criteria. By default, 10.}
 
 \item{threshold}{Threshold that the last \code{slideWin} sensitivities mean
 should reach. By default, 0.02.}
+
+\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
+Must exist in it.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
@@ -47,6 +47,7 @@ former train, to the train dataset. Iniial model is built on initial
 }
 \examples{
 data(haberman)
+set.seed(12345)
 myWrapper <- structure(list(), class="C50Wrapper")
 trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
   C50::C5.0(train, trainClass)
