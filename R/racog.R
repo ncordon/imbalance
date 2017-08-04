@@ -29,13 +29,12 @@
 #  newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 #'
 racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class"){
-  colTypes <- sapply(dataset[, names(dataset) != classAttr], class)
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
-  if(any(! colTypes == "numeric"))
-    stop("all columns of dataset must be numeric")
   if(!classAttr %in% names(dataset))
     stop(paste(classAttr, " attribute not found in dataset"))
+  if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
+    stop("all columns of dataset must be numeric")
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
      burnin < 0 || lag < 0 || iterations < 0)
     stop("burnin, lag and iterations must be positive integers")

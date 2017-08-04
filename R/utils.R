@@ -144,6 +144,7 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
   newSamples
 }
 
-.getClasses <- function(dataset){
-  sapply(dataset, class)
+.colTypes <- function(dataset, exclude = c()){
+  types <- sapply(dataset, class)
+  types[!names(types) %in% exclude]
 }

@@ -10,11 +10,17 @@
 #' @export
 #'
 #' @examples
+#' data(iris0)
+#'
+#' newSamples <- pdfos(iris0, numInstances = 100)
+#'
 pdfos <- function(dataset, numInstances, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(!classAttr %in% names(dataset))
     stop("class attribute not found in dataset")
+  if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
+    stop("all columns of dataset must be numeric")
   if(!is.numeric(numInstances) || numInstances < 0)
     stop("numInstances must be a positive integer")
 
@@ -25,51 +31,59 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
 
   # Calcs variance (called covariance in the original algorithm)
   # of the positive class
-  minorityVar <- stats::var(minority)
+  minVariance <- stats::var(minority)
+  # Try to find an inverse matrix for the positive class, if it exists
+  minVarianceInv <- try(solve(stats::var(minority)))
+  if(class(minVariance) == "try-error")
+    stop(paste("Not a valid method for this dataset.",
+               "Variance of the positive class is not an invertible matrix"))
+
   m <- ncol(minority)
   n <- nrow(minority)
 
-  # Kernel function
-  phi <- function(sigma, vector, variance = 1){
-    result <- (sigma ** (-m)) / ((2 * pi) ** (m/2))
-    result * exp(- (1/2 * (sigma ** 2)) *
-                as.numeric(vector %*% variance**(-1) %*% vector) )
+  # Multivariate Gaussian kernel function
+  phi <- function(bandwidth, vector, minVarianceInv){
+    result <- 1/ ((bandwidth ** (-m)) * ((2 * pi) ** (m/2)))
+    result * exp(- 1 /(2 * bandwidth ** 2) *
+                as.numeric(vector %*% minVarianceInv %*% vector) )
   }
 
 
   # Cross validation score function to minimize
-  crossValScore <- function(sigma){
-    value <- 2 * phi(sigma, 0)
+  crossValScore <- function(bandwidth){
+    value <- 2 * phi(bandwidth, 0, 1) / n
 
     value <- value +
       sum(apply(minority, MARGIN = 1, function(row.i){
         apply(minority, MARGIN = 1, function(row.j){
           evPoint <- as.numeric(row.j - row.i)
-          phi(sqrt(2) * sigma, evPoint, minorityVar) -
-            2 * phi(sigma, evPoint, minorityVar)
+          result <- phi(sqrt(2) * bandwidth, evPoint, minVarianceInv)
+          result - 2 * phi(bandwidth, evPoint, minVarianceInv)
         })
-      })) / n
+      })) / (n*n)
 
-    value / n
+    value
   }
 
 
-  # grid search to find approximation to best sigma parameter
-  gridParams <- seq(from = 0, to = 2, by = 0.05)
-  # erase 0 from grid search
-  grid <- gridParams[2:length(gridParams)]
+  # grid search to find approximation to best bandwidth parameter
+  gridParams <- seq(from = 0.2, to = 2, by = 0.02)
+  # adds to grid breaks Scott's and Silverman's rules of thumb
+  gridParams <- c(gridParams,
+                  n ** (-1 / (m + 4)),
+                  (4 / (n * (m + 2))) ** (1 / (m + 4)) )
   minIndex <- which.min( sapply(gridParams, function(x){ crossValScore(x) }) )
 
-  mySigma <- gridParams[ minIndex ]
+  myBandwidth <- gridParams[ minIndex ]
 
   # Choleski form of variance matrix, upper triangular matrix
-  varCholeski <- chol(minorityVar)
+  varCholeski <- chol(minVariance)
 
   # Generate new samples using a normal multivariate distribution with variance
-  # mySigma² * minorityVar
+  # myBandwidth² * minVariance
   samples <- minority[sample(1:n, numInstances, replace = T), ]
   newSamples <- apply(samples, MARGIN=1, function(row){
-    row + t( mySigma * varCholeski %*% stats::rnorm( m, mean = 0, sd = 1) )
+    row + t( myBandwidth * varCholeski %*% stats::rnorm( m, mean = 0, sd = 1) )
   })
 
   # Cleanse newSamples dataset and output it

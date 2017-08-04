@@ -1,11 +1,11 @@
 Package: imbalance
 Type: Package
-Title: Algorithms to Preprocess Imbalanced Datasets
+Title: Preprocessing Algorithms for Imbalanced Datasets
 Version: 0.0.0.9000
 Authors@R: c(
    person("Nacho","Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
  )
-Maintainer: Nacho Cordón Castillo <nacho.cordon.castillo@gmail.com>
+Maintainer: Nacho Cordón <nacho.cordon.castillo@gmail.com>
 Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
              the performance of the classifiers. Thus, it is important to treat data before
              applying a classifier algorith. This package includes recent preprocessing algorithms
@@ -23,7 +23,8 @@ Imports:
     ggplot2,
     infotheo,
     utils,
-    stats
+    stats,
+    kernelboot
 Suggests:
     testthat,
     C50,    
