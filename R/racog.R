@@ -22,6 +22,7 @@
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.
+#' @export
 #' @examples
 #' data(iris0)
 #' # Generates new minority examples

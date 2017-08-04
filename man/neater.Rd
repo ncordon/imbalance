@@ -2,20 +2,49 @@
 % Please edit documentation in R/neater.R
 \name{neater}
 \alias{neater}
-\title{Fiter of oversampled data based on non-cooperative game theory}
+\title{Fitering of oversampled data based on non-cooperative game theory}
 \usage{
-neater(dataset, newSamples, k, numIterations, smooth, classAttr = "Class")
+neater(dataset, newSamples, k, numIterations, smoothFactor = 1,
+  classAttr = "Class")
 }
 \arguments{
-\item{classAttr}{}
+\item{dataset}{The original \code{data.frame}.}
+
+\item{newSamples}{A \code{data.frame} containing the samples to be filtered.
+Must have the same structure as \code{dataset}.}
+
+\item{k}{Integer. Number of nearest neighbours to use in KNN algorithm to
+rule out samples.}
+
+\item{numIterations}{Integer. Number of iterations for the algorithm.}
+
+\item{smoothFactor}{A positive real. By default 1.}
+
+\item{classAttr}{String. Indicates the class attribute from \code{dataset}
+and \code{newSamples}.}
+}
+\value{
+filtered samples as a \code{data.frame} of same structure as
+  \code{new.Samples}.
 }
 \description{
-Fiter of oversampled data based on non-cooperative game theory
+Filter oversampled examples from a binary class \code{dataset} using game
+theory to find out if keeping an example is worthy enough.
+}
+\details{
+Uses game theory and Nash equilibriums to calculate the minority examples
+probability of trully belongin to the minority class. It discards examples
+that at the final stage of the algorithm have more probability of been a
+mayority example than a minority one.
 }
 \examples{
-# dataset and newSamples must have the same class name attribute appended
-newSamples <- smotefamily::SMOTE(iris[,-5], iris[,5])$syn_data
-dataset <- iris
-newSamples$Species <- newSamples$class
-newSamples <- newSamples[, names(newSamples)!="class"]
+data(iris0)
+
+newSamples <- smotefamily::SMOTE(iris0[,-5], iris0[,5])$syn_data
+# smote overrides Class attr turning it into class
+# and dataset must have same class attribute as newSamples
+names(newSamples) <- c(names(newSamples)[-5], "Class")
+
+neater(iris0, newSamples, k = 5, numIterations = 100,
+       smoothFactor = 1, classAttr = "Class")
 }
