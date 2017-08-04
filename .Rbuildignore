@@ -5,3 +5,5 @@
 ^\.gitignore$
 ^data-raw$
 ^docs$
+^README\.Rmd$
+^README-.*\.png$
