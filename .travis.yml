@@ -16,6 +16,7 @@ r_github_packages:
 script:
   - R CMD build . ${R_BUILD_ARGS}
   - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
+  - R CMD INSTALL `ls -1t *.tar.gz | head -n 1`
   - R -e 'pkgdown::build_site()'
   - mv docs ..
   - rm -r *

@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 You can install imbalance from github with:
 
-```{r gh-installation, eval = TRUE, echo = FALSE}
+```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("ncordon/imbalance")
 ```

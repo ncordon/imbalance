@@ -15,15 +15,6 @@ You can install imbalance from github with:
 ``` r
 # install.packages("devtools")
 devtools::install_github("ncordon/imbalance")
-#> Downloading GitHub repo ncordon/imbalance@master
-#> from URL https://api.github.com/repos/ncordon/imbalance/zipball/master
-#> Installing imbalance
-#> '/usr/lib/R/bin/R' --no-site-file --no-environ --no-save --no-restore  \
-#>   --quiet CMD INSTALL  \
-#>   '/tmp/RtmpWHSIN6/devtools74a13ecb802/ncordon-imbalance-b5d2715'  \
-#>   --library='/mnt/580F625C089B22E0/Universidad/5/CuatrimestreII/TFG/imbalance/packrat/lib/x86_64-pc-linux-gnu/3.4.1'  \
-#>   --install-tests
-#> 
 ```
 
 Examples
