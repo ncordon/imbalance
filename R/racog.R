@@ -47,26 +47,24 @@ racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Clas
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
 
+  attrs <- names(minority)
+
   gibbsSampler <- .makeGibbsSampler(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
   # For each minority example, create (iterations - burnin)/lag
   # new examples, approximating minority distribution with a Gibss sampler
-  for(i in 1:nrow(minority)){
-    x <- minority[i,]
-    for(t in 1:iterations){
-      # Generate new sample using Gibbs Sampler
-      x <- gibbsSampler(x)
+  for(t in seq_len(iterations)){
+    # Generate new sample using Gibbs Sampler
+    minority <- t(apply(minority, MARGIN = 1, gibbsSampler))
 
-      if(t > burnin && t%%lag == 0){
-        newSamples[nrow(newSamples) + 1, ] <- x
-      }
+    if(t > burnin && t%%lag == 0){
+      newSamples <- rbind.data.frame(newSamples, minority)
     }
   }
 
   # Prepare newSamples output
-  .normalizeNewSamples(newSamples, minorityClass,
-                       names(minority), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr)
 }
 
 
@@ -148,10 +146,6 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 
   # Wrapper for the Gibbs sampler with input and outpus as data.frame
   gibbsSampler <- .makeGibbsSampler(minority)
-  dfGibbsSampler <- function(samples){
-    samples <- split(samples, seq(nrow(samples)))
-    do.call(rbind.data.frame, lapply(samples, gibbsSampler))
-  }
 
   # Value for lasts winSlides standard deviations
   lastSlides <- rep(Inf, slideWin)
@@ -165,7 +159,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   newSamples <- data.frame()
 
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
-    minority <- dfGibbsSampler(minority)
+    minority <- t(apply(minority, MARGIN = 1, gibbsSampler))
     prediction <- predict(model, minority)
     misclassified <- minority[prediction != minorityClass, ]
     newSamples <- rbind.data.frame(newSamples, misclassified)
@@ -210,7 +204,7 @@ trainWrapper <- function(wrapper, train, trainClass){
 #' @param tree Matrix nx2 columns denoting undirected arcs of a tree.
 #'
 #' @return Matrix of directed arcs. Arcs are directed from the first coordinate
-#'   towards second.
+#'   towards second. That is, names in the second column must be unique.
 #' @noRd
 #'
 #' @examples
@@ -224,11 +218,11 @@ trainWrapper <- function(wrapper, train, trainClass){
   # For each arc, marks the second node as visited
   # If for a node second coordinate has already been visited, it inverts the sense
   # of the arc
-  for (k in 1:nrow(tree)){
-    if(tree[k,2] %in% visited){
-      tree[k,] <- tree[k,c(2,1)]
+  for (k in seq_len(nrow(tree))){
+    if(tree[k, 2] %in% visited){
+      tree[k, ] <- tree[k, c(2, 1)]
     }
-    visited <- c(visited, tree[k,2])
+    visited <- c(visited, tree[k, 2])
   }
 
   tree
@@ -250,67 +244,79 @@ trainWrapper <- function(wrapper, train, trainClass){
   # Choose only one sense for the arcs (the odd ones) and make tree directed
   tree <- unname(DT[ seq(1, nrow(DT), 2), ])
   tree <- .makeDirected(tree)
+  root = attrs[! attrs %in% tree[, 2]]
+
+  # Calculate absolute probability distribution of the root
+  rootProb <- table(samples[, root])
+  rootProb <- rootProb / sum(rootProb)
 
   # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
   condProbs <- apply(tree, MARGIN = 1, function(r){
-    table(samples[, r[2]], samples[, r[1]])
+    table(samples[, r[1]], samples[, r[2]])
   })
 
-  # Calculate absolute probability distributions
-  absoluteProbs <- apply(samples, MARGIN = 2, function(col){
-    table(col)
-  })
-
-  absoluteProbs <- lapply(absoluteProbs, function(x){ x/sum(x) })
+  names(condProbs) <- tree[, 2]
 
   dependences <- lapply(attrs, function(attr){
-    conditioned <- which(tree[,1] == attr)
-    # Calc var that attr is conditioned to
-    conditioning <- which(tree[,2] == attr)
+    # Calc var which attr is conditioned to
+    conditioned <- which(tree[, 2] == attr)
+    # Calc vars which attr conditions
+    conditioning <- which(tree[, 1] == attr)
+
+    # Extract values we are going to need to compute marginal distributions
     if(length(conditioned) > 0)
       values <- colnames(condProbs[[conditioned[1]]])
     else
       values <- rownames(condProbs[[conditioning[1]]])
 
+    conditioned <- tree[conditioned, 1]
+    conditioning <- tree[conditioning, 2]
+
     list(conditioned, conditioning, as.numeric(values))
   })
 
+  names(dependences) <- attrs
+
+  # myGibbsSampler <- list(condProbs = condProbs, absoluteProbs = absoluteProbs, dependences = dependences, attrs = attrs)
+  # class(myGibbsSampler) <- "GibbsSampler"
+
   # Generate the Gibbs Sampler
   gibbsSampler <- function(x){
-    for(k in 1:length(dependences)){
-      attr <- attrs[k]
-
-      # Calc vars that are being conditioned to attr
-      conditioned <- dependences[[k]][[1]]
-      # Calc var that attr is conditioned to
-      conditioning <- dependences[[k]][[2]]
-
-      first <- sapply(conditioned, function(k){
-        r <- condProbs[[k]][toString(x[, tree[,2][k]]), ]
-        r/sum(r) * absoluteProbs[[attr]]
+    sapply(attrs, function(attr){
+      first <- sapply(dependences[[attr]][[1]], function(conditionedTo){
+        r <- condProbs[[attr]][toString(x[conditionedTo]), ]
+        r / sum(r)
       })
 
-      second <- sapply(conditioning, function(k){
-        r <- condProbs[[k]][, toString(x[, tree[,1][k]])]
-        r/sum(r)
+      second <- sapply(dependences[[attr]][[2]], function(conditioningWhich){
+        r <- condProbs[[conditioningWhich]][, toString(x[conditioningWhich])]
+        r / sum(r)
       })
 
-      probVectors <- cbind(first, second)
+      if(attr == root){
+        probVectors <- cbind(first, second, rootProb)
+      } else{
+        probVectors <- cbind(first, second)
+      }
 
       # Prob of attr. is product of probabilites from the dependence tree
-      ithProb <- apply(probVectors, MARGIN = 1, function(r){
+      ithProb <- unname( apply(probVectors, MARGIN = 1, function(r){
         prod(unlist(r))
-      })
+      }) )
 
       # If all probabilities are zero, create vector with same probabilities
-      if(!any(ithProb != 0))
-        ithProb <- rep(1,length(ithProb))
+      nonZero <- which(ithProb != 0)
 
-      x[, attr] = sample( dependences[[k]][[3]], 1, prob = ithProb )
-    }
-    # Return new sample
-    x
+      if(length(nonZero) == 0){
+        ithProb <- rep(1,length(ithProb))
+      } else if(length(nonZero) == 1){
+          return(dependences[[attr]][[3]][nonZero])
+      }
+
+      return(sample( dependences[[attr]][[3]], 1, prob = ithProb ))
+
+    })
   }
 
   # Return Gibbs Sampler

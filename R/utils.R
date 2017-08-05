@@ -111,7 +111,7 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' Given a \code{dataset} and a \code{classAttr} attribute indicating the class,
 #' it calculates the minority class value.
 #'
-#' @param dataset
+#' @param dataset \code{data.frame}.
 #' @param classAttr Attribute indicating class attribute. For speed purposes, it
 #'   doesn't check that \code{classAttr} exists in \code{dataset}.
 #'
