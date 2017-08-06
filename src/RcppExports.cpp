@@ -6,14 +6,14 @@
 using namespace Rcpp;
 
 // racog_
-NumericVector racog_(DataFrame dataset, IntegerMatrix edges, SEXP root, int iterations, int burnin, int lag);
+NumericVector racog_(DataFrame dataset, IntegerMatrix edges, int root, int iterations, int burnin, int lag);
 RcppExport SEXP imbalance_racog_(SEXP datasetSEXP, SEXP edgesSEXP, SEXP rootSEXP, SEXP iterationsSEXP, SEXP burninSEXP, SEXP lagSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< DataFrame >::type dataset(datasetSEXP);
     Rcpp::traits::input_parameter< IntegerMatrix >::type edges(edgesSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type root(rootSEXP);
+    Rcpp::traits::input_parameter< int >::type root(rootSEXP);
     Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP);
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
