@@ -1,3 +1,4 @@
+library(testthat)
 # Loads data
 data(ecoli1)
 data(haberman)

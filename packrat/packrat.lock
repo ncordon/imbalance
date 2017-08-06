@@ -131,6 +131,11 @@ Source: CRAN
 Version: 1.3-2
 Hash: 0bf8618b585fa98eb23414cd3ab95118
 
+Package: combinat
+Source: CRAN
+Version: 0.0-8
+Hash: 1ddebf0315ec8a5c255adc4da9143b81
+
 Package: commonmark
 Source: CRAN
 Version: 1.2
@@ -181,6 +186,24 @@ Version: 0.10.1
 Hash: 54d95f4ec6d0300100413ed0127d89ae
 Requires: stringr
 
+Package: fAsianOptions
+Source: CRAN
+Version: 3010.79
+Hash: 07bfe5cf873d987169bed52751be6818
+Requires: fBasics, fOptions, timeDate, timeSeries
+
+Package: fBasics
+Source: CRAN
+Version: 3011.87
+Hash: 23588ee642fb467535fe46777ce75f96
+Requires: gss, stabledist, timeDate, timeSeries
+
+Package: fOptions
+Source: CRAN
+Version: 3022.85
+Hash: e870eee63d56012e1a2aa5e16e24f3d3
+Requires: fBasics, timeDate, timeSeries
+
 Package: foreach
 Source: CRAN
 Version: 1.4.3
@@ -191,6 +214,12 @@ Package: formatR
 Source: CRAN
 Version: 1.5
 Hash: 258cf79a8dbeedf1c981cdb53837d2af
+
+Package: gdata
+Source: CRAN
+Version: 2.18.0
+Hash: 62797fafa287d1845a014c615d46e50c
+Requires: gtools
 
 Package: ggplot2
 Source: CRAN
@@ -203,10 +232,21 @@ Source: CRAN
 Version: 0.18.0
 Hash: 9dfaafbcca68be29b89ef7783dc1dac0
 
+Package: gmodels
+Source: CRAN
+Version: 2.16.2
+Hash: b8193ebba674bdcf164917241b26c9ae
+Requires: gdata
+
 Package: gridBase
 Source: CRAN
 Version: 0.4-7
 Hash: d4b7f73c0fdf11d18d1e1ae1643ac4ec
+
+Package: gss
+Source: CRAN
+Version: 2.1-7
+Hash: 8d134c22dc3bb1c4e8d2b56d656fa948
 
 Package: gsubfn
 Source: CRAN
@@ -218,6 +258,11 @@ Package: gtable
 Source: CRAN
 Version: 0.2.0
 Hash: cd78381a9d3fea966ac39bd0daaf5554
+
+Package: gtools
+Source: CRAN
+Version: 3.5.0
+Hash: 471b2e2452dfb30fdc1dd6f1b567925a
 
 Package: highr
 Source: CRAN
@@ -356,6 +401,12 @@ Source: CRAN
 Version: 1.0.0
 Hash: 77da8f1df873a4b91e5c4a68fe2fb1b6
 
+Package: prob
+Source: CRAN
+Version: 1.0-0
+Hash: f30fdb20f49fd2970bf4c2c43451048d
+Requires: combinat, fAsianOptions
+
 Package: proto
 Source: CRAN
 Version: 1.0.0
@@ -437,6 +488,11 @@ Version: 0.4-11
 Hash: e083fd1980e39fc2df6e5519bd4eb5ab
 Requires: DBI, RSQLite, chron, gsubfn, proto
 
+Package: stabledist
+Source: CRAN
+Version: 0.7-1
+Hash: 22535f64b26104efc7e78e42bdf4982c
+
 Package: stringdist
 Source: CRAN
 Version: 0.9.4.4
@@ -464,6 +520,17 @@ Source: CRAN
 Version: 1.3.3
 Hash: a848553d9be39039a12001fb46447d06
 Requires: Rcpp, rlang
+
+Package: timeDate
+Source: CRAN
+Version: 3012.100
+Hash: 78876c125c98033cd093fa0283469637
+
+Package: timeSeries
+Source: CRAN
+Version: 3022.101.2
+Hash: 7f535d772209c1f07ba0334352937556
+Requires: timeDate
 
 Package: whisker
 Source: CRAN
