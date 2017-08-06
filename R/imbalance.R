@@ -16,6 +16,9 @@
 #' @name imabalace
 NULL
 
+#' @useDynLib imbalance
+#' @importFrom Rcpp sourceCpp
+NULL
 
 #' Wrapper to ease the class balancing preprocessing task for binary class
 #' \code{dataset}

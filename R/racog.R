@@ -11,12 +11,12 @@
 #'
 #' @param dataset data.frame to treat. All columns, except \code{classAttr} one,
 #'   have to be numeric.
+#' @param iterations Integer. Number of iterations to run for each minority
+#'   example.
 #' @param burnin Integer. It determines how many examples generated for a given
 #'   one are going to be discarded firstly. By default, 100.
 #' @param lag Integer. Number of iterations between new generated example for a
 #'   minority one. By default, 20.
-#' @param iterations Integer. Number of iterations to run for each minority
-#'   example.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
 #'
@@ -30,7 +30,7 @@
 #' # Generates new minority examples
 #' newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 #'
-racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class"){
+racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class"){
   if(!is.data.frame(dataset))
     stop("dataset must be a data.frame")
   if(!classAttr %in% names(dataset))

@@ -13,7 +13,7 @@
 #'   Must have the same structure as \code{dataset}.
 #' @param k Integer. Number of nearest neighbours to use in KNN algorithm to
 #'   rule out samples.
-#' @param numIterations Integer. Number of iterations for the algorithm.
+#' @param iterations Integer. Number of iterations for the algorithm.
 #' @param smoothFactor A positive real. By default 1.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}
 #'   and \code{newSamples}.
@@ -31,9 +31,9 @@
 #' # and dataset must have same class attribute as newSamples
 #' names(newSamples) <- c(names(newSamples)[-5], "Class")
 #'
-#' neater(iris0, newSamples, k = 5, numIterations = 100,
+#' neater(iris0, newSamples, k = 5, iterations = 100,
 #'        smoothFactor = 1, classAttr = "Class")
-neater <- function(dataset, newSamples, k, numIterations,
+neater <- function(dataset, newSamples, k, iterations,
                    smoothFactor = 1, classAttr = "Class"){
   if(!is.data.frame(dataset) || !is.data.frame(newSamples) ||
      any(! names(dataset) %in% names(newSamples)) ||
@@ -43,9 +43,9 @@ neater <- function(dataset, newSamples, k, numIterations,
     stop(paste(classAttr, " attribute not found in dataset"))
   if(nrow(newSamples) == 0 || nrow(dataset) == 0)
     stop("newSamples and dataset cannot be empty")
-  if(!is.numeric(k) || !is.numeric(numIterations) ||
-     k <= 0 || numIterations < 0)
-    stop("numIterations and k must be positive integers")
+  if(!is.numeric(k) || !is.numeric(iterations) ||
+     k <= 0 || iterations < 0)
+    stop("iterations and k must be positive integers")
   if(!is.numeric(smoothFactor) || smoothFactor <= 0)
     stop("smooth must be a positive number")
 
@@ -82,7 +82,7 @@ neater <- function(dataset, newSamples, k, numIterations,
     })
   })
 
-  for(i in 1:numIterations){
+  for(i in 1:iterations){
     # Calculate total payoff for ith new sample
     payoffs <- sapply(1:nrow(newSamples), function(i){
       sum( partialPayoffs[[i]] * (probs[knnIndexes[i, ], ]

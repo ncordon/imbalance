@@ -42,5 +42,6 @@ data(iris0)
 set.seed(12345)
 
 # Generates new minority examples
+newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 
 }
