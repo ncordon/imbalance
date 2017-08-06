@@ -28,7 +28,7 @@
 #' set.seed(12345)
 #'
 #' # Generates new minority examples
-#  newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
+#' newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 #'
 racog <- function(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class"){
   if(!is.data.frame(dataset))
@@ -290,11 +290,14 @@ trainWrapper <- function(wrapper, train, trainClass){
     for(k in seq_along(attrs)){
       attr <- attrs[k]
 
-      first <- sapply(dependences[[k]]$conditioned, function(i){
+      i <- dependences[[k]]$conditioned
+      first <- list()
+
+      if(length(i) == 1){
         conditionedAttr <- tree[, 1][i]
         value <- toString(unlist(x[conditionedAttr]))
-        conditionedProbs[[i]][value, ]
-      })
+        first <- conditionedProbs[[i]][value, ]
+      }
 
       second <- sapply(dependences[[k]]$conditioning, function(i){
         conditioningAttr <- tree[, 2][i]
