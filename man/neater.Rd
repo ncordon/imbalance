@@ -4,7 +4,7 @@
 \alias{neater}
 \title{Fitering of oversampled data based on non-cooperative game theory}
 \usage{
-neater(dataset, newSamples, k, numIterations, smoothFactor = 1,
+neater(dataset, newSamples, k, iterations, smoothFactor = 1,
   classAttr = "Class")
 }
 \arguments{
@@ -16,7 +16,7 @@ Must have the same structure as \code{dataset}.}
 \item{k}{Integer. Number of nearest neighbours to use in KNN algorithm to
 rule out samples.}
 
-\item{numIterations}{Integer. Number of iterations for the algorithm.}
+\item{iterations}{Integer. Number of iterations for the algorithm.}
 
 \item{smoothFactor}{A positive real. By default 1.}
 
@@ -46,6 +46,6 @@ newSamples <- smotefamily::SMOTE(iris0[,-5], iris0[,5])$syn_data
 # and dataset must have same class attribute as newSamples
 names(newSamples) <- c(names(newSamples)[-5], "Class")
 
-neater(iris0, newSamples, k = 5, numIterations = 100,
+neater(iris0, newSamples, k = 5, iterations = 100,
        smoothFactor = 1, classAttr = "Class")
 }

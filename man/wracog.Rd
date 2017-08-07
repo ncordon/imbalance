@@ -54,7 +54,7 @@ trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
 }
 
 trainFold <- sample(1:nrow(haberman), nrow(haberman)/2, FALSE)
-wracog(haberman[trainFold, ], haberman[-trainFold, ],
-       myWrapper, classAttr = "Class")
+newSamples <- wracog(haberman[trainFold, ], haberman[-trainFold, ],
+                     myWrapper, classAttr = "Class")
 
 }

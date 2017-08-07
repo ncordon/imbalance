@@ -4,20 +4,20 @@
 \alias{racog}
 \title{Rapidy Converging Gibbs algorithm.}
 \usage{
-racog(dataset, burnin = 100, lag = 20, iterations, classAttr = "Class")
+racog(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class")
 }
 \arguments{
 \item{dataset}{data.frame to treat. All columns, except \code{classAttr} one,
 have to be numeric.}
+
+\item{iterations}{Integer. Number of iterations to run for each minority
+example.}
 
 \item{burnin}{Integer. It determines how many examples generated for a given
 one are going to be discarded firstly. By default, 100.}
 
 \item{lag}{Integer. Number of iterations between new generated example for a
 minority one. By default, 20.}
-
-\item{iterations}{Integer. Number of iterations to run for each minority
-example.}
 
 \item{classAttr}{String. Indicates the class attribute from \code{dataset}.
 Must exist in it.}

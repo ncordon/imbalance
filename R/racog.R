@@ -46,7 +46,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
   minorityClass <- .whichMinorityClass(dataset, classAttr)
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
-
+  attrs <- names(minority)
   probDist <- .genDistribution(minority)
   minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
@@ -63,7 +63,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 
 
   # Prepare newSamples output
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr)
 }
 
 
