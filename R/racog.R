@@ -136,8 +136,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   minorityClass <- .whichMinorityClass(train, classAttr)
 
   # Strip class column from both train and validation
-  minority <- train[train[, classAttr] == minorityClass,
-                    names(train) != classAttr]
+  minority <- train[train[, classAttr] == minorityClass, names(train) != classAttr]
   trainClass <- train[, classAttr]
   validationClass <- validation[, classAttr]
   train <- train[, names(train) != classAttr]
@@ -156,7 +155,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
                " is the class of the model returned by", trainMethod))
 
   minority <- data.matrix(minority)
-  data.frame(matrix(ncol = ncol(minority), nrow = 0))
+  newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
     minority <- t(apply(minority, MARGIN = 1, gibbsSampler))
@@ -252,82 +251,96 @@ trainWrapper <- function(wrapper, train, trainClass){
 
   # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
-  genProbs <- function(i,j){
-    apply(edges, MARGIN = 1, function(r){
-      contingency <- table(samples[, r[i]], samples[, r[j]])
-      rowProbs <- prop.table(contingency, margin = 1)
-      #rowProbs <- as(rowProbs, "matrix")
-      #as(rowProbs, "dgCMatrix")
-    })
+  genProbs <- function(i, j){
+    contingency <- table(samples[, i], samples[, j])
+    prop.table(contingency, margin = 1)
+    #rowProbs <- as(rowProbs, "matrix")
+    #hash::hash( as.list(as.data.frame(rowProbs)) )
+    #as(rowProbs, "dgCMatrix")
   }
-
-  conditionedProbs<- genProbs(1,2)
-  conditioningProbs <- genProbs(2,1)
-
 
   # Calculate absolute probability distributions
   absoluteProbs <- apply(samples, MARGIN = 2, function(col){
     prop.table(table(col))
   })
 
-  # Calculate absolute probability distribution of the root
-  rootProb <- table(samples[, root])
-  rootProb <- rootProb / sum(rootProb)
 
   # Store attributes to which a given atribute is conditioned to,
   # attributes which are being conditioned by a given one,
   # and posible values for each attribute
-  dependences <- lapply(seq_along(attrs), function(attrIndex){
+  probDist <- lapply(attrs, function(attr){
     # Calc arcs in which attr is conditioned to other attribute
-    conditioned <- which(edges[,2] == attrIndex)
+    conditioned <- which(edges[, 2] == attr)
     # Calc arcs in which attr is conditioning other attribute
-    conditioning <- which(edges[,1] == attrIndex)
+    conditioning <- which(edges[, 1] == attr)
+    conditionedProbs <- NULL
+    conditioningProbs <- NULL
+    values <- as.numeric(names(absoluteProbs[[attr]]))
 
-    if(length(conditioned) > 0)
-      values <- colnames(conditionedProbs[[conditioned[1]]])
-    else
-      values <- colnames(conditioningProbs[[conditioning[1]]])
+    if(length(conditioned) > 0){
+      conditioned <- edges[conditioned, ]
+      conditionedProbs <- genProbs(conditioned[1], conditioned[2])
+      conditioned <- conditioned[1]
+    } else{
+      conditioned <- NULL
+    }
 
-    list(conditioned = conditioned,
+    if(length(conditioning) > 0){
+      conditioning <- edges[conditioning, 2]
+
+      conditioningProbs <- lapply(conditioning, function(conditioningAttr){
+          genProbs(conditioningAttr, attr)
+      })
+    } else{
+      conditioning <- NULL
+    }
+
+    list(conditionedProbs = conditionedProbs,
+         conditioningProbs = conditioningProbs,
+         absoluteProb = absoluteProbs[[attr]],
+         conditioned = conditioned,
          conditioning = conditioning,
-         values = as.numeric(values))
+         values = values)
   })
 
   # Generate the Gibbs Sampler
   gibbsSampler <- function(x){
-    for(attr in seq_along(attrs)){
-      i <- dependences[[attr]]$conditioned
+    for(attr in attrs){
+      i <- probDist[[attr]]$conditioned
       first <- list()
 
-      if(length(i) == 1){
-        conditionedAttr <- edges[, 1][i]
-        value <- toString(unlist(x[conditionedAttr]))
-        first <- conditionedProbs[[i]][value, ]
+      if(!is.null(i)){
+        value <- toString(unlist(x[i]))
+        first <- probDist[[attr]]$conditionedProbs[value, ]
       }
 
-      second <- sapply(dependences[[attr]]$conditioning, function(i){
-        conditioningAttr <- edges[, 2][i]
-        value <- toString(unlist(x[conditioningAttr]))
-        r <- conditioningProbs[[i]][value, ]
-        r * absoluteProbs[[conditioningAttr]][toString(value)] / absoluteProbs[[attr]]
+      valuesConditioning <- sapply(probDist[[attr]]$conditioning, function(i){
+        toString(unlist(x[i]))
       })
 
+      second <- mapply(function(dist, value){
+          r <- dist[value, ]
+          r / probDist[[attr]]$absoluteProb
+      }, probDist[[attr]]$conditioningProbs, valuesConditioning)
+
+
       if(attr == root){
-        probVectors <- cbind(first, second, rootProb)
+        probVectors <- cbind(first, second, probDist[[attr]]$absoluteProb)
       } else{
         probVectors <- cbind(first, second)
       }
 
-      # Prob of attr. is product of probabilites from the dependence edges
+      # Prob of attr. is product of probabilites from the dependence tree
       ithProb <- apply(probVectors, MARGIN = 1, function(r){
         prod(unlist(r))
       })
 
+
       # If all probabilities are zero, create vector with same probabilities
       if(!any(ithProb != 0))
-        ithProb <- rep(1,length(ithProb))
+        ithProb <- rep(1, length(ithProb))
 
-      x[attr] = sample( dependences[[attr]]$values, 1, prob = ithProb )
+      x[attr] = sample( probDist[[attr]]$values, 1, prob = ithProb )
     }
     # Return new sample
     x
