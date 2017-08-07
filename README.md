@@ -34,5 +34,3 @@ plotComparison(iris0, rwoBalanced, "Class", col=2, names(iris0))
 ```
 
 ![](README-example-1.png)
-
-    #> [1] "Comparative grid plotted"
