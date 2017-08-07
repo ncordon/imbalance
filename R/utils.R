@@ -37,7 +37,7 @@ plotComparison <- function(dataset, anotherDataset, classAttr = "Class", cols = 
 
   attrs <- attrs[attrs != classAttr]
   plotGrid <- utils::combn(attrs, 2)
-  nPlots <- 2*ncol(plotGrid)
+  nPlots <- 2 * ncol(plotGrid)
   rows <- ceiling(nPlots/cols)
   # Palette for plots
   colorPalette <-  c("#000000", "#E69F00", "#56B4E9", "#009E73",
@@ -45,25 +45,32 @@ plotComparison <- function(dataset, anotherDataset, classAttr = "Class", cols = 
 
   # Starts new grid page with layout to make the comparison
   grid::grid.newpage()
-  grid::pushViewport(grid::viewport(layout = grid::grid.layout(rows, cols)))
+  myLayout = grid::grid.layout(rows, cols) #, heights = c(1, rep(5, rows)))
+  grid::pushViewport(grid::viewport(layout = myLayout))
 
-  # fill odd or even cells, depending on odds argument
+  # Fill odd or even cells, depending on odds argument
   fillCells <- function(dataset, odds){
     parity <- ifelse(odds, 0, 1)
+    titleText <- ifelse(odds, "Original dataset", "Modified dataset")
 
-    sapply(1:ncol(plotGrid), function(index){
+    sapply(seq_len(ncol(plotGrid)), function(index){
       graph <-
         ggplot2::ggplot(dataset, ggplot2::aes_string(plotGrid[1, index],
                                                      plotGrid[2, index],
                         col = classAttr)) + ggplot2::geom_point(alpha = 0.3) +
                         ggplot2::scale_color_manual(values = colorPalette)
+                        # + ggplot2::theme(legend.position = "none")
 
-      # if(class(dataset[, plotGrid[1,index]]) %in% c("factor", "character"))
-      #   graph <- graph + ggplot2::scale_x_continuous(plotGrid[1, index],
-      #                                                breaks = NULL,
-      #
-      vp <- grid::viewport(layout.pos.row = (2 * (index-1) + parity) %/% cols + 1,
-                     layout.pos.col = (2 * (index-1) + parity) %% cols + 1)
+      # Calc position on the grid
+      rowPos = (2 * (index-1) + parity) %/% cols + 1
+      colPos = (2 * (index-1) + parity) %% cols + 1
+
+      # If first row of plots, add a title pointing out original or modified dataset
+      if(rowPos == 1)
+        graph <- graph + ggplot2::ggtitle(titleText)
+
+      # Plot graph to grid
+      vp <- grid::viewport(layout.pos.row = rowPos, layout.pos.col = colPos)
       print(graph, vp = vp)
     })
   }
@@ -71,7 +78,9 @@ plotComparison <- function(dataset, anotherDataset, classAttr = "Class", cols = 
   # Fill odd cells first, even ones later
   fillCells(dataset, odds = TRUE)
   fillCells(anotherDataset, odds = FALSE)
-  print("Comparative grid plotted")
+
+  # Return no result
+  invisible(dataset)
 }
 
 
