@@ -8,4 +8,5 @@
 ^README\.Rmd$
 ^README-.*\.png$
 ^\.travis\.yml$
+^_pkgdown\.yml$
 

@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 racog_ <- function(dataset, edges, root, iterations, burnin, lag) {
-    .Call('imbalance_racog_', PACKAGE = 'imbalance', dataset, edges, root, iterations, burnin, lag)
+    .Call(`_imbalance_racog_`, dataset, edges, root, iterations, burnin, lag)
 }
 

@@ -1,0 +1,5 @@
+url: http://ncordon.github.io/imbalance
+
+template:
+  params:
+    bootswatch: cosmo

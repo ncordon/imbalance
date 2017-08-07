@@ -34,7 +34,7 @@ devtools::install_github("ncordon/imbalance")
 
 Run `rwo` algorithm on `iris0` imbalanced dataset and plot a comparison between attributes.
 
-```{r example, fig.width=10, fig.height=10}
+```{r example, fig.width = 10, fig.height = 10}
 library('imbalance')
 
 data(iris0)
@@ -44,3 +44,4 @@ rwoSamples <- rwo(iris0, numInstances = 100)
 rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
 plotComparison(iris0, rwoBalanced, "Class", col=2, names(iris0))
 ```
+
