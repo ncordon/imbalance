@@ -47,7 +47,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
 
-  gibbsSampler <- .makeGibbsSampler(minority)
+  probDist <- .genDistribution(minority)
   minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
@@ -55,7 +55,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
   # new examples, approximating minority distribution with a Gibss sampler
   for(k in seq_len(iterations)){
     # Generate new sample using Gibbs Sampler
-    minority <- t(apply(minority, MARGIN = 1, gibbsSampler))
+    minority <- gibbsSampler(probDist, minority)
 
     if(k > burnin && k%%lag == 0)
       newSamples <- rbind.data.frame(newSamples, minority)
@@ -141,9 +141,10 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   validationClass <- validation[, classAttr]
   train <- train[, names(train) != classAttr]
   validation <- validation[, names(validation) != classAttr]
+  attrs <- names(minority)
 
   # Wrapper for the Gibbs sampler with input and outpus as data.frame
-  gibbsSampler <- .makeGibbsSampler(minority)
+  probDist <- .genDistribution(minority)
 
   # Value for lasts winSlides standard deviations
   lastSlides <- rep(Inf, slideWin)
@@ -158,7 +159,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
-    minority <- t(apply(minority, MARGIN = 1, gibbsSampler))
+    minority <- gibbsSampler(probDist, minority)
     prediction <- predict(model, minority)
     misclassified <- minority[prediction != minorityClass, , drop = FALSE]
     newSamples <- rbind.data.frame(newSamples, misclassified)
@@ -173,7 +174,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
     lastSlides <- lastSlides[1:slideWin]
   }
 
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr)
 }
 
 
@@ -228,16 +229,14 @@ trainWrapper <- function(wrapper, train, trainClass){
 }
 
 
-#' Generate Gibss Sampler
+#' Generate joint distribution approximation using Chow Liu dependence tree
 #'
-#' Generates Gibbs Sampler algorithm for approximate samples distribution
 #' @param samples A numerical dataframe of samples whose distribution
 #'   approximate
 #'
-#' @return GibbsSampler. A function that receives a sample, and generates a new
-#'   one using the distribution
+#' @return An S3 object with class \code{probDistribution}
 #' @noRd
-.makeGibbsSampler <- function(samples){
+.genDistribution <- function(samples){
   attrs <- names(samples)
   DT <- bnlearn::chow.liu(samples)$arcs
   # Choose only one sense for the arcs (the odd ones) and make tree directed
@@ -303,8 +302,23 @@ trainWrapper <- function(wrapper, train, trainClass){
          values = values)
   })
 
-  # Generate the Gibbs Sampler
-  gibbsSampler <- function(x){
+  class(probDist) <- "probDistribution"
+  attr(probDist, "attrs") <- attrs
+  attr(probDist, "root") <- root
+  probDist
+}
+
+
+
+gibbsSampler <- function(probDist, samples){
+  UseMethod("gibbsSampler")
+}
+
+
+gibbsSampler.probDistribution <- function(probDist, samples){
+  attrs <- probDist$attrs
+
+  t(apply(samples, MARGIN = 1, function(x){
     for(attr in attrs){
       i <- probDist[[attr]]$conditioned
       first <- list()
@@ -324,7 +338,7 @@ trainWrapper <- function(wrapper, train, trainClass){
       }, probDist[[attr]]$conditioningProbs, valuesConditioning)
 
 
-      if(attr == root){
+      if(attr == probDist$root){
         probVectors <- cbind(first, second, probDist[[attr]]$absoluteProb)
       } else{
         probVectors <- cbind(first, second)
@@ -344,8 +358,5 @@ trainWrapper <- function(wrapper, train, trainClass){
     }
     # Return new sample
     x
-  }
-
-  # Return Gibbs Sampler
-  gibbsSampler
+  }))
 }
