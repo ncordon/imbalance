@@ -16,7 +16,7 @@
 #' @name imabalace
 NULL
 
-#' @useDynLib imbalance
+#' @useDynLib imbalance, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 NULL
 

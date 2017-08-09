@@ -4,8 +4,8 @@
 \alias{plotComparison}
 \title{Plots comparison between the original and the new balanced dataset.}
 \usage{
-plotComparison(dataset, anotherDataset, classAttr = "Class", cols = 2,
-  attrs)
+plotComparison(dataset, anotherDataset, attrs, cols = 2,
+  classAttr = "Class")
 }
 \arguments{
 \item{dataset}{A \code{data.frame}. The former and imbalanced dataset.}
@@ -13,14 +13,14 @@ plotComparison(dataset, anotherDataset, classAttr = "Class", cols = 2,
 \item{anotherDataset}{A \code{data.frame}. The balanced dataset. \code{dataset}
 and \code{anotherDataset} must have the same columns.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exsits in it.}
+\item{attrs}{Vector of String. Attributes to compare. The function generates
+each posible combination of attributes.}
 
 \item{cols}{Integer. It indicates the number of columns of resulting grid.
 Must be an even number. Default value of 2.}
 
-\item{attrs}{Vector of String. Attributes to compare. The function generates
-each posible combination of attributes.}
+\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
+Must exsits in it.}
 }
 \value{
 Plot of 2D comparison between the variables.
@@ -35,6 +35,6 @@ set.seed(12345)
 
 rwoSamples <- rwo(iris0, numInstances = 100)
 rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
-plotComparison(iris0, rwoBalanced, "Class", col=2, names(iris0))
+plotComparison(iris0, rwoBalanced, names(iris0), cols = 2, classAttr = "Class")
 
 }

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 [![Build Status](https://travis-ci.org/ncordon/imbalance.svg?branch=master)](https://travis-ci.org/ncordon/imbalance)
 [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.4.1-6666ff.svg)](https://cran.r-project.org/)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/imbalance)](https://cran.r-project.org/package=imbalance)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.0.0.9000-orange.svg?style=flat-square)](commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.0.0.9000-orange.svg?style=flat-square)]
 
 
 `imbalance` provides a set of tools to work with imbalanced datasets: novel oversampling algorithms, filtering of instances and evaluation of synthetic instances.
@@ -35,13 +35,13 @@ devtools::install_github("ncordon/imbalance")
 Run `rwo` algorithm on `iris0` imbalanced dataset and plot a comparison between attributes.
 
 ```{r example, fig.width = 10, fig.height = 10}
-library('imbalance')
+library("imbalance")
 
 data(iris0)
 set.seed(12345)
 
 rwoSamples <- rwo(iris0, numInstances = 100)
 rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
-plotComparison(iris0, rwoBalanced, "Class", col=2, names(iris0))
+plotComparison(iris0, rwoBalanced, names(iris0), cols = 2, classAttr = "Class")
 ```
 

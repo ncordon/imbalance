@@ -6,12 +6,12 @@
 #' @param dataset A \code{data.frame}. The former and imbalanced dataset.
 #' @param anotherDataset A \code{data.frame}. The balanced dataset. \code{dataset}
 #'   and \code{anotherDataset} must have the same columns.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exsits in it.
-#' @param cols Integer. It indicates the number of columns of resulting grid.
-#'   Must be an even number. Default value of 2.
 #' @param attrs Vector of String. Attributes to compare. The function generates
 #'   each posible combination of attributes.
+#' @param cols Integer. It indicates the number of columns of resulting grid.
+#'   Must be an even number. Default value of 2.
+#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#'   Must exsits in it.
 #'
 #' @return Plot of 2D comparison between the variables.
 #' @export
@@ -21,9 +21,9 @@
 #'
 #' rwoSamples <- rwo(iris0, numInstances = 100)
 #' rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
-#' plotComparison(iris0, rwoBalanced, "Class", col=2, names(iris0))
+#' plotComparison(iris0, rwoBalanced, names(iris0), cols = 2, classAttr = "Class")
 #'
-plotComparison <- function(dataset, anotherDataset, classAttr = "Class", cols = 2, attrs){
+plotComparison <- function(dataset, anotherDataset, attrs, cols = 2, classAttr = "Class"){
   if(!is.data.frame(dataset) || !is.data.frame(anotherDataset) ||
      any(! names(dataset) %in% names(anotherDataset)) ||
      any(! names(anotherDataset) %in% names(dataset)))
