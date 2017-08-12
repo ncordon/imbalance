@@ -24,10 +24,8 @@
 #' newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 #'
 rwo <- function(dataset, numInstances, classAttr = "Class"){
-  if(!is.data.frame(dataset))
-    stop("dataset must be a data.frame")
-  if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, "attribute not found in dataset"))
+  checkDataset(dataset, "dataset")
+  checkDatasetClass(dataset, classAttr, "dataset")
   if(!is.numeric(numInstances) || numInstances < 0)
     stop("numInstances must be a positive integer")
 
@@ -36,7 +34,7 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
 
-  n <- nrow(minority)
+  m <- nrow(minority)
 
   if(nrow(minority) > 0){
     iterPerInstance <- ceiling(numInstances / nrow(minority))
@@ -46,11 +44,11 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   }
 
   newSamples <- lapply(minority, function(x){
-    # If attribute is numeric, generate new minority sample preserving
+    # If attribute is continuous, generate new minority sample preserving
     # mean and variance of existent samples
-    if(is.numeric(x)){
+    if(class(x) == "numeric"){
       variance <- stats::var(x)
-      x - variance/sqrt(n) * scaleFactors
+      x - variance/sqrt(m) * scaleFactors
 
     # Else if attribute is not numeric, make a roulette out of possible
     # values for the attribute and their frequency

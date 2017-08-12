@@ -31,12 +31,11 @@
 #' newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
 #'
 racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class"){
-  if(!is.data.frame(dataset))
-    stop("dataset must be a data.frame")
-  if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, "attribute not found in dataset"))
-  if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
-    stop("all columns of dataset must be numeric")
+  checkDataset(dataset, "dataset")
+  checkDatasetClass(dataset, classAttr, "dataset")
+  colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
      burnin < 0 || lag < 0 || iterations < 0)
     stop("burnin, lag and iterations must be positive integers")
@@ -63,7 +62,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 
 
   # Prepare newSamples output
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
 }
 
 
@@ -116,16 +115,21 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 wracog <- function(train, validation, wrapper, slideWin = 10,
                    threshold = 0.02, classAttr = "Class"){
   trainMethod <- paste("trainWrapper", class(wrapper), sep=".")
-  colTypes <- sapply(train[, names(train) != classAttr], class)
 
-  if(!is.data.frame(train) || !is.data.frame(validation) ||
-     any(! names(train) %in% names(validation)) ||
-     any(! names(validation) %in% names(train)))
-    stop("train and validation must be data.frames with the same column names")
-  if(any(! colTypes == "numeric"))
-    stop("all columns of dataset must be numeric")
-  if(!classAttr %in% names(train))
-    stop(paste(classAttr, "attribute not found in dataset"))
+  checkDataset(train, "train")
+  checkDataset(validation, "validation")
+  colTypes <- .colTypes(train, exclude = classAttr)
+  train <- .convertToNumeric(train, exclude = classAttr)
+  validation <- .convertToNumeric(validation, exclude = classAttr)
+
+  if(any(! names(train) %in% names(validation)) ||
+     any(! names(validation) %in% names(train))){
+    stop("train and validation must have the same column names")
+  }
+
+  checkAllColumnsNumeric(train, exclude = classAttr, "train")
+  checkDatasetClass(train, classAttr, "train")
+
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
      slideWin < 0 || threshold <= 0 || threshold >= 1)
     stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
@@ -174,7 +178,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
     lastSlides <- lastSlides[1:slideWin]
   }
 
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
 }
 
 

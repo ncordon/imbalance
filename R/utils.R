@@ -182,7 +182,8 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 
 #' Given a \code{data.frame} \code{newSamples}, it changes all the columns names
 #' by \code{colNames} and appends a column \code{minority.class} with all values
-#' as \code{classAttr}. It also renames all rows to be consecutive.
+#' as \code{classAttr}. It also renames all rows to be consecutive and converts
+#' the columns to the types specified in \code{colTypes}
 #'
 #' @param newSamples A \code{data.frame} containing new examples.
 #' @param minorityClass A \code{factor} or \code{character} corresponding to the
@@ -191,15 +192,26 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #'   names we want for \code{newSamples}. For speed purposes, it does not check
 #'   that lengths match.
 #' @param classAttr A \code{character} containing the class name attribute.
+#' @param colTypes A vector of \code{character} containing the original types of
+#'   the columns, if a conversion is needed
 #'
 #' @return A \code{data.frame} with described style applied.
 #' @noRd
-.normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr){
+.normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr, colTypes = c()){
   if(nrow(newSamples) > 0){
+    if(length(colTypes) > 0){
+      newSamples <- mapply(function(col, type){
+        eval(parse(text = paste("as.", type, "(col)", sep = "")))
+      }, as.list(newSamples), colTypes, SIMPLIFY = FALSE)
+
+      newSamples <- as.data.frame(newSamples)
+    }
+
     names(newSamples) <- colNames
     newSamples[, classAttr] <- minorityClass
-  } else
+  } else{
     newSamples <- data.frame()
+  }
 
   rownames(newSamples) <- c()
   newSamples
@@ -209,12 +221,57 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' Returns for a given \code{dataset} the classes of all of its columns
 #'
 #' @param dataset A \code{data.frame}.
-#' @param exclude A \code{character} vector containing all column names to be
-#'   ignored.
+#' @param exclude \code{character} vector containing columns to be excluded
 #'
 #' @return A named vector with all the column classes.
 #' @noRd
 .colTypes <- function(dataset, exclude = c()){
   types <- sapply(dataset, class)
   types[!names(types) %in% exclude]
+}
+
+
+
+#' Convert columns of a dataset to numeric
+#'
+#' @param dataset A \code{data.frame} whose columns are to be converted to
+#'   numeric type
+#' @param exclude \code{character} vector containing columns to be excluded
+#'
+#' @return The dataset whit factor columns converted
+#'
+#' @examples
+.convertToNumeric <- function(dataset, exclude = c()){
+  colTypes <- .colTypes(dataset, exclude)
+  colFactor <- which(colTypes != "numeric")
+
+  dataset[, colFactor] <- sapply(dataset[, colFactor], function(col){
+    if(class(col) == "factor"){
+      col <- as.numeric(levels(col))[col]
+    }
+    else{
+      col <- as.numeric(col)
+    }
+    if(anyNA(col)){
+      stop("Cannot convert columns to numeric")
+    } else{
+      col
+    }
+  })
+
+  dataset
+}
+
+
+checkDatasetClass <- function(dataset, classAttr, name){
+  if(!classAttr %in% names(dataset))
+    stop(paste(classAttr, "attribute not found in", name))
+}
+checkDataset <- function(dataset, name){
+  if(!is.data.frame(dataset))
+    stop(paste(name, "must be a data.frame"))
+}
+checkAllColumnsNumeric <- function(dataset, exclude = c(), name){
+  if(any(! .colTypes(dataset, exclude) %in% c("numeric", "integer")))
+    stop(paste("all columns of", name, "must be numeric or numeric factors"))
 }

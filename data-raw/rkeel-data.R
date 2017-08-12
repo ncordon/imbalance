@@ -9,9 +9,6 @@ dfnormalize <- function(dataset){
       if(is.factor(dataset[,name])){
         dataset[, name] <- as.numeric(as.character(dataset[,name]))
       }
-      else if(is.factor(dataset[,name])){
-        dataset[, name] <- as.character(dataset[,name])
-      }
     } else{
       dataset[, name] <- as.factor(dataset[, name])
     }
@@ -70,8 +67,9 @@ yeast4 <- dfnormalize(RKEEL::read.keel("../Data/yeast4.dat"))
 # Further modifications
 ecoli1$Lip <- as.factor(ecoli1$Lip)
 ecoli1$Chg <- as.factor(ecoli1$Chg)
-yeast4$Pox <- as.factor(yeast4$Pox)
 yeast4$Erl <- as.factor(yeast4$Erl)
+newthyroid1[, -6] <- sapply(newthyroid1[, -6], as.integer)
+wisconsin[, -10] <- as.data.frame(lapply(wisconsin[, -10], as.factor))
 # abalone19$Sex <- as.factor(abalone19$Sex)
 # abalone9.18$Sex <- as.factor(abalone9.18$Sex)
 

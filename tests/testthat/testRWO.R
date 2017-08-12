@@ -1,16 +1,17 @@
+library(testthat)
 # Loads data
 data(ecoli1)
+data(glass0)
 data(haberman)
 data(iris0)
-data(yeast4)
 data(newthyroid1)
 data(wisconsin)
-data(glass0)
+data(yeast4)
 
 context("RWO testing")
 
 ####################################################################
-# Tests for RACOG
+# Tests for RWO
 ####################################################################
 rwoTestOutput <- function(d){
   dataset <- eval(as.name(d))
@@ -23,11 +24,13 @@ rwoTestOutput <- function(d){
   })
 }
 
+rwoTestOutput("ecoli1")
 rwoTestOutput("glass0")
 rwoTestOutput("haberman")
-rwoTestOutput("ecoli1")
+rwoTestOutput("iris0")
 rwoTestOutput("newthyroid1")
-
+rwoTestOutput("wisconsin")
+rwoTestOutput("yeast4")
 
 test_that("Check of parameters is properly done in RWO", {
   expect_error(rwo(iris0, classAttr = "Species"))

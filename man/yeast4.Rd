@@ -18,9 +18,9 @@ and 9 variables:
     N-terminal region (20 residues long) of mitochondrial and non-mitochondrial
     proteins. Continuous attribute.}
   \item{Erl}{Presence of "HDEL" substring (thought to act as a signal for
-    retention in the endoplasmic reticulum lumen). Binary attribute. Numeric
-    attribute. Discrete attribute.}
-  \item{Pox}{Peroxisomal targeting signal in the C-terminus. Discrete attribute.}
+    retention in the endoplasmic reticulum lumen). Binary attribute. Discrete
+    attribute.}
+  \item{Pox}{Peroxisomal targeting signal in the C-terminus. Continuous attribute.}
   \item{Vac}{Score of discriminant analysis of the amino acid content of vacuolar
     and extracellular proteins. Continuous attribute.}
   \item{Nuc}{Score of discriminant analysis of nuclear localization signals of
