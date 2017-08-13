@@ -218,18 +218,36 @@ trainWrapper <- function(wrapper, train, trainClass){
 #' makeDirected(tree)
 #'
 .makeDirected <- function(tree){
-  visited <- c()
-  # For each arc, marks the second node as visited
-  # If for a node second coordinate has already been visited, it inverts the sense
-  # of the arc
-  for (k in 1:nrow(tree)){
-    if(tree[k,2] %in% visited){
-      tree[k,] <- tree[k,c(2,1)]
+  # Visit first two nodes, marking them as parents
+  parents <- tree[1, ]
+  directed <- tree[1, , drop = FALSE]
+  tree <- tree[-1, , drop = FALSE]
+
+  # While there still are parents and edges to make oriented,
+  # select parent, orient children
+  while (length(parents) > 0 && nrow(tree) > 0){
+    current <- parents[1]
+    parents <- parents[-1]
+
+    indexes <- which(tree[, 1] == current | tree[, 2] == current)
+
+    newDirected <- t(apply(tree[indexes, , drop = FALSE], MARGIN = 1,
+      function(edge){
+        if(edge[2] == current){
+          edge[c(2,1)]
+        } else{
+          edge
+        }
+      }))
+
+    if(length(indexes) > 0){
+      tree <- tree[-indexes, , drop = FALSE]
+      parents <- c(parents, newDirected[, 2])
+      directed <- rbind(directed, newDirected)
     }
-    visited <- c(visited, tree[k,2])
   }
 
-  tree
+  list(edges = directed, root = directed[1, 1])
 }
 
 
@@ -244,13 +262,14 @@ trainWrapper <- function(wrapper, train, trainClass){
   attrs <- names(samples)
   DT <- bnlearn::chow.liu(samples)$arcs
   # Choose only one sense for the arcs (the odd ones) and make tree directed
-  edges <- unname(DT[ seq(1, nrow(DT), 2), ])
-  edges <- .makeDirected(edges)
-  edges <- apply(edges, MARGIN = c(1,2), function(attr){
+  tree <- unname(DT[ seq(1, nrow(DT), 2), ])
+  tree <- apply(tree, MARGIN = c(1,2), function(attr){
     which(attrs == attr)
   })
   attrs <- seq_along(attrs)
-  root = attrs[! attrs %in% edges[, 2]]
+  tree <- .makeDirected(tree)
+  edges <- tree$edges
+  root <- tree$root
 
   # Calculate conditioned probability distributions
   # Cols are variables to which we are conditioning to
@@ -314,13 +333,24 @@ trainWrapper <- function(wrapper, train, trainClass){
 
 
 
+#' Gibbs Sampler generic S3 method
+#'
+#' @param probDist A probability distribution
+#' @param samples A \code{matrix}. Samples for which to generate new ones.
+#'
+#' @noRd
 gibbsSampler <- function(probDist, samples){
   UseMethod("gibbsSampler")
 }
 
 
+#' Gibbs sampler for a class probDistribution
+#' @inheritParams gibbsSampler
+#'
+#' @return a new sample
+#' @noRd
 gibbsSampler.probDistribution <- function(probDist, samples){
-  attrs <- probDist$attrs
+  attrs <- attr(probDist, "attrs")
 
   t(apply(samples, MARGIN = 1, function(x){
     for(attr in attrs){
@@ -342,7 +372,7 @@ gibbsSampler.probDistribution <- function(probDist, samples){
       }, probDist[[attr]]$conditioningProbs, valuesConditioning)
 
 
-      if(attr == probDist$root){
+      if(attr == attr(probDist, "root")){
         probVectors <- cbind(first, second, probDist[[attr]]$absoluteProb)
       } else{
         probVectors <- cbind(first, second)
@@ -352,7 +382,6 @@ gibbsSampler.probDistribution <- function(probDist, samples){
       ithProb <- apply(probVectors, MARGIN = 1, function(r){
         prod(unlist(r))
       })
-
 
       # If all probabilities are zero, create vector with same probabilities
       if(!any(ithProb != 0))

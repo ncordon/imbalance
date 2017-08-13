@@ -263,14 +263,36 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 }
 
 
+#' Check that a class attribute belongs to a dataset
+#'
+#' @param dataset A \code{data.frame} to check.
+#' @param classAttr A \code{character} containing the name of the class column.
+#' @param name The name for the \code{dataset}.
+#'
 checkDatasetClass <- function(dataset, classAttr, name){
   if(!classAttr %in% names(dataset))
     stop(paste(classAttr, "attribute not found in", name))
 }
+
+
+#' Check that a param is \code{data.frame}
+#'
+#' @param dataset A \code{data.frame} to check.
+#' @param name The name for the \code{dataset}.
+#'
 checkDataset <- function(dataset, name){
   if(!is.data.frame(dataset))
     stop(paste(name, "must be a data.frame"))
 }
+
+
+#' Check that all columns of a given \code{data.frame} are numeric
+#'
+#' @param dataset A \code{data.frame}
+#' @param exclude \code{character} vector containing columns to be excluded
+#' @param name The name for the \code{dataset}.
+#' @return The dataset whit factor columns converted
+#'
 checkAllColumnsNumeric <- function(dataset, exclude = c(), name){
   if(any(! .colTypes(dataset, exclude) %in% c("numeric", "integer")))
     stop(paste("all columns of", name, "must be numeric or numeric factors"))

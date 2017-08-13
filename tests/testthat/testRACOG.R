@@ -15,21 +15,23 @@ context("RACOG and wRACOG testing")
 ####################################################################
 racogTestOutput <- function(d){
   dataset <- eval(as.name(d))
-  newSamples <- racog(dataset, iterations = 100,
-                      burnin = 10, lag = 10, classAttr = "Class")
+  iterations <- 50
+  burnin <- 10
+  lag <- 10
+  newSamples <- racog(dataset, iterations = iterations,
+                      burnin = burnin, lag = lag, classAttr = "Class")
 
   test_that(paste("Correct structure of examples from RACOG and dataset", d), {
-    expect_equal(nrow(newSamples), (100-10)/10 * length(which(dataset$Class == "positive")))
+    expect_equal(nrow(newSamples), (iterations - burnin) / lag * length(which(dataset$Class == "positive")))
     expect_equal(as.character(unique(newSamples$Class)), "positive")
   })
 }
 
-racogTestOutput("ecoli1")
-racogTestOutput("glass0")
 racogTestOutput("haberman")
 racogTestOutput("iris0")
 racogTestOutput("newthyroid1")
-racogTestOutput("wisconsin")
+#racogTestOutput("wisconsin")
+#racogTestOutput("ecoli1")
 racogTestOutput("yeast4")
 
 
