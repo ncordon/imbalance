@@ -118,14 +118,15 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 
   checkDataset(train, "train")
   checkDataset(validation, "validation")
-  colTypes <- .colTypes(train, exclude = classAttr)
-  train <- .convertToNumeric(train, exclude = classAttr)
-  validation <- .convertToNumeric(validation, exclude = classAttr)
-
+  checkDatasetClass(train, classAttr, "train")
   if(any(! names(train) %in% names(validation)) ||
      any(! names(validation) %in% names(train))){
     stop("train and validation must have the same column names")
   }
+
+  colTypes <- .colTypes(train, exclude = classAttr)
+  train <- .convertToNumeric(train, exclude = classAttr)
+  validation <- .convertToNumeric(validation, exclude = classAttr)
 
   checkAllColumnsNumeric(train, exclude = classAttr, "train")
   checkDatasetClass(train, classAttr, "train")

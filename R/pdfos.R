@@ -21,13 +21,12 @@
 #' newSamples <- pdfos(iris0, numInstances = 100)
 #'
 pdfos <- function(dataset, numInstances, classAttr = "Class"){
-  if(!is.data.frame(dataset))
-    stop("dataset must be a data.frame")
-  if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, "attribute not found in dataset"))
-  if(any(! .colTypes(dataset, exclude = classAttr) == "numeric"))
-    stop("all columns of dataset must be numeric")
-  if(!is.numeric(numInstances) || numInstances < 0)
+  checkDataset(dataset, "dataset")
+  checkDatasetClass(dataset, classAttr, "dataset")
+  colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
   # Calcs minority class and instances
@@ -36,11 +35,11 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
                       names(dataset) != classAttr]
 
   # Calcs variance (called covariance in the original algorithm)
-  # of the positive class
+  # of the minority class
   minVariance <- stats::var(minority)
   # Try to find an inverse matrix for the positive class, if it exists
   minVarianceInv <- try(solve(stats::var(minority)))
-  if(class(minVariance) == "try-error")
+  if(class(minVarianceInv) == "try-error")
     stop(paste("Not a valid method for this dataset.",
                "Variance of the positive class is not an invertible matrix"))
 
@@ -95,5 +94,5 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
   # Cleanse newSamples dataset and output it
   newSamples <- t(newSamples)
   newSamples <- data.frame(newSamples)
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
 }

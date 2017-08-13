@@ -239,8 +239,7 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' @param exclude \code{character} vector containing columns to be excluded
 #'
 #' @return The dataset whit factor columns converted
-#'
-#' @examples
+#' @noRd
 .convertToNumeric <- function(dataset, exclude = c()){
   colTypes <- .colTypes(dataset, exclude)
   colFactor <- which(colTypes != "numeric")

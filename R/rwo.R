@@ -26,7 +26,10 @@
 rwo <- function(dataset, numInstances, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
-  if(!is.numeric(numInstances) || numInstances < 0)
+  colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
   # Calcs minority class and instances
@@ -65,5 +68,5 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   newSamples <- data.frame(newSamples)
   indexes <- sample(1:nrow(newSamples), numInstances, replace = F)
   newSamples <- newSamples[indexes, ]
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
 }

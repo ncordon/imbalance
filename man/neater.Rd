@@ -4,7 +4,7 @@
 \alias{neater}
 \title{Fitering of oversampled data based on non-cooperative game theory}
 \usage{
-neater(dataset, newSamples, k, iterations, smoothFactor = 1,
+neater(dataset, newSamples, k = 3, iterations = 100, smoothFactor = 1,
   classAttr = "Class")
 }
 \arguments{

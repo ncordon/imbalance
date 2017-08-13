@@ -62,8 +62,7 @@ wracogTestOutput <- function(d){
   train <- dataset[trainFold, ]
   validation <- dataset[-trainFold, ]
 
-  test_that(paste("wRACOG executes without error on dataset", d),{
-
+  test_that(paste("wRACOG executes without error on dataset", d), {
     expect_error(wracog(train, validation, myWrapper), NA)
   })
 }

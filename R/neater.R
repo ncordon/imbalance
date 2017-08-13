@@ -33,14 +33,19 @@
 #'
 #' neater(iris0, newSamples, k = 5, iterations = 100,
 #'        smoothFactor = 1, classAttr = "Class")
-neater <- function(dataset, newSamples, k, iterations,
+neater <- function(dataset, newSamples, k = 3, iterations = 100,
                    smoothFactor = 1, classAttr = "Class"){
-  if(!is.data.frame(dataset) || !is.data.frame(newSamples) ||
-     any(! names(dataset) %in% names(newSamples)) ||
+  checkDataset(dataset, "dataset")
+  checkDataset(newSamples, "newSamples")
+  checkDatasetClass(dataset, classAttr, "dataset")
+
+  if(any(! names(dataset) %in% names(newSamples)) ||
      any(! names(newSamples) %in% names(dataset)))
-    stop("dataset and newSamples must be data.frames with same structure")
-  if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, " attribute not found in dataset"))
+    stop("dataset and newSamples must have the same structure")
+
+  colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+
   if(nrow(newSamples) == 0 || nrow(dataset) == 0)
     stop("newSamples and dataset cannot be empty")
   if(!is.numeric(k) || !is.numeric(iterations) ||
@@ -115,5 +120,5 @@ neater <- function(dataset, newSamples, k, iterations,
   newSamples <- newSamples[goodSamples, ]
 
   # Append class column to minority samples and return them
-  .normalizeNewSamples(newSamples, minorityClass, names(dataset), classAttr)
+  .normalizeNewSamples(newSamples, minorityClass, names(dataset), classAttr, colTypes)
 }
