@@ -156,11 +156,13 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' @param trueLabels Another vector of \code{factor} with the true labels. For
 #'   speed purposes it does not check that lengths of \code{prediction} and
 #'   \code{trueLabels} match.
+#' @param minorityClass A \code{factor} corresponding to the minority class.
 #'
 #' @return A \code{factor} made by combining \code{x} and \code{y}.
 #' @noRd
-.sensitivity <- function(prediction, trueLabels){
-  length(which(prediction == trueLabels)) / length(prediction)
+.sensitivity <- function(prediction, trueLabels, minorityClass){
+  length(which(prediction == trueLabels & trueLabels == minorityClass)) /
+    length(which(prediction == minorityClass))
 }
 
 
@@ -239,7 +241,8 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' @param exclude \code{character} vector containing columns to be excluded
 #'
 #' @return The dataset whit factor columns converted
-#' @noRd
+#'
+#' @examples
 .convertToNumeric <- function(dataset, exclude = c()){
   colTypes <- .colTypes(dataset, exclude)
   colFactor <- which(colTypes != "numeric")

@@ -174,7 +174,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
     prediction <- predict(model, validation)
 
     # Measure of the quality of the newTrain
-    qMeasure <- .sensitivity(prediction, validationClass)
+    qMeasure <- .sensitivity(prediction, validationClass, minorityClass)
     lastSlides <- c(qMeasure, lastSlides)
     lastSlides <- lastSlides[1:slideWin]
   }
