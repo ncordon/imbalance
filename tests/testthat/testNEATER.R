@@ -33,8 +33,8 @@ neaterTestOutput("haberman")
 neaterTestOutput("iris0")
 neaterTestOutput("newthyroid1")
 # neaterTestOutput("wisconsin")
-# pdfosTestOutput("ecoli1")
-# pdfosTestOutput("yeast4")
+# neaterTestOutput("ecoli1")
+# neaterTestOutput("yeast4")
 
 test_that("Check of parameters is properly done in NEATER", {
   expect_error(neater(iris0, iris0, classAttr = "Species"))

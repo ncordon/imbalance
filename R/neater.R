@@ -65,7 +65,9 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   dataset <- dataset[, names(dataset) != classAttr]
   newSamples <- newSamples[, names(newSamples) != classAttr]
   # Indexes in dataset for k nearest neighbours of each new sample
-  knnIndexes <- FNN::knnx.index(dataset, newSamples, k = k)
+  knnInfo <- KernelKnn::knn.index.dist(dataset, newSamples,
+                                       k = k, method = "euclidean")
+  knnIndexes <- knnInfo$test_knn_idx
 
   # Matrix of probabilities of belonging to each class, with
   # 1 == minority class. Samples are tagged with probability
@@ -80,17 +82,12 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
 
   # List with the payoffs for each synthetic sample respect to its
   # k-nearest neighbours
-  partialPayoffs <- lapply(1:nrow(newSamples), function(i){
-    sapply(knnIndexes[i, ], function(j){
-      val <- dataset[j, ] - dataset[oldSize + i, ]
-      1 / (sum(val * val) + 1)
-    })
-  })
+  partialPayoffs <- apply(knnInfo$test_knn_dist, MARGIN = c(1,2), function(x) 1/(x**2 + 1))
 
   for(i in 1:iterations){
     # Calculate total payoff for ith new sample
     payoffs <- sapply(1:nrow(newSamples), function(i){
-      sum( partialPayoffs[[i]] * (probs[knnIndexes[i, ], ]
+      sum( partialPayoffs[i, ] * (probs[knnIndexes[i, ], ]
                                   %*% probs[oldSize + i, ]) )
     })
 
@@ -98,7 +95,7 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
     # the ith sample
     minPayoffs <- sapply(1:nrow(newSamples), function(i){
       # Calculate payoff for ith new sample
-      sum( partialPayoffs[[i]] * (probs[knnIndexes[i, ], ] %*% c(1,0)) )
+      sum( partialPayoffs[i, ] * (probs[knnIndexes[i, ], ] %*% c(1,0)) )
     })
 
     # Apply time discrete replicator to calculate
