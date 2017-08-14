@@ -1,41 +1,104 @@
 #include <RcppArmadillo.h>
 #include <vector>
+#include <list>
 #include <numeric>
-#include <algorithm>
 using namespace Rcpp;
 
 // Function to find the clusters (different clusters) that materialize the minimum distance
 // distance_matrix is considered to be an upper triangular matrix
-void updateNearestClusters(arma::mat &distance_matrix, double &min_distance, arma::uword &min_row, arma::uword &min_col){
-  min_distance = std::numeric_limits<double>::infinity();
 
-  for(int i = 0; i < distance_matrix.n_rows; i++){
-    for(int j = i + 1; j < distance_matrix.n_cols; j++){
-      //Rcout << "i: " << i << "j: " << j << std::endl;
-      if(distance_matrix(i,j) < min_distance){
-        min_distance = distance_matrix(i,j);
-        min_row = i;
-        min_col = j;
+
+class HierarchicalClustering{
+private:
+  std::vector< std::list<int> > clusters;
+  arma::mat distance_matrix;
+  double min_distance;
+  int num_points;
+public:
+  // Initializes cluster with distances, num of points to perform the clustering
+  // and num_points clusters, each of a single point
+  HierarchicalClustering(arma::mat &dists){
+    double current_dist;
+
+    for(int i = 0; i < dists.n_cols; i++){
+      std::list<int> cluster;
+      cluster.push_back(i);
+      clusters.push_back(cluster);
+    }
+
+    min_distance = std::numeric_limits<double>::infinity();
+    distance_matrix = dists;
+    num_points = distance_matrix.n_rows;
+
+    for(int i = 0; i < num_points; i++){
+      for(int j = i + 1; j < distance_matrix.n_cols; j++){
+        current_dist = distance_matrix(i,j);
+        if(current_dist < min_distance)
+          min_distance = current_dist;
       }
     }
   }
-}
 
-// Updates matrix by selecting min of distance to i and j, that are clusters to be merged, for each
-// other cluster
-// precondition: merge_i < merje_j
-void updateDistanceMatrix(arma::mat &distance_matrix, arma::uword &merge_i, arma::uword &merge_j){
-  for(int i = 0; i < merge_i; i++)
-    distance_matrix(i, merge_i) = std::min(distance_matrix(i, merge_i), distance_matrix(i, merge_j));
+  // Updates matrix by selecting min of distance to i and j, that are clusters to be merged, for each
+  // other cluster
+  // precondition: merge_i < merje_j
+  void mergeNearestClusters(){
+    double distance = std::numeric_limits<double>::infinity();
+    double current_dist;
+    arma::uword cluster_i, cluster_j;
 
-  for(int j = merge_i + 1; j < distance_matrix.n_cols; j++)
-    distance_matrix(merge_i, j) = std::min(distance_matrix(merge_i, j), distance_matrix(merge_j, j));
+    // Compute nearest clusters and distance between them
+    for(int i = 0; i < distance_matrix.n_rows; i++){
+      for(int j = i + 1; j < distance_matrix.n_cols; j++){
+        current_dist = distance_matrix(i,j) / (clusters[i].size() * clusters[j].size());
+        if(current_dist < distance){
+          distance = current_dist;
+          cluster_i = i;
+          cluster_j = j;
+        }
+      }
+    }
 
-  // Erase column and row corresponding to jth cluster
-  distance_matrix.shed_row(merge_j);
-  distance_matrix.shed_col(merge_j);
-}
+    min_distance = distance;
 
+    // Update distance matrix
+    for(int i = 0; i < cluster_i; i++)
+      distance_matrix(i, cluster_i) = distance_matrix(i, cluster_i) + distance_matrix(i, cluster_j);
+
+    for(int j = cluster_i + 1; j < distance_matrix.n_cols; j++)
+      distance_matrix(cluster_i, j) = distance_matrix(cluster_i, j) + distance_matrix(cluster_j, j);
+
+    // Erase column and row corresponding to jth cluster
+    distance_matrix.shed_row(cluster_j);
+    distance_matrix.shed_col(cluster_j);
+
+    // Merge clusters
+    clusters[cluster_i].insert(clusters[cluster_i].end(),
+                               clusters[cluster_j].begin(), clusters[cluster_j].end());
+    clusters.erase(clusters.begin() + cluster_j);
+  }
+
+  double getMinDistance(){
+    return min_distance;
+  }
+
+  int getNumClusters(){
+    return clusters.size();
+  }
+
+  // Get a cluster assination of the form
+  // 0 0 0 0 1 1 0 0 1 1 0 0 2 0 0 0 0 3 4
+  std::vector<int> getClusterAssignation(){
+    std::vector<int> assignation(num_points);
+
+    for(int i=0; i < clusters.size(); i++){
+      for(std::list<int>::iterator j = clusters[i].begin(); j != clusters[i].end(); ++j)
+        assignation[*j] = i;
+    }
+
+    return assignation;
+  }
+};
 
 
 // For a given distance matrix among instances, and a threshold, makes a hierarchical
@@ -43,29 +106,15 @@ void updateDistanceMatrix(arma::mat &distance_matrix, arma::uword &merge_i, arma
 // threshold, or we run out of clusters to merge.
 // [[Rcpp::export]]
 IntegerVector mwmoteCalcClusters(arma::mat &distance_matrix, double threshold) {
-  std::vector<int> clusters(distance_matrix.n_rows);
-  std::vector<int> indexes(distance_matrix.n_rows);
-  std::iota(clusters.begin(), clusters.end(), 0);
-  std::iota(indexes.begin(), indexes.end(), 0);
-  double min_distance = std::numeric_limits<double>::infinity();
-  arma::uword min_row = 0, min_col = 0;
-  //
-  // Update min distance untill the moment and position and clusters that materialize that distance
-  updateNearestClusters(distance_matrix, min_distance, min_row, min_col);
-
+  HierarchicalClustering clustering(distance_matrix);
 
   // While we meet the threshold condition and there still are clusters to merge
-  while(min_distance <= threshold && distance_matrix.n_rows > 1){
+  while(clustering.getMinDistance() <= threshold && clustering.getNumClusters() > 1){
     // Merge two clusters
-    clusters[indexes[min_col]] = min_row;
-
-    for(int i = min_col; i < indexes.size(); i++)
-      indexes[i]++;
-
-    updateDistanceMatrix(distance_matrix, min_row, min_col);
-    updateNearestClusters(distance_matrix, min_distance, min_row, min_col);
+    clustering.mergeNearestClusters();
   }
 
+  std::vector<int> clusters = clustering.getClusterAssignation();
   return IntegerVector(clusters.begin(), clusters.end());
 }
 

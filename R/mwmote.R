@@ -5,12 +5,15 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                    classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
+  colTypes <- .colTypes(dataset, exclude = classAttr)
 
   # Compute minority and majority
   minorityClass <- .whichMinorityClass(dataset, classAttr)
   classes <- dataset[, classAttr]
-  minorityIndexes <- which(classes == minorityClass)
   dataset <- dataset[, names(dataset) != classAttr]
+  attrs <- names(dataset)
+  dataset <- data.matrix(dataset)
+  minorityIndexes <- which(classes == minorityClass)
   minority <- dataset[minorityIndexes, ]
   majority <- dataset[-minorityIndexes, ]
 
@@ -25,17 +28,17 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
 
 
   # Define closeness factor
+  dimSize <- ncol(minority)
+
   closenessFactor <- function(x){
     if(x == 0){
       cmax
     } else{
-      min(1/x * cmax/threshold, cmax)
+      min(dimSize/x * cmax/threshold, cmax)
     }
   }
 
   # Compute feature space size
-  dimSize <- ncol(minority)
-
   # Indexes in dataset for kNoisy nearest neighbours (plus 1, we'll have to exclude it)
   # for each minority instances
   cleanMinIndexes <- KernelKnn::knn.index.dist(dataset,
@@ -46,10 +49,11 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
 
   # Filter noisy examples, i.e. those which haven't got a minority one in
   # their kNoisy neighbourhood
-  notNoisyIndexes <- apply(cleanMinIndexes, MARGIN = 1, function(row){
+
+  cleanMinIndexes <- which(apply(cleanMinIndexes, MARGIN = 1, function(row){
     any(row %in% minorityIndexes)
-  })
-  cleanMinority <- minority[notNoisyIndexes, ]
+  }))
+  cleanMinority <- minority[cleanMinIndexes, ]
 
   # Find majority borderline and minority borderline instances weighted
   majBorderlineIndexes <- KernelKnn::knn.index.dist(majority,
@@ -65,7 +69,7 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                                     k = kMinority,
                                                     method = "euclidean")
 
-
+  # Compute weight of selection of each cleanMinority instance
   minBorderlineIndexes <- as.vector(minBorderlineInfo$test_knn_idx)
   selectionWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
     row <- sapply(row, closenessFactor)
@@ -77,13 +81,29 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                       by = list(index = indexesWeighted[, 1]),
                                       FUN = sum)
 
-  minDistances <- as.matrix(dist(cleanMinority))
-  sumDists <- sum(apply(minDistances, MARGIN = 2, function(col){
+  # Average-linkage hierarchical clustering of minority instances
+  cleanMinDistances <- as.matrix(dist(cleanMinority))
+  sumDists <- sum(apply(cleanMinDistances, MARGIN = 2, function(col){
     min(col[col != 0])
   }))
 
-
   thresholdClustering <- sumDists / nrow(cleanMinority) * cclustering
-  clusters <- mwmoteCalcClusters(minDistances, thresholdClustering)
+  clusters <- mwmoteCalcClusters(as.matrix(dist(minority)), thresholdClustering)
 
+
+  # Generate new samples samples
+  cleanSelected <- sample(selectionWeights$index, numInstances,
+                          replace = T, prob = selectionWeights$x)
+  randomNumbers <- runif(numInstances, min = 0, max = 1)
+
+  xIndexes <- cleanMinIndexes[cleanSelected]
+  xs <- minority[xIndexes, ]
+  ys <- t(sapply(xIndexes, function(index){
+    y <- minority[sample(which(clusters == clusters[index]), size = 1), ]
+  }))
+
+  newSamples <- xs + randomNumbers * (ys-xs)
+
+  # Prepare newSamples output
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
 }
