@@ -84,4 +84,6 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
 
 
   thresholdClustering <- sumDists / nrow(cleanMinority) * cclustering
+  clusters <- mwmoteCalcClusters(minDistances, thresholdClustering)
+
 }

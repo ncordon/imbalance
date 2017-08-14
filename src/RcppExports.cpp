@@ -7,12 +7,12 @@
 using namespace Rcpp;
 
 // mwmoteCalcClusters
-IntegerVector mwmoteCalcClusters(arma::mat distance_matrix, double threshold);
+IntegerVector mwmoteCalcClusters(arma::mat& distance_matrix, double threshold);
 RcppExport SEXP _imbalance_mwmoteCalcClusters(SEXP distance_matrixSEXP, SEXP thresholdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type distance_matrix(distance_matrixSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type distance_matrix(distance_matrixSEXP);
     Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
     rcpp_result_gen = Rcpp::wrap(mwmoteCalcClusters(distance_matrix, threshold));
     return rcpp_result_gen;
