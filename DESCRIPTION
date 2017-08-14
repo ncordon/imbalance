@@ -28,10 +28,9 @@ Imports:
     Rcpp
 Suggests:
     testthat,
-    C50,    
+    C50,
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
-LinkingTo: Rcpp
-
+LinkingTo: Rcpp, RcppArmadillo

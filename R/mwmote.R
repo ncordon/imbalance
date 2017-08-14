@@ -1,7 +1,7 @@
 
 
 mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
-                   kMinority, threshold = 5, cmax = 2,
+                   kMinority, threshold = 5, cmax = 2, cclustering = 3,
                    classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
@@ -42,10 +42,10 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                                minority,
                                                k = kNoisy + 1,
                                                method = "euclidean")
+  cleanMinIndexes <- cleanMinIndexes$test_knn_idx[, -1]
 
   # Filter noisy examples, i.e. those which haven't got a minority one in
   # their kNoisy neighbourhood
-  cleanMinIndexes <- cleanMinIndexes$test_knn_idx[, -1]
   notNoisyIndexes <- apply(cleanMinIndexes, MARGIN = 1, function(row){
     any(row %in% minorityIndexes)
   })
@@ -65,12 +65,23 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                                     k = kMinority,
                                                     method = "euclidean")
 
+
   minBorderlineIndexes <- as.vector(minBorderlineInfo$test_knn_idx)
-  minBorderlineDists <- as.vector(minBorderlineInfo$test_knn_dist)
-  indexesWeighted <- cbind(minBorderlineIndexes, minBorderlineDists)
-  indexesWeighted <- stats::aggregate(indexesWeighted[, 2],
+  selectionWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
+    row <- sapply(row, closenessFactor)
+    (row * row) / sum(row)
+  }))
+  selectionWeights <- as.vector(selectionWeights)
+  indexesWeighted <- cbind(minBorderlineIndexes, selectionWeights)
+  selectionWeights <- stats::aggregate(indexesWeighted[, 2],
                                       by = list(index = indexesWeighted[, 1]),
-                                      FUN = function(...){
-                                        sum(sapply(..., closenessFactor))
-                                      })
+                                      FUN = sum)
+
+  minDistances <- as.matrix(dist(cleanMinority))
+  sumDists <- sum(apply(minDistances, MARGIN = 2, function(col){
+    min(col[col != 0])
+  }))
+
+
+  thresholdClustering <- sumDists / nrow(cleanMinority) * cclustering
 }
