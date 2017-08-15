@@ -99,11 +99,11 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   cleanMinIndexes <- which(apply(cleanMinIndexes, MARGIN = 1, function(row){
     any(row %in% minorityIndexes)
   }))
-  cleanMinority <- minority[cleanMinIndexes, ]
+  filteredMinority <- minority[cleanMinIndexes, ]
 
   # Find majority borderline and minority borderline instances weighted
   majBorderlineIndexes <- KernelKnn::knn.index.dist(majority,
-                                                    cleanMinority,
+                                                    filteredMinority,
                                                     k = kMajority,
                                                     method = "euclidean")
   majBorderlineIndexes <- unique(as.vector(majBorderlineIndexes$test_knn_idx))
@@ -115,7 +115,7 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                                  k = kMinority,
                                                  method = "euclidean")
 
-  # Compute weight of selection of each cleanMinority instance
+  # Compute weight of selection of each filteredMinority instance
   minBorderlineIndexes <- as.vector(minBorderlineInfo$test_knn_idx)
   informationWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
     row <- sapply(row, closenessFactor)
@@ -128,12 +128,12 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                       FUN = sum)
 
   # Average-linkage hierarchical clustering of minority instances
-  cleanMinDistances <- as.matrix(stats::dist(cleanMinority))
+  cleanMinDistances <- as.matrix(stats::dist(filteredMinority))
   sumDists <- sum(apply(cleanMinDistances, MARGIN = 2, function(col){
     min(col[col != 0])
   }))
 
-  thresholdClustering <- sumDists / nrow(cleanMinority) * cclustering
+  thresholdClustering <- sumDists / nrow(filteredMinority) * cclustering
   clusters <- mwmoteCalcClusters(as.matrix(stats::dist(minority)),
                                  thresholdClustering)
 

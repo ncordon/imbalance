@@ -47,7 +47,7 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
   n <- nrow(minority)
 
   # Multivariate Gaussian kernel function
-  phi <- function(bandwidth, vector, minVarianceInv){
+  gaussianPDF <- function(bandwidth, vector, minVarianceInv){
     result <- 1/ ((bandwidth ** (-m)) * ((2 * pi) ** (m/2)))
     result * exp(- 1 /(2 * bandwidth ** 2) *
                 as.numeric(vector %*% minVarianceInv %*% vector) )
@@ -56,14 +56,14 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
 
   # Cross validation score function to minimize
   crossValScore <- function(bandwidth){
-    value <- 2 * phi(bandwidth, 0, 1) / n
+    value <- 2 * gaussianPDF(bandwidth, 0, 1) / n
 
     value <- value +
       sum(apply(minority, MARGIN = 1, function(row.i){
         apply(minority, MARGIN = 1, function(row.j){
           evPoint <- as.numeric(row.j - row.i)
-          result <- phi(sqrt(2) * bandwidth, evPoint, minVarianceInv)
-          result - 2 * phi(bandwidth, evPoint, minVarianceInv)
+          result <- gaussianPDF(sqrt(2) * bandwidth, evPoint, minVarianceInv)
+          result - 2 * gaussianPDF(bandwidth, evPoint, minVarianceInv)
         })
       })) / (n*n)
 
@@ -81,18 +81,15 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
 
   myBandwidth <- gridParams[ minIndex ]
 
-  # Choleski form of variance matrix, upper triangular matrix
-  varCholeski <- chol(minVariance)
 
   # Generate new samples using a normal multivariate distribution with variance
   # myBandwidth² * minVariance
   samples <- minority[sample(1:n, numInstances, replace = T), ]
-  newSamples <- apply(samples, MARGIN=1, function(row){
-    row + t( myBandwidth * varCholeski %*% stats::rnorm( m, mean = 0, sd = 1) )
-  })
+  newSamples <- t(apply(samples, MARGIN = 1, function(row){
+    mvtnorm::rmvnorm(1, mean = data.matrix(row),
+                     sigma = myBandwidth * minVariance, method = "chol")
+  }))
 
-  # Cleanse newSamples dataset and output it
-  newSamples <- t(newSamples)
-  newSamples <- data.frame(newSamples)
+  # Cleanse newSamples dataset and return them
   .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
 }

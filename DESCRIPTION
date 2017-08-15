@@ -24,6 +24,7 @@ Imports:
     infotheo,
     utils,
     stats,
+    mvtnorm,
     smotefamily,
     Rcpp
 Suggests:
