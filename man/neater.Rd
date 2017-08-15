@@ -8,7 +8,8 @@ neater(dataset, newSamples, k = 3, iterations = 100, smoothFactor = 1,
   classAttr = "Class")
 }
 \arguments{
-\item{dataset}{The original \code{data.frame}.}
+\item{dataset}{The original \code{data.frame}. All columns, except
+\code{classAttr} one, have to be numeric or coercible to numeric.}
 
 \item{newSamples}{A \code{data.frame} containing the samples to be filtered.
 Must have the same structure as \code{dataset}.}

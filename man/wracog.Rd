@@ -9,7 +9,8 @@ wracog(train, validation, wrapper, slideWin = 10, threshold = 0.02,
 }
 \arguments{
 \item{train}{\code{data.frame}. A initial dataset to generate first model.
-All columns, except \code{classAttr} one, have to be numeric}
+All columns, except \code{classAttr} one, have to be numeric or coercible
+to numeric.}
 
 \item{validation}{\code{data.frame}. A dataset to compare results of
 consecutive classifiers. Must have the same structure of \code{train}.}
@@ -25,8 +26,8 @@ stopping criteria. By default, 10.}
 \item{threshold}{Threshold that the last \code{slideWin} sensitivities mean
 should reach. By default, 0.02.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exist in it.}
+\item{classAttr}{\code{character}. Indicates the class attribute from
+\code{dataset}. Must exist in it.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},

@@ -7,8 +7,8 @@
 racog(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class")
 }
 \arguments{
-\item{dataset}{data.frame to treat. All columns, except \code{classAttr} one,
-have to be numeric.}
+\item{dataset}{\code{data.frame} to treat. All columns, except
+\code{classAttr} one, have to be numeric or coercible to numeric.}
 
 \item{iterations}{Integer. Number of iterations to run for each minority
 example.}
@@ -19,8 +19,8 @@ one are going to be discarded firstly. By default, 100.}
 \item{lag}{Integer. Number of iterations between new generated example for a
 minority one. By default, 20.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exist in it.}
+\item{classAttr}{\code{character}. Indicates the class attribute from
+\code{dataset}. Must exist in it.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},

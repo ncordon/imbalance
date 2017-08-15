@@ -202,11 +202,13 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 .normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr, colTypes = c()){
   if(nrow(newSamples) > 0){
     if(length(colTypes) > 0){
+      newSamples <- data.frame(newSamples)
+
       newSamples <- mapply(function(col, type){
         eval(parse(text = paste("as.", type, "(col)", sep = "")))
       }, as.list(newSamples), colTypes, SIMPLIFY = FALSE)
 
-      newSamples <- as.data.frame(newSamples)
+      newSamples <- data.frame(newSamples)
     }
 
     names(newSamples) <- colNames

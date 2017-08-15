@@ -8,7 +8,8 @@
 #' inverse of the number of minority examples and a factor following a N(0,1)
 #' distribution which depends on the example.
 #'
-#' @param dataset \code{data.frame} to treat
+#' @param dataset \code{data.frame} to treat. All columns, except
+#'   \code{classAttr} one, have to be numeric or coercible to numeric.
 #' @param numInstances Integer. Number of new minority examples to generate.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.

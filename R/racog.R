@@ -9,16 +9,16 @@
 #' it validates each \code{lag} example as a new minority example. It generates
 #' \eqn{d (iterations-burnin)/lag} where \eqn{d} is minority examples number.
 #'
-#' @param dataset data.frame to treat. All columns, except \code{classAttr} one,
-#'   have to be numeric.
+#' @param dataset \code{data.frame} to treat. All columns, except
+#'   \code{classAttr} one, have to be numeric or coercible to numeric.
 #' @param iterations Integer. Number of iterations to run for each minority
 #'   example.
 #' @param burnin Integer. It determines how many examples generated for a given
 #'   one are going to be discarded firstly. By default, 100.
 #' @param lag Integer. Number of iterations between new generated example for a
 #'   minority one. By default, 20.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exist in it.
+#' @param classAttr \code{character}. Indicates the class attribute from
+#'   \code{dataset}. Must exist in it.
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.
@@ -81,7 +81,8 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 #' \code{train}.
 #'
 #' @param train \code{data.frame}. A initial dataset to generate first model.
-#'   All columns, except \code{classAttr} one, have to be numeric
+#'   All columns, except \code{classAttr} one, have to be numeric or coercible
+#'   to numeric.
 #' @param validation \code{data.frame}. A dataset to compare results of
 #'   consecutive classifiers. Must have the same structure of \code{train}.
 #' @param wrapper An \code{S3} object. There must be a method
@@ -92,8 +93,8 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 #'   stopping criteria. By default, 10.
 #' @param threshold Threshold that the last \code{slideWin} sensitivities mean
 #'   should reach. By default, 0.02.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exist in it.
+#' @param classAttr \code{character}. Indicates the class attribute from
+#'   \code{dataset}. Must exist in it.
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.

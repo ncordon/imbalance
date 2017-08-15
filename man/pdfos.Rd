@@ -7,7 +7,8 @@
 pdfos(dataset, numInstances, classAttr = "Class")
 }
 \arguments{
-\item{dataset}{\code{data.frame} to treat}
+\item{dataset}{\code{data.frame} to treat. All columns, except
+\code{classAttr} one, have to be numeric or coercible to numeric.}
 
 \item{numInstances}{Integer. Number of new minority examples to generate.}
 

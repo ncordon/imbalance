@@ -8,7 +8,8 @@
 #' that at the final stage of the algorithm have more probability of been a
 #' mayority example than a minority one.
 #'
-#' @param dataset The original \code{data.frame}.
+#' @param dataset The original \code{data.frame}. All columns, except
+#'   \code{classAttr} one, have to be numeric or coercible to numeric.
 #' @param newSamples A \code{data.frame} containing the samples to be filtered.
 #'   Must have the same structure as \code{dataset}.
 #' @param k Integer. Number of nearest neighbours to use in KNN algorithm to

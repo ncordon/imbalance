@@ -1,11 +1,55 @@
-
-
+#' Majority Weighted Minority Oversampling Technique for imbalance dataset
+#' learning
+#'
+#' Modification for SMOTE technique which overcomes some of the problems of the
+#' SMOTE technique when there are noisy instances, in which case SMOTE would
+#' generate more noisy instances out of them.
+#'
+#' @param dataset \code{data.frame} to treat. All columns, except
+#'   \code{classAttr} one, have to be numeric or coercible to numeric.
+#' @param numInstances Integer. Number of new minority examples to generate.
+#' @param kNoisy Integer. Parameter of euclidean KNN to detect noisy examples as
+#'   those whose whole kNoisy-neighbourhood is from the opposite class.
+#' @param kMajority Integer. Parameter of euclidean KNN to detect majority
+#'   borderline examples as those who are in any kMajority-neighbourhood of
+#'   minority instances. Should be a low integer.
+#' @param kMinority Integer. Parameter of euclidean KNN to detect minority
+#'   borderline examples as those who are in the KMinority-neighbourhood of
+#'   majority borderline ones. It should be a large integer. By default if not
+#'   parameter is fed to the function, \eqn{|S^{+}|/2} where \eqn{S^{+}} is the
+#'   set of minority examples.
+#' @param threshold Numeric. A positive real indicating how much we measure
+#'   tolerance of closeness to the boundary of minority boundary examples. A
+#'   large integer indicates more margin of distance for a example to be
+#'   considerated important boundary one.
+#' @param cmax Numeric. A positive real indicating how much we measure tolerance
+#'   of closeness to the boundary of minority boundary examples. The larger this
+#'   number, the more we are valuing boundary examples.
+#' @param cclustering Numeric. A positive real for tuning the output of an
+#'   internal clustering. The larger this parameter, the more area focused is
+#'   going to be the oversampling.
+#' @param classAttr \code{character}. Indicates the class attribute from
+#'   \code{dataset}. Must exist in it.
+#'
+#' @return A \code{data.frame} with the same structure as \code{dataset},
+#'   containing the synthetic examples generated.
+#' @export
+#'
+#' @examples
+#' data(iris0)
+#' set.seed(12345)
+#'
+#' # Generates new minority examples
+#' newSamples <- mwmote(iris0, numInstances = 100, classAttr = "Class")
+#'
 mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                    kMinority, threshold = 5, cmax = 2, cclustering = 3,
                    classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
   colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
   # Compute minority and majority
   minorityClass <- .whichMinorityClass(dataset, classAttr)
@@ -25,6 +69,9 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   if(!is.numeric(kNoisy)  || !is.numeric(kMajority) || !is.numeric(kMinority) ||
      kNoisy <= 0 || kMajority <= 0 || kMinority <= 0)
     stop("kNoisy, kMajority and kMinority must be positive integers")
+  if(!is.numeric(threshold)  || !is.numeric(cmax) || !is.numeric(cclustering) ||
+     threshold <= 0 || cmax <= 0 || cclustering <= 0)
+    stop("threshold, cmax and cclustering must be positive real numbers")
 
 
   # Define closeness factor
@@ -38,9 +85,8 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
     }
   }
 
-  # Compute feature space size
-  # Indexes in dataset for kNoisy nearest neighbours (plus 1, we'll have to exclude it)
-  # for each minority instances
+  # Indexes in dataset for kNoisy nearest neighbours (plus 1, we'll have to
+  # exclude it) for each minority instances
   cleanMinIndexes <- KernelKnn::knn.index.dist(dataset,
                                                minority,
                                                k = kNoisy + 1,
@@ -64,39 +110,39 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   majBorderline <- majority[unique(as.vector(majBorderlineIndexes)), ]
 
 
-  minBorderlineInfo <- KernelKnn::knn.index.dist(cleanMinority,
-                                                    majBorderline,
-                                                    k = kMinority,
-                                                    method = "euclidean")
+  minBorderlineInfo <- KernelKnn::knn.index.dist(minority,
+                                                 majBorderline,
+                                                 k = kMinority,
+                                                 method = "euclidean")
 
   # Compute weight of selection of each cleanMinority instance
   minBorderlineIndexes <- as.vector(minBorderlineInfo$test_knn_idx)
-  selectionWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
+  informationWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
     row <- sapply(row, closenessFactor)
     (row * row) / sum(row)
   }))
-  selectionWeights <- as.vector(selectionWeights)
-  indexesWeighted <- cbind(minBorderlineIndexes, selectionWeights)
+  informationWeights <- as.vector(informationWeights)
+  indexesWeighted <- cbind(minBorderlineIndexes, informationWeights)
   selectionWeights <- stats::aggregate(indexesWeighted[, 2],
                                       by = list(index = indexesWeighted[, 1]),
                                       FUN = sum)
 
   # Average-linkage hierarchical clustering of minority instances
-  cleanMinDistances <- as.matrix(dist(cleanMinority))
+  cleanMinDistances <- as.matrix(stats::dist(cleanMinority))
   sumDists <- sum(apply(cleanMinDistances, MARGIN = 2, function(col){
     min(col[col != 0])
   }))
 
   thresholdClustering <- sumDists / nrow(cleanMinority) * cclustering
-  clusters <- mwmoteCalcClusters(as.matrix(dist(minority)), thresholdClustering)
+  clusters <- mwmoteCalcClusters(as.matrix(stats::dist(minority)),
+                                 thresholdClustering)
 
 
   # Generate new samples samples
-  cleanSelected <- sample(selectionWeights$index, numInstances,
+  xIndexes <- sample(selectionWeights$index, numInstances,
                           replace = T, prob = selectionWeights$x)
-  randomNumbers <- runif(numInstances, min = 0, max = 1)
+  randomNumbers <- stats::runif(numInstances, min = 0, max = 1)
 
-  xIndexes <- cleanMinIndexes[cleanSelected]
   xs <- minority[xIndexes, ]
   ys <- t(sapply(xIndexes, function(index){
     y <- minority[sample(which(clusters == clusters[index]), size = 1), ]
