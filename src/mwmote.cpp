@@ -4,10 +4,12 @@
 #include <numeric>
 using namespace Rcpp;
 
-// Function to find the clusters (different clusters) that materialize the minimum distance
-// distance_matrix is considered to be an upper triangular matrix
-
-
+// Class that stores
+// - the clusters as 'buckets'
+// - the distance matrix between clusters
+// - the number of points
+// - the minimum distance between clusters
+// - the number of points clustered
 class HierarchicalClustering{
 private:
   std::vector< std::list<int> > clusters;
@@ -118,11 +120,6 @@ IntegerVector mwmoteCalcClusters(arma::mat &distance_matrix, double threshold) {
   return IntegerVector(clusters.begin(), clusters.end());
 }
 
-
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically
-// run after the compilation.
-//
 
 /*** R
 mwmoteCalcClusters(minDistances, thresholdClustering)

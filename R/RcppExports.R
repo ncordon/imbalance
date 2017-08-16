@@ -5,3 +5,7 @@ mwmoteCalcClusters <- function(distance_matrix, threshold) {
     .Call(`_imbalance_mwmoteCalcClusters`, distance_matrix, threshold)
 }
 
+bestGaussianBandwidth <- function(dataset, covInv) {
+    .Call(`_imbalance_bestGaussianBandwidth`, dataset, covInv)
+}
+

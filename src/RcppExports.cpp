@@ -18,9 +18,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// bestGaussianBandwidth
+double bestGaussianBandwidth(arma::mat& dataset, arma::mat& covInv);
+RcppExport SEXP _imbalance_bestGaussianBandwidth(SEXP datasetSEXP, SEXP covInvSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type dataset(datasetSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type covInv(covInvSEXP);
+    rcpp_result_gen = Rcpp::wrap(bestGaussianBandwidth(dataset, covInv));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_imbalance_mwmoteCalcClusters", (DL_FUNC) &_imbalance_mwmoteCalcClusters, 2},
+    {"_imbalance_bestGaussianBandwidth", (DL_FUNC) &_imbalance_bestGaussianBandwidth, 2},
     {NULL, NULL, 0}
 };
 

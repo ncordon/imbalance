@@ -201,6 +201,8 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' @noRd
 .normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr, colTypes = c()){
   if(nrow(newSamples) > 0){
+    rownames(newSamples) <- c()
+
     if(length(colTypes) > 0){
       newSamples <- data.frame(newSamples)
 
@@ -217,7 +219,6 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
     newSamples <- data.frame()
   }
 
-  rownames(newSamples) <- c()
   newSamples
 }
 

@@ -33,63 +33,29 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
   minorityClass <- .whichMinorityClass(dataset, classAttr)
   minority <- dataset[dataset[, classAttr] == minorityClass,
                       names(dataset) != classAttr]
+  attrs <- names(minority)
+  minority <- data.matrix(minority)
 
-  # Calcs variance (called covariance in the original algorithm)
-  # of the minority class
-  minVariance <- stats::var(minority)
+  # Computes covariance of the minority class
+  covariance <- stats::var(minority)
+
   # Try to find an inverse matrix for the positive class, if it exists
-  minVarianceInv <- try(solve(stats::var(minority)))
-  if(class(minVarianceInv) == "try-error")
+  covInverse <- try(solve(covariance))
+  if(class(covInverse) == "try-error")
     stop(paste("Not a valid method for this dataset.",
                "Variance of the positive class is not an invertible matrix"))
 
-  m <- ncol(minority)
-  n <- nrow(minority)
+  # Find best value for bandwidth
+  myBandwidth <- bestGaussianBandwidth(minority, covInverse)
 
-  # Multivariate Gaussian kernel function
-  gaussianPDF <- function(bandwidth, vector, minVarianceInv){
-    result <- 1/ ((bandwidth ** (-m)) * ((2 * pi) ** (m/2)))
-    result * exp(- 1 /(2 * bandwidth ** 2) *
-                as.numeric(vector %*% minVarianceInv %*% vector) )
-  }
-
-
-  # Cross validation score function to minimize
-  crossValScore <- function(bandwidth){
-    value <- 2 * gaussianPDF(bandwidth, 0, 1) / n
-
-    value <- value +
-      sum(apply(minority, MARGIN = 1, function(row.i){
-        apply(minority, MARGIN = 1, function(row.j){
-          evPoint <- as.numeric(row.j - row.i)
-          result <- gaussianPDF(sqrt(2) * bandwidth, evPoint, minVarianceInv)
-          result - 2 * gaussianPDF(bandwidth, evPoint, minVarianceInv)
-        })
-      })) / (n*n)
-
-    value
-  }
-
-
-  # grid search to find approximation to best bandwidth parameter
-  gridParams <- seq(from = 0.2, to = 2, by = 0.02)
-  # adds to grid breaks Scott's and Silverman's rules of thumb
-  gridParams <- c(gridParams,
-                  n ** (-1 / (m + 4)),
-                  (4 / (n * (m + 2))) ** (1 / (m + 4)) )
-  minIndex <- which.min( sapply(gridParams, function(x){ crossValScore(x) }) )
-
-  myBandwidth <- gridParams[ minIndex ]
-
-
-  # Generate new samples using a normal multivariate distribution with variance
-  # myBandwidth² * minVariance
-  samples <- minority[sample(1:n, numInstances, replace = T), ]
+  # Generate new samples using a normal multivariate distribution with covariance
+  # myBandwidth² * covariance
+  samples <- minority[sample(1:nrow(minority), numInstances, replace = T), ]
   newSamples <- t(apply(samples, MARGIN = 1, function(row){
     mvtnorm::rmvnorm(1, mean = data.matrix(row),
-                     sigma = myBandwidth * minVariance, method = "chol")
+                     sigma = myBandwidth * covariance, method = "chol")
   }))
 
   # Cleanse newSamples dataset and return them
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
+  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
 }
