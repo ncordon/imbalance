@@ -10,8 +10,8 @@ using namespace Rcpp;
 //
 // We do not output multiplicative constants
 double gaussianPDF(arma::colvec &point, arma::mat &covInv){
-  arma::mat result = trans(point) * covInv * point;
-  return exp(-1/2 * result(0, 0));
+  arma::mat ev_point = -1.0/2 * trans(point) * covInv * point;
+  return exp(ev_point(0,0));
 }
 
 
@@ -30,13 +30,13 @@ double crossValScore(arma::mat &dataset, arma::mat &covInv, double bandwidth){
   for(arma::uword i = 0; i < n; i++){
     for(arma::uword j = 0; j < n; j++){
       point = dataset.col(i) - dataset.col(j);
-      score += other_factor * gaussianPDF(point, first_cov);
+      score += other_factor * gaussianPDF(point, first_cov);;
       score -= 2 * gaussianPDF(point, second_cov);
     }
   }
 
   score /= (n*n);
-  score += 2.0/n;
+  score += 2.0 /n;
   score *= factor;
 
   return score;
@@ -53,23 +53,22 @@ double bestGaussianBandwidth(arma::mat &dataset, arma::mat &covInv){
   double best_bandwidth;
   double min_cross_val = std::numeric_limits<double>::infinity();
   double current_score;
-  double scott_bandwidth = pow(n, (-1.0 / (d + 4)));
   double silverman_bandwidth = pow( 4.0 / (n * (d + 2)), 1.0 / (d + 4));
   std::vector <double> possible_bwidth;
   std::vector<double>::iterator v;
 
-  // Adds Scott's and Silverman's rules of thumb
-  possible_bwidth.push_back(scott_bandwidth);
+  // Adds Silverman's rules of thumb
   possible_bwidth.push_back(silverman_bandwidth);
 
   // Adds grid search values
-  for(double v = 0.2 * silverman_bandwidth; v < 1.5 * silverman_bandwidth; v = v + 0.02){
-    possible_bwidth.push_back(v);
+  for(double v = 0.25; v < 1.5; v = v + 0.05){
+    possible_bwidth.push_back(v * silverman_bandwidth);
   }
 
   // If we improve value of cross validation, update value for bandwidth parameter
   for(v = possible_bwidth.begin(); v != possible_bwidth.end(); ++v){
     current_score = crossValScore(dataset, covInv, *v);
+    //Rcout << current_score << std::endl;
 
     if(current_score < min_cross_val){
       best_bandwidth = *v;
