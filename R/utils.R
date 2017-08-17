@@ -40,7 +40,7 @@ plotComparison <- function(dataset, anotherDataset, attrs, cols = 2, classAttr =
   nPlots <- 2 * ncol(plotGrid)
   rows <- ceiling(nPlots/cols)
   # Palette for plots
-  colorPalette <-  c("#000000", "#E69F00", "#56B4E9", "#009E73",
+  colorPalette <-  c("#E69F00", "#000000", "#56B4E9", "#009E73",
                      "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
   # Starts new grid page with layout to make the comparison

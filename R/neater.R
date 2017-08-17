@@ -114,7 +114,7 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   # to the minority class is greater than a half
   goodSamples <-  which(probs[(oldSize+1):nrow(probs), 1] > 0.5)
   print(paste(nrow(newSamples) - length(goodSamples),
-              "ejemplos filtrados por NEATER"))
+              "samples filtered by NEATER"))
   newSamples <- newSamples[goodSamples, ]
 
   # Append class column to minority samples and return them

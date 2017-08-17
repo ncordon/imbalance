@@ -20,17 +20,30 @@ devtools::install_github("ncordon/imbalance")
 Examples
 --------
 
-Run `rwo` algorithm on `iris0` imbalanced dataset and plot a comparison between attributes.
+Run `pdfos` algorithm on `iris0` imbalanced dataset and plot a comparison between attributes.
 
 ``` r
 library("imbalance")
 
-data(iris0)
+data(newthyroid1)
 set.seed(12345)
 
-rwoSamples <- rwo(iris0, numInstances = 100)
-rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
-plotComparison(iris0, rwoBalanced, names(iris0), cols = 2, classAttr = "Class")
+newSamples <- pdfos(newthyroid1, numInstances = 60)
+# Join new samples with old imbalanced dataset
+newDataset <- rbind(newthyroid1, newSamples)
+# Plot a visual comparison between both datasets
+plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3], cols = 2, classAttr = "Class")
 ```
 
-![](README-example-1.png)
+![](README-example-pdfos-1.png)
+
+After filtering examples with `neater`:
+
+``` r
+newSamples <- neater(newthyroid1, newSamples, iterations = 200)
+#> [1] "20 samples filtered by NEATER"
+newDataset <- rbind(newthyroid1, newSamples)
+plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3])
+```
+
+![](README-example-neater-1.png)
