@@ -68,7 +68,10 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   # Indexes in dataset for k nearest neighbours of each new sample
   knnInfo <- KernelKnn::knn.index.dist(dataset, newSamples,
                                        k = k, method = "euclidean")
+  # List with the payoffs for each synthetic sample respect to its
+  # k-nearest neighbours
   knnIndexes <- knnInfo$test_knn_idx
+  partialPayoffs <- apply(knnInfo$test_knn_dist, MARGIN = c(1,2), function(x) 1/(x**2 + 1))
 
   # Matrix of probabilities of belonging to each class, with
   # 1 == minority class. Samples are tagged with probability
@@ -80,10 +83,6 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   probs[-minorityIndexes, 1] <- 0
   probs[-minorityIndexes, 2] <- 1
   probs[(oldSize + 1):nrow(dataset), ] <- 0.5
-
-  # List with the payoffs for each synthetic sample respect to its
-  # k-nearest neighbours
-  partialPayoffs <- apply(knnInfo$test_knn_dist, MARGIN = c(1,2), function(x) 1/(x**2 + 1))
 
   for(i in 1:iterations){
     # Calculate total payoff for ith new sample
