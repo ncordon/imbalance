@@ -18,6 +18,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// computeGameProfiles
+arma::mat computeGameProfiles(arma::mat probs, arma::umat knn_neighbours, arma::mat partial_payoffs, int iterations, double smooth_factor);
+RcppExport SEXP _imbalance_computeGameProfiles(SEXP probsSEXP, SEXP knn_neighboursSEXP, SEXP partial_payoffsSEXP, SEXP iterationsSEXP, SEXP smooth_factorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type probs(probsSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type knn_neighbours(knn_neighboursSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type partial_payoffs(partial_payoffsSEXP);
+    Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP);
+    Rcpp::traits::input_parameter< double >::type smooth_factor(smooth_factorSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGameProfiles(probs, knn_neighbours, partial_payoffs, iterations, smooth_factor));
+    return rcpp_result_gen;
+END_RCPP
+}
 // bestGaussianBandwidth
 double bestGaussianBandwidth(arma::mat& dataset, arma::mat& covInv);
 RcppExport SEXP _imbalance_bestGaussianBandwidth(SEXP datasetSEXP, SEXP covInvSEXP) {
@@ -33,6 +48,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_imbalance_mwmoteCalcClusters", (DL_FUNC) &_imbalance_mwmoteCalcClusters, 2},
+    {"_imbalance_computeGameProfiles", (DL_FUNC) &_imbalance_computeGameProfiles, 5},
     {"_imbalance_bestGaussianBandwidth", (DL_FUNC) &_imbalance_bestGaussianBandwidth, 2},
     {NULL, NULL, 0}
 };

@@ -5,6 +5,10 @@ mwmoteCalcClusters <- function(distance_matrix, threshold) {
     .Call(`_imbalance_mwmoteCalcClusters`, distance_matrix, threshold)
 }
 
+computeGameProfiles <- function(probs, knn_neighbours, partial_payoffs, iterations, smooth_factor) {
+    .Call(`_imbalance_computeGameProfiles`, probs, knn_neighbours, partial_payoffs, iterations, smooth_factor)
+}
+
 bestGaussianBandwidth <- function(dataset, covInv) {
     .Call(`_imbalance_bestGaussianBandwidth`, dataset, covInv)
 }

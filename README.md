@@ -28,7 +28,7 @@ library("imbalance")
 data(newthyroid1)
 set.seed(12345)
 
-newSamples <- pdfos(newthyroid1, numInstances = 60)
+newSamples <- pdfos(newthyroid1, numInstances = 80)
 # Join new samples with old imbalanced dataset
 newDataset <- rbind(newthyroid1, newSamples)
 # Plot a visual comparison between both datasets
@@ -40,10 +40,10 @@ plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3], cols = 
 After filtering examples with `neater`:
 
 ``` r
-newSamples <- neater(newthyroid1, newSamples, iterations = 200)
-#> [1] "20 samples filtered by NEATER"
-newDataset <- rbind(newthyroid1, newSamples)
-plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3])
+filteredSamples <- neater(newthyroid1, newSamples, iterations = 500)
+#> [1] "14 samples filtered by NEATER"
+filteredNewDataset <- rbind(newthyroid1, filteredSamples)
+plotComparison(newthyroid1, filteredNewDataset, attrs = names(newthyroid1)[1:3])
 ```
 
 ![](README-example-neater-1.png)

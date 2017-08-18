@@ -67,11 +67,11 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   newSamples <- newSamples[, names(newSamples) != classAttr]
   # Indexes in dataset for k nearest neighbours of each new sample
   knnInfo <- KernelKnn::knn.index.dist(dataset, newSamples,
-                                       k = k, method = "euclidean")
+                                       k = k + 1, method = "euclidean")
   # List with the payoffs for each synthetic sample respect to its
   # k-nearest neighbours
-  knnIndexes <- knnInfo$test_knn_idx
-  partialPayoffs <- apply(knnInfo$test_knn_dist, MARGIN = c(1,2), function(x) 1/(x**2 + 1))
+  knnIndexes <- knnInfo$test_knn_idx[, -1]
+  partialPayoffs <- apply(knnInfo$test_knn_dist[, -1], MARGIN = c(1,2), function(x) 1/(x**2 + 1))
 
   # Matrix of probabilities of belonging to each class, with
   # 1 == minority class. Samples are tagged with probability
@@ -84,37 +84,13 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   probs[-minorityIndexes, 2] <- 1
   probs[(oldSize + 1):nrow(dataset), ] <- 0.5
 
-  for(i in 1:iterations){
-    # Calculate total payoff for ith new sample
-    payoffs <- sapply(1:nrow(newSamples), function(i){
-      sum( partialPayoffs[i, ] * (probs[knnIndexes[i, ], ]
-                                  %*% probs[oldSize + i, ]) )
-    })
-
-    # Calculate payoff of belonging to the minority class for
-    # the ith sample
-    minPayoffs <- sapply(1:nrow(newSamples), function(i){
-      # Calculate payoff for ith new sample
-      sum( partialPayoffs[i, ] * (probs[knnIndexes[i, ], ] %*% c(1,0)) )
-    })
-
-    # Apply time discrete replicator to calculate
-    # probability of minority and other classes
-    minProbs <- (smoothFactor + minPayoffs) / (smoothFactor + payoffs) *
-      probs[(oldSize + 1) : nrow(dataset), 1]
-    otherProbs <- 1 - minProbs
-
-    # Updates probabilities of each class
-    updatedProbs <- cbind(minProbs, otherProbs)
-    probs <- rbind(probs[1:oldSize, ], updatedProbs)
-  }
+  probs <- computeGameProfiles(probs, knnIndexes, partialPayoffs, iterations, smoothFactor)
 
   # Select synthetic instances whose probabily of belonging
   # to the minority class is greater than a half
-  goodSamples <-  which(probs[(oldSize+1):nrow(probs), 1] > 0.5)
-  print(paste(nrow(newSamples) - length(goodSamples),
-              "samples filtered by NEATER"))
-  newSamples <- newSamples[goodSamples, ]
+  badSamples <-  which(probs[(oldSize+1):nrow(probs), 1] <= 0.5)
+  print(paste(length(badSamples), "samples filtered by NEATER"))
+  newSamples <- newSamples[-badSamples, ]
 
   # Append class column to minority samples and return them
   .normalizeNewSamples(newSamples, minorityClass, names(dataset), classAttr, colTypes)
