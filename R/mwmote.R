@@ -66,6 +66,8 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   if(missing(kMinority))
     kMinority <- nrow(minority) / 2
 
+  if(!is.numeric(numInstances) || numInstances <= 0)
+    stop("numInstances must be a positive integer")
   if(!is.numeric(kNoisy)  || !is.numeric(kMajority) || !is.numeric(kMinority) ||
      kNoisy <= 0 || kMajority <= 0 || kMinority <= 0)
     stop("kNoisy, kMajority and kMinority must be positive integers")

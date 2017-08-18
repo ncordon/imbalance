@@ -20,7 +20,7 @@ devtools::install_github("ncordon/imbalance")
 Examples
 --------
 
-Run `pdfos` algorithm on `iris0` imbalanced dataset and plot a comparison between attributes.
+Run `pdfos` algorithm on `newthyroid1` imbalanced dataset and plot a comparison between attributes.
 
 ``` r
 library("imbalance")

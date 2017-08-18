@@ -32,7 +32,7 @@ mwmoteTestOutput("newthyroid1")
 mwmoteTestOutput("wisconsin")
 mwmoteTestOutput("yeast4")
 
-test_that("Check of parameters is properly done in RWO", {
+test_that("Check of parameters is properly done in MWMOTE", {
   expect_error(mwmote(iris0, classAttr = "Species"))
   expect_error(mwmote(iris0, numInstances = "foo"))
   expect_error(mwmote("foo", numInstances = 100))

@@ -84,6 +84,7 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   probs[-minorityIndexes, 2] <- 1
   probs[(oldSize + 1):nrow(dataset), ] <- 0.5
 
+  # compute iterations update of the profile strategies probabilities
   probs <- computeGameProfiles(probs, knnIndexes, partialPayoffs, iterations, smoothFactor)
 
   # Select synthetic instances whose probabily of belonging
