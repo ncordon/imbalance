@@ -157,16 +157,16 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 
   model <- trainWrapper(wrapper, train, trainClass)
   predictMethod <- paste("predict", class(model), sep=".")
-  if(!predictMethod %in% utils::methods(predict))
+  if(!any(predictMethod %in% utils::methods(predict)))
     stop(paste("There must exist a method predict.class where class\n",
-               " is the class of the model returned by", trainMethod))
+               "is any class of the model returned by", trainMethod))
 
   minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
     minority <- gibbsSampler(probDist, minority)
-    prediction <- predict(model, minority)
+    prediction <- predict(model, data.frame(minority))
     misclassified <- minority[prediction != minorityClass, , drop = FALSE]
     newSamples <- rbind.data.frame(newSamples, misclassified)
     train <- rbind.data.frame(train, misclassified)
