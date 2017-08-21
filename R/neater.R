@@ -44,9 +44,6 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
      any(! names(newSamples) %in% names(dataset)))
     stop("dataset and newSamples must have the same structure")
 
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
-
   if(nrow(newSamples) == 0 || nrow(dataset) == 0)
     stop("newSamples and dataset cannot be empty")
   if(!is.numeric(k) || !is.numeric(iterations) ||
@@ -65,13 +62,23 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   dataset <- rbind(dataset, newSamples)
   dataset <- dataset[, names(dataset) != classAttr]
   newSamples <- newSamples[, names(newSamples) != classAttr]
+
+  # Convert datasets to numeric
+  colTypes <- .colTypes(dataset, exclude = classAttr)
+  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  newSamples <- .convertToNumeric(newSamples, exclude = classAttr)
+  checkAllColumnsNumeric(newSamples, exclude = classAttr, "newSamples")
+  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+
   # Indexes in dataset for k nearest neighbours of each new sample
   knnInfo <- KernelKnn::knn.index.dist(dataset, newSamples,
                                        k = k + 1, method = "euclidean")
   # List with the payoffs for each synthetic sample respect to its
   # k-nearest neighbours
-  knnIndexes <- knnInfo$test_knn_idx[, -1]
-  partialPayoffs <- apply(knnInfo$test_knn_dist[, -1], MARGIN = c(1,2), function(x) 1/(x**2 + 1))
+  knnIndexes <- knnInfo$test_knn_idx[, -1, drop = FALSE]
+  partialPayoffs <- apply(knnInfo$test_knn_dist[, -1, drop = FALSE],
+                          MARGIN = c(1,2),
+                          function(x) 1/(x**2 + 1))
 
   # Matrix of probabilities of belonging to each class, with
   # 1 == minority class. Samples are tagged with probability
@@ -91,7 +98,9 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   # to the minority class is greater than a half
   badSamples <-  which(probs[(oldSize+1):nrow(probs), 1] <= 0.5)
   print(paste(length(badSamples), "samples filtered by NEATER"))
-  newSamples <- newSamples[-badSamples, ]
+
+  if(length(badSamples) > 0)
+    newSamples <- newSamples[-badSamples, ]
 
   # Append class column to minority samples and return them
   .normalizeNewSamples(newSamples, minorityClass, names(dataset), classAttr, colTypes)
