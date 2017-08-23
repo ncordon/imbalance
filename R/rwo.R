@@ -18,6 +18,12 @@
 #'   containing the synthetic examples generated
 #' @export
 #'
+#' @references
+#'
+#' Zhang, Huaxiang; Li, Mingfang. Rwo-Sampling: A Random Walk Over-Sampling
+#' Approach To Imbalanced Data Classification. Information Fusion 20 (2014), p.
+#' 99–116.
+#'
 #' @examples
 #' data(iris0)
 #' set.seed(12345)
@@ -41,17 +47,16 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
   m <- nrow(minority)
 
   if(nrow(minority) > 0){
-    iterPerInstance <- ceiling(numInstances / nrow(minority))
-    # Multiplicative factors following a normal distribution that depend
-    # on each example
-    scaleFactors <- stats::rnorm(nrow(minority) * iterPerInstance, mean = 0, sd = 1)
+    iterations <- ceiling(numInstances / nrow(minority))
   }
 
   newSamples <- lapply(minority, function(x){
     # If attribute is continuous, generate new minority sample preserving
     # mean and variance of existent samples
+    scaleFactors <- stats::rnorm(nrow(minority) * iterations, mean = 0, sd = 1)
+
     if(class(x) == "numeric"){
-      variance <- stats::var(x)
+      variance <- (m-1)/m * stats::var(x)
       x - variance/sqrt(m) * scaleFactors
 
     # Else if attribute is not numeric, make a roulette out of possible
@@ -60,14 +65,11 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
       dist <- table(x)
       distValues <- names(dist)
       distProbs <- unname(dist)
-      sample(distValues, length(x) * iterPerInstance, replace = T, prob = distProbs)
+      sample(distValues, length(x) * iterations, replace = T, prob = distProbs)
     }
   })
 
-  # Select numInstances randomly (if we have generated more instances than
-  # required for each minority example) and output them
   newSamples <- data.frame(newSamples)
-  indexes <- sample(1:nrow(newSamples), numInstances, replace = F)
-  newSamples <- newSamples[indexes, ]
+  newSamples <- selectSamples(newSamples, numInstances)
   .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
 }

@@ -107,7 +107,7 @@ public:
 // clustering that stops when minimum distance between clusters is greater than
 // threshold, or we run out of clusters to merge.
 // [[Rcpp::export]]
-IntegerVector mwmoteCalcClusters(arma::mat &distance_matrix, double threshold) {
+IntegerVector hClustering(arma::mat &distance_matrix, double threshold) {
   HierarchicalClustering clustering(distance_matrix);
 
   // While we meet the threshold condition and there still are clusters to merge

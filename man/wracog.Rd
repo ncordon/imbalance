@@ -59,3 +59,8 @@ newSamples <- wracog(haberman[trainFold, ], haberman[-trainFold, ],
                      myWrapper, classAttr = "Class")
 
 }
+\references{
+Das, Barnan; Krishnan, Narayanan C.; Cook, Diane J. Racog and Wracog: Two
+Probabilistic Oversampling Techniques. IEEE Transactions on Knowledge and
+Data Engineering 27(2015), Nr. 1, p. 222–234.
+}

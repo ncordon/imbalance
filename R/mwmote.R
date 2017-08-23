@@ -35,6 +35,13 @@
 #'   containing the synthetic examples generated.
 #' @export
 #'
+#' @references
+#'
+#' Barua, Sukarna; Islam, Md.M.; Yao, Xin; Murase, Kazuyuki. Mwmote–majority
+#' Weighted Minority Oversampling Technique for Imbalanced Data Set Learning.
+#' IEEE Transactions on Knowledge and Data Engineering 26 (2014), Nr. 2, p.
+#' 405–425
+#'
 #' @examples
 #' data(iris0)
 #' set.seed(12345)
@@ -136,8 +143,7 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   }))
 
   thresholdClustering <- sumDists / nrow(filteredMinority) * cclustering
-  clusters <- mwmoteCalcClusters(as.matrix(stats::dist(minority)),
-                                 thresholdClustering)
+  clusters <- hClustering(as.matrix(stats::dist(minority)), thresholdClustering)
 
 
   # Generate new samples samples

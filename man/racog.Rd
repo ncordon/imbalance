@@ -4,14 +4,13 @@
 \alias{racog}
 \title{Rapidy Converging Gibbs algorithm.}
 \usage{
-racog(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class")
+racog(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class")
 }
 \arguments{
 \item{dataset}{\code{data.frame} to treat. All columns, except
 \code{classAttr} one, have to be numeric or coercible to numeric.}
 
-\item{iterations}{Integer. Number of iterations to run for each minority
-example.}
+\item{numInstances}{Integer. Number of new minority examples to generate.}
 
 \item{burnin}{Integer. It determines how many examples generated for a given
 one are going to be discarded firstly. By default, 100.}
@@ -42,6 +41,11 @@ data(iris0)
 set.seed(12345)
 
 # Generates new minority examples
-newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
+newSamples <- racog(iris0, numInstances = 100, classAttr = "Class")
 
+}
+\references{
+Das, Barnan; Krishnan, Narayanan C.; Cook, Diane J. Racog and Wracog: Two
+Probabilistic Oversampling Techniques. IEEE Transactions on Knowledge and
+Data Engineering 27(2015), Nr. 1, p. 222–234.
 }

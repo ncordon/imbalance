@@ -23,6 +23,12 @@
 #'   \code{new.Samples}.
 #' @export
 #'
+#' @references
+#'
+#' Almogahed, B.A.; Kakadiaris, I.A. Neater: Filtering of Over-Sampled Data
+#' Using Non-Cooperative Game Theory. Soft Computing 19 (2014), Nr. 11, p.
+#' 3301–3322.
+#'
 #' @examples
 #' data(iris0)
 #' set.seed(12345)

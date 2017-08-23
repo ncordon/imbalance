@@ -93,7 +93,7 @@ double bestGaussianBandwidth(arma::mat &dataset, arma::mat &covInv){
   // Gradient descendent to move in the direction of the derivative of the
   // cross validation function derivative until we cannot improve precision
   // respect to the previous iteration
-  while(previous_step_size > precision && !out_bounds && iterations < (m*m)){
+  while(previous_step_size > precision && !out_bounds && iterations < (m*d)){
     current_eval = computeCV(dataset, covInv, current_value);
     current_df = current_eval.derivative;
 

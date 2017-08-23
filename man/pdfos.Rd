@@ -36,3 +36,11 @@ set.seed(12345)
 newSamples <- pdfos(iris0, numInstances = 100)
 
 }
+\references{
+Gao, Ming; Hong, Xia; Chen, Sheng; Harris, Chris J.; Khalaf, Emad. Pdfos: Pdf
+Estimation Based Oversampling for Imbalanced Two-Class Problems.
+Neurocomputing 138 (2014), p. 248–259
+
+Silverman, B. W. Density Estimation for Statistics and Data Analysis. Chapman
+& Hall, 1986. – ISBN 0412246201
+}

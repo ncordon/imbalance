@@ -60,3 +60,9 @@ set.seed(12345)
 newSamples <- mwmote(iris0, numInstances = 100, classAttr = "Class")
 
 }
+\references{
+Barua, Sukarna; Islam, Md.M.; Yao, Xin; Murase, Kazuyuki. Mwmote–majority
+Weighted Minority Oversampling Technique for Imbalanced Data Set Learning.
+IEEE Transactions on Knowledge and Data Engineering 26 (2014), Nr. 2, p.
+405–425
+}

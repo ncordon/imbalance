@@ -11,8 +11,7 @@
 #'
 #' @param dataset \code{data.frame} to treat. All columns, except
 #'   \code{classAttr} one, have to be numeric or coercible to numeric.
-#' @param iterations Integer. Number of iterations to run for each minority
-#'   example.
+#' @param numInstances Integer. Number of new minority examples to generate.
 #' @param burnin Integer. It determines how many examples generated for a given
 #'   one are going to be discarded firstly. By default, 100.
 #' @param lag Integer. Number of iterations between new generated example for a
@@ -23,22 +22,29 @@
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.
 #' @export
+#'
+#' @references
+#'
+#' Das, Barnan; Krishnan, Narayanan C.; Cook, Diane J. Racog and Wracog: Two
+#' Probabilistic Oversampling Techniques. IEEE Transactions on Knowledge and
+#' Data Engineering 27(2015), Nr. 1, p. 222–234.
+#'
 #' @examples
 #' data(iris0)
 #' set.seed(12345)
 #'
 #' # Generates new minority examples
-#' newSamples <- racog(iris0, burnin = 10, iterations = 100, classAttr = "Class")
+#' newSamples <- racog(iris0, numInstances = 100, classAttr = "Class")
 #'
-racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Class"){
+racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
   colTypes <- .colTypes(dataset, exclude = classAttr)
   dataset <- .convertToNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
-  if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(iterations) ||
-     burnin < 0 || lag < 0 || iterations < 0)
-    stop("burnin, lag and iterations must be positive integers")
+  if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(numInstances) ||
+     burnin <= 0 || lag <= 0 || numInstances <= 0)
+    stop("burnin, lag and numInstances must be positive integers")
 
 
   # Calcs minority class and instances
@@ -50,8 +56,10 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
   minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
-  # For each minority example, create (iterations - burnin)/lag
-  # new examples, approximating minority distribution with a Gibss sampler
+  # Set iterations to generate at least numInstances new examples
+  iterations <- ceiling(numInstances/nrow(minority)) * lag + burnin
+
+  # Create new examples, approximating minority distribution with Gibss sampler
   for(k in seq_len(iterations)){
     # Generate new sample using Gibbs Sampler
     minority <- gibbsSampler(probDist, minority)
@@ -61,6 +69,7 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
   }
 
 
+  newSamples <- selectSamples(newSamples, numInstances)
   # Prepare newSamples output
   .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
 }
@@ -100,6 +109,12 @@ racog <- function(dataset, iterations, burnin = 100, lag = 20, classAttr = "Clas
 #'   containing the synthetic examples generated.
 #' @importFrom stats predict
 #' @export
+#'
+#' @references
+#'
+#' Das, Barnan; Krishnan, Narayanan C.; Cook, Diane J. Racog and Wracog: Two
+#' Probabilistic Oversampling Techniques. IEEE Transactions on Knowledge and
+#' Data Engineering 27(2015), Nr. 1, p. 222–234.
 #'
 #' @examples
 #' data(haberman)

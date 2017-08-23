@@ -36,3 +36,8 @@ set.seed(12345)
 newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 
 }
+\references{
+Zhang, Huaxiang; Li, Mingfang. Rwo-Sampling: A Random Walk Over-Sampling
+Approach To Imbalanced Data Classification. Information Fusion 20 (2014), p.
+99–116.
+}

@@ -293,6 +293,20 @@ checkDataset <- function(dataset, name){
 }
 
 
+
+#' Select numInstances randomly (in case we have generated more instances than
+#' required)
+#'
+#' @param newSamples A \code{matrix} or \code{data.frame}
+#' @param numInstances Integer. Number of instances to select from newSamples
+#'
+#' @noRd
+selectSamples <- function(newSamples, numInstances){
+  indexes <- sample(seq_len(nrow(newSamples)), numInstances, replace = F)
+  newSamples <- newSamples[indexes, ]
+}
+
+
 #' Check that all columns of a given \code{data.frame} are numeric
 #'
 #' @param dataset A \code{data.frame}

@@ -6,15 +6,15 @@
 
 using namespace Rcpp;
 
-// mwmoteCalcClusters
-IntegerVector mwmoteCalcClusters(arma::mat& distance_matrix, double threshold);
-RcppExport SEXP _imbalance_mwmoteCalcClusters(SEXP distance_matrixSEXP, SEXP thresholdSEXP) {
+// hClustering
+IntegerVector hClustering(arma::mat& distance_matrix, double threshold);
+RcppExport SEXP _imbalance_hClustering(SEXP distance_matrixSEXP, SEXP thresholdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type distance_matrix(distance_matrixSEXP);
     Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
-    rcpp_result_gen = Rcpp::wrap(mwmoteCalcClusters(distance_matrix, threshold));
+    rcpp_result_gen = Rcpp::wrap(hClustering(distance_matrix, threshold));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -47,7 +47,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_imbalance_mwmoteCalcClusters", (DL_FUNC) &_imbalance_mwmoteCalcClusters, 2},
+    {"_imbalance_hClustering", (DL_FUNC) &_imbalance_hClustering, 2},
     {"_imbalance_computeGameProfiles", (DL_FUNC) &_imbalance_computeGameProfiles, 5},
     {"_imbalance_bestGaussianBandwidth", (DL_FUNC) &_imbalance_bestGaussianBandwidth, 2},
     {NULL, NULL, 0}

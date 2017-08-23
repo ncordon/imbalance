@@ -50,3 +50,8 @@ names(newSamples) <- c(names(newSamples)[-5], "Class")
 neater(iris0, newSamples, k = 5, iterations = 100,
        smoothFactor = 1, classAttr = "Class")
 }
+\references{
+Almogahed, B.A.; Kakadiaris, I.A. Neater: Filtering of Over-Sampled Data
+Using Non-Cooperative Game Theory. Soft Computing 19 (2014), Nr. 11, p.
+3301–3322.
+}

@@ -25,13 +25,14 @@ Imports:
     utils,
     stats,
     mvtnorm,
-    smotefamily,
     Rcpp
 Suggests:
     testthat,
     C50,
     knitr,
-    rmarkdown
+    rmarkdown,
+    FNN,
+    smotefamily
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo
