@@ -10,8 +10,10 @@ navbar:
   left:
     - text: "Home"
       href: index.html
+      icon: fa-bar-chart
     - text: "Reference"
+      icon: fa-book
       href: "reference/index.html"
   right:
-    - icon: fa-github fa-2x
+    - icon: fa-github
       href: https://github.com/ncordon/imbalance
