@@ -30,3 +30,4 @@ notes.org
 packrat/src
 packrat/src/
 inst/doc
+/revdep/.cache.rds

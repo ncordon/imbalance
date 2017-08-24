@@ -10,7 +10,7 @@ imbalance
 Installation
 ------------
 
-You can install imbalance from github with:
+You can install imbalance from Github with:
 
 ``` r
 # install.packages("devtools")
