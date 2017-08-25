@@ -58,11 +58,13 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   if(!is.numeric(smoothFactor) || smoothFactor <= 0)
     stop("smooth must be a positive number")
 
-  # Compute size of dataset, minorityClass
+  # Extracts shape of the dataset, calcs minority class and instances
+  originalShape <- datasetStructure(dataset, classAttr)
+  # Compute minority indexes
+  minority <- selectMinority(dataset, classAttr)
+  minorityIndexes <- rownames(minority)
+  minorityIndexes <- as.integer(minorityIndexes)
   oldSize <- nrow(dataset)
-  minorityClass <- .whichMinorityClass(newSamples, classAttr)
-  classes <- dataset[, classAttr]
-  minorityIndexes <- which(classes == minorityClass)
 
   # Join dataset and newSamples and strip class attribute
   dataset <- rbind(dataset, newSamples)
@@ -70,9 +72,8 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   newSamples <- newSamples[, names(newSamples) != classAttr]
 
   # Convert datasets to numeric
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
-  newSamples <- .convertToNumeric(newSamples, exclude = classAttr)
+  dataset <- toNumeric(dataset, exclude = classAttr)
+  newSamples <- toNumeric(newSamples, exclude = classAttr)
   checkAllColumnsNumeric(newSamples, exclude = classAttr, "newSamples")
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
@@ -109,5 +110,5 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
     newSamples <- newSamples[-badSamples, ]
 
   # Append class column to minority samples and return them
-  .normalizeNewSamples(newSamples, minorityClass, names(dataset), classAttr, colTypes)
+  normalizeNewSamples(originalShape, newSamples)
 }

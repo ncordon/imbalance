@@ -32,17 +32,15 @@
 pdfos <- function(dataset, numInstances, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+
   if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
-  # Calcs minority class and instances
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  minority <- dataset[dataset[, classAttr] == minorityClass,
-                      names(dataset) != classAttr]
-  attrs <- names(minority)
+  # Extracts shape of the dataset, calcs minority class and instances
+  originalShape <- datasetStructure(dataset, classAttr)
+  minority <- selectMinority(dataset, classAttr)
   minority <- data.matrix(minority)
 
   # Computes covariance of the minority class
@@ -66,5 +64,5 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
   }))
 
   # Cleanse newSamples dataset and return them
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
+  normalizeNewSamples(originalShape, newSamples)
 }

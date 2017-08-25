@@ -33,16 +33,15 @@
 rwo <- function(dataset, numInstances, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
   if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
-  # Calcs minority class and instances
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  minority <- dataset[dataset[, classAttr] == minorityClass,
-                      names(dataset) != classAttr]
+  # Extracts shape of the dataset, calcs minority class and instancess
+  originalShape <- datasetStructure(dataset, classAttr)
+  minority <- selectMinority(dataset, classAttr)
+  minority <- data.matrix(minority)
 
   m <- nrow(minority)
 
@@ -50,7 +49,7 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
     iterations <- ceiling(numInstances / nrow(minority))
   }
 
-  newSamples <- lapply(minority, function(x){
+  newSamples <- apply(minority, MARGIN = 2, function(x){
     # If attribute is continuous, generate new minority sample preserving
     # mean and variance of existent samples
     scaleFactors <- stats::rnorm(nrow(minority) * iterations, mean = 0, sd = 1)
@@ -69,7 +68,7 @@ rwo <- function(dataset, numInstances, classAttr = "Class"){
     }
   })
 
-  newSamples <- data.frame(newSamples)
+
   newSamples <- selectSamples(newSamples, numInstances)
-  .normalizeNewSamples(newSamples, minorityClass, names(minority), classAttr, colTypes)
+  normalizeNewSamples(originalShape, newSamples)
 }

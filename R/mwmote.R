@@ -54,19 +54,21 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                    classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
+  # Extracts shape of the dataset, calcs minority class and instances
+  originalShape <- datasetStructure(dataset, classAttr)
   # Compute minority and majority
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  classes <- dataset[, classAttr]
-  dataset <- dataset[, names(dataset) != classAttr]
-  attrs <- names(dataset)
+  minority <- selectMinority(dataset, classAttr)
+  majority <- selectMajority(dataset, classAttr)
+  dataset <- dataset[, colnames(dataset) != classAttr]
+  minorityIndexes <- rownames(minority)
+  minorityIndexes <- as.integer(minorityIndexes)
+
   dataset <- data.matrix(dataset)
-  minorityIndexes <- which(classes == minorityClass)
-  minority <- dataset[minorityIndexes, ]
-  majority <- dataset[-minorityIndexes, ]
+  minority <- data.matrix(minority)
+  majority <- data.matrix(majority)
 
   # If kMinority is missing, use value as described in the setting of the
   # practical part of the paper
@@ -83,17 +85,32 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
     stop("threshold, cmax and cclustering must be positive real numbers")
 
 
-  # Define closeness factor
-  dimSize <- ncol(minority)
+  # Compute filtered minority examples, clustering and selection weights
+  filteredMinority <- computeFilteredMinority(dataset, minority,
+                                               minorityIndexes, kNoisy)
+  clusters <- computeClusters(minority, filteredMinority, cclustering)
+  selectionWeights <- computeSelectionWeigths(cmax, threshold, minority, filteredMinority,
+                                              kMinority, majority, kMajority)
 
-  closenessFactor <- function(x){
-    if(x == 0){
-      cmax
-    } else{
-      min(dimSize/x * cmax/threshold, cmax)
-    }
-  }
+  # Generate new samples
+  xIndexes <- sample(selectionWeights$index, numInstances,
+                          replace = T, prob = selectionWeights$x)
+  randomNumbers <- stats::runif(numInstances, min = 0, max = 1)
 
+  xs <- minority[xIndexes, ]
+  ys <- t(sapply(xIndexes, function(index){
+    y <- minority[sample(which(clusters == clusters[index]), size = 1), ]
+  }))
+
+  newSamples <- xs + randomNumbers * (ys-xs)
+
+  # Prepare newSamples output
+  normalizeNewSamples(originalShape, newSamples)
+}
+
+
+
+computeFilteredMinority <- function(dataset, minority, minorityIndexes, kNoisy){
   # Indexes in dataset for kNoisy nearest neighbours (plus 1, we'll have to
   # exclude it) for each minority instances
   cleanMinIndexes <- KernelKnn::knn.index.dist(dataset,
@@ -104,11 +121,27 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
 
   # Filter noisy examples, i.e. those which haven't got a minority one in
   # their kNoisy neighbourhood
-
   cleanMinIndexes <- which(apply(cleanMinIndexes, MARGIN = 1, function(row){
     any(row %in% minorityIndexes)
   }))
   filteredMinority <- minority[cleanMinIndexes, ]
+
+  filteredMinority
+}
+
+
+computeSelectionWeigths <- function(cmax, threshold, minority, filteredMinority,
+                                    kMinority, majority, kMajority){
+  # Define closeness factor
+  dimSize <- ncol(minority)
+
+  closenessFactor <- function(x){
+    if(x == 0){
+      cmax
+    } else{
+      min(dimSize/x * cmax/threshold, cmax)
+    }
+  }
 
   # Find majority borderline and minority borderline instances weighted
   majBorderlineIndexes <- KernelKnn::knn.index.dist(majority,
@@ -124,7 +157,7 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                                                  k = kMinority,
                                                  method = "euclidean")
 
-  # Compute weight of selection of each filteredMinority instance
+  # Compute weight of selection of each minority instance
   minBorderlineIndexes <- as.vector(minBorderlineInfo$test_knn_idx)
   informationWeights <- t(apply(minBorderlineInfo$test_knn_dist, MARGIN = 1, function(row){
     row <- sapply(row, closenessFactor)
@@ -133,9 +166,12 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   informationWeights <- as.vector(informationWeights)
   indexesWeighted <- cbind(minBorderlineIndexes, informationWeights)
   selectionWeights <- stats::aggregate(indexesWeighted[, 2],
-                                      by = list(index = indexesWeighted[, 1]),
-                                      FUN = sum)
+                                       by = list(index = indexesWeighted[, 1]),
+                                       FUN = sum)
+}
 
+
+computeClusters <- function(minority, filteredMinority, cclustering){
   # Average-linkage hierarchical clustering of minority instances
   cleanMinDistances <- as.matrix(stats::dist(filteredMinority))
   sumDists <- sum(apply(cleanMinDistances, MARGIN = 2, function(col){
@@ -145,19 +181,6 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   thresholdClustering <- sumDists / nrow(filteredMinority) * cclustering
   clusters <- hClustering(as.matrix(stats::dist(minority)), thresholdClustering)
 
-
-  # Generate new samples samples
-  xIndexes <- sample(selectionWeights$index, numInstances,
-                          replace = T, prob = selectionWeights$x)
-  randomNumbers <- stats::runif(numInstances, min = 0, max = 1)
-
-  xs <- minority[xIndexes, ]
-  ys <- t(sapply(xIndexes, function(index){
-    y <- minority[sample(which(clusters == clusters[index]), size = 1), ]
-  }))
-
-  newSamples <- xs + randomNumbers * (ys-xs)
-
-  # Prepare newSamples output
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
+  clusters
 }
+

@@ -84,37 +84,6 @@ plotComparison <- function(dataset, anotherDataset, attrs, cols = 2, classAttr =
 }
 
 
-discretizeDataset <- function(dataset, classAttr = "Class"){
-  classes <- dataset[, classAttr]
-  dataset <- infotheo::discretize(dataset[, names(dataset) != classAttr])
-
-  for(name in names(dataset)){
-    dataset[,name] <- as.numeric(dataset[,name])
-  }
-
-  dataset[, classAttr] <- as.factor(classes)
-  dataset
-}
-
-
-undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAttr = "Class"){
-  minorityClass <- newSamples[1, classAttr]
-  whichAreMinority <- dataset[, classAttr] == minorityClass
-  discretizedDataset <- discretizedDataset[whichAreMinority, ]
-  dataset <- dataset[whichAreMinority, ]
-
-  newCols <- lapply(1:ncol(newSamples), function(c){
-    sapply(newSamples[,c], function(v){
-      sample(dataset[ discretizedDataset[,c] == v, c], 1)
-    })
-  })
-
-  newDataset <- do.call(cbind.data.frame, newCols)
-  colnames(newDataset) <- names(newSamples)
-  newDataset
-}
-
-
 #' Returns minority class for a dataset.
 #'
 #' Given a \code{dataset} and a \code{classAttr} attribute indicating the class,
@@ -160,7 +129,7 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #'
 #' @return A \code{factor} made by combining \code{x} and \code{y}.
 #' @noRd
-.sensitivity <- function(prediction, trueLabels, minorityClass){
+sensitivity <- function(prediction, trueLabels, minorityClass){
   length(which(prediction == trueLabels & trueLabels == minorityClass)) /
     length(which(prediction == minorityClass))
 }
@@ -180,46 +149,6 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
     else
       x
   })
-}
-
-#' Given a \code{data.frame} \code{newSamples}, it changes all the columns names
-#' by \code{colNames} and appends a column \code{minority.class} with all values
-#' as \code{classAttr}. It also renames all rows to be consecutive and converts
-#' the columns to the types specified in \code{colTypes}
-#'
-#' @param newSamples A \code{data.frame} containing new examples.
-#' @param minorityClass A \code{factor} or \code{character} corresponding to the
-#'   minority class.
-#' @param colNames A \code{character} vector corresponding to the new column
-#'   names we want for \code{newSamples}. For speed purposes, it does not check
-#'   that lengths match.
-#' @param classAttr A \code{character} containing the class name attribute.
-#' @param colTypes A vector of \code{character} containing the original types of
-#'   the columns, if a conversion is needed
-#'
-#' @return A \code{data.frame} with described style applied.
-#' @noRd
-.normalizeNewSamples <- function(newSamples, minorityClass, colNames, classAttr, colTypes = c()){
-  if(nrow(newSamples) > 0){
-    rownames(newSamples) <- c()
-
-    if(length(colTypes) > 0){
-      newSamples <- data.frame(newSamples)
-
-      newSamples <- mapply(function(col, type){
-        eval(parse(text = paste("as.", type, "(col)", sep = "")))
-      }, as.list(newSamples), colTypes, SIMPLIFY = FALSE)
-
-      newSamples <- data.frame(newSamples)
-    }
-
-    names(newSamples) <- colNames
-    newSamples[, classAttr] <- minorityClass
-  } else{
-    newSamples <- data.frame()
-  }
-
-  newSamples
 }
 
 
@@ -246,7 +175,7 @@ undiscretizeDataset <- function(dataset, discretizedDataset, newSamples, classAt
 #' @return The dataset whit factor columns converted
 #'
 #' @noRd
-.convertToNumeric <- function(dataset, exclude = c()){
+toNumeric <- function(dataset, exclude = c()){
   colTypes <- .colTypes(dataset, exclude)
   colFactor <- which(colTypes != "numeric")
 
@@ -318,4 +247,83 @@ selectSamples <- function(newSamples, numInstances){
 checkAllColumnsNumeric <- function(dataset, exclude = c(), name){
   if(any(! .colTypes(dataset, exclude) %in% c("numeric", "integer")))
     stop(paste("all columns of", name, "must be numeric or numeric factors"))
+}
+
+
+
+datasetStructure <- function(dataset, classAttr){
+  datasetShape <- list()
+  datasetShape$minorityClass <- .whichMinorityClass(dataset, classAttr)
+  datasetShape$classAttr <- classAttr
+  datasetShape$colNames <- names(dataset)
+  datasetShape$colTypes <- .colTypes(dataset)
+  class(datasetShape) <- "datasetStructure"
+  datasetShape
+}
+
+selectMinority <- function(dataset, classAttr){
+  minorityClass <- .whichMinorityClass(dataset, classAttr)
+  minority <- dataset[dataset[, classAttr] == minorityClass,
+                      colnames(dataset) != classAttr]
+  minority
+}
+
+selectMajority <- function(dataset, classAttr){
+  minorityClass <- .whichMinorityClass(dataset, classAttr)
+  majority <- dataset[- which(dataset[, classAttr] == minorityClass),
+                      colnames(dataset) != classAttr]
+  majority
+}
+
+normalizeNewSamples <- function(originalShape, ...){
+  UseMethod("normalizeNewSamples")
+}
+
+#' Given a \code{data.frame} \code{newSamples}, it changes all the columns names
+#' by \code{colNames} and appends a column \code{minority.class} with all values
+#' as \code{classAttr}. It also renames all rows to be consecutive and converts
+#' the columns to the types specified in \code{colTypes}
+#'
+#' @param newSamples A \code{data.frame} containing new examples.
+#' @param minorityClass A \code{factor} or \code{character} corresponding to the
+#'   minority class.
+#' @param colNames A \code{character} vector corresponding to the new column
+#'   names we want for \code{newSamples}. For speed purposes, it does not check
+#'   that lengths match.
+#' @param classAttr A \code{character} containing the class name attribute.
+#' @param colTypes A vector of \code{character} containing the original types of
+#'   the columns, if a conversion is needed
+#'
+#' @return A \code{data.frame} with described style applied.
+#' @noRd
+normalizeNewSamples.datasetStructure <- function(originalShape, newSamples){
+  colTypes <- originalShape$colTypes
+  colNames <- originalShape$colNames
+  minorityClass <- originalShape$minorityClass
+  classAttr <- originalShape$classAttr
+
+  if(nrow(newSamples) > 0){
+    rownames(newSamples) <- c()
+    newSamples <- data.frame(newSamples)
+    names(newSamples) <- colNames[colNames != classAttr]
+    newSamples[, classAttr] <- minorityClass
+    newSamples <- newSamples[, colNames]
+
+    newSamples <- mapply(function(col, type){
+      eval(parse(text = paste("as.", type, "(col)", sep = "")))
+    }, as.list(newSamples), colTypes, SIMPLIFY = FALSE)
+
+    newSamples <- data.frame(newSamples)
+  } else{
+    newSamples <- data.frame()
+  }
+
+  newSamples
+}
+
+checkSameShape <- function(first, second, firstName, secondName){
+  if(any(! names(first) %in% names(second)) ||
+     any(! names(second) %in% names(first))){
+    stop(paste(firstName, "and", secondName, "must have the same column names"))
+  }
 }

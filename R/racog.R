@@ -39,20 +39,17 @@
 racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
-  colTypes <- .colTypes(dataset, exclude = classAttr)
-  dataset <- .convertToNumeric(dataset, exclude = classAttr)
+  dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(numInstances) ||
      burnin <= 0 || lag <= 0 || numInstances <= 0)
     stop("burnin, lag and numInstances must be positive integers")
 
-
-  # Calcs minority class and instances
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  minority <- dataset[dataset[, classAttr] == minorityClass,
-                      names(dataset) != classAttr]
-  attrs <- names(minority)
-  probDist <- .genDistribution(minority)
+  # Save original shape of the dataset and compute minority class
+  originalShape <- datasetStructure(dataset, classAttr)
+  minority <- selectMinority(dataset, classAttr)
+  probDist <- genDistribution(minority)
   minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
@@ -65,15 +62,15 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
     minority <- gibbsSampler(probDist, minority)
 
     if(k > burnin && k%%lag == 0)
-      newSamples <- rbind.data.frame(newSamples, minority)
+      newSamples <- rbind(newSamples, minority)
   }
 
 
   newSamples <- selectSamples(newSamples, numInstances)
   # Prepare newSamples output
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
+  # normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
+  normalizeNewSamples(originalShape, newSamples)
 }
-
 
 
 #' Wrapper for Rapidy Converging Gibbs algorithm.
@@ -94,7 +91,7 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'   to numeric.
 #' @param validation \code{data.frame}. A dataset to compare results of
 #'   consecutive classifiers. Must have the same structure of \code{train}.
-#' @param wrapper An \code{S3} object. There must be a method
+#' @param wrapper An \code{S3} object. There must exist a method
 #'   \code{\link{trainWrapper}} implemented for the class of the object, and a
 #'   \code{\link[stats]{predict}} method implemented for the class of the model
 #'   returned by \code{trainWrapper}.
@@ -104,6 +101,7 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'   should reach. By default, 0.02.
 #' @param classAttr \code{character}. Indicates the class attribute from
 #'   \code{dataset}. Must exist in it.
+#' @param ... further arguments for \code{wrapper}
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
 #'   containing the synthetic examples generated.
@@ -129,73 +127,67 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'                      myWrapper, classAttr = "Class")
 #'
 wracog <- function(train, validation, wrapper, slideWin = 10,
-                   threshold = 0.02, classAttr = "Class"){
+                   threshold = 0.02, classAttr = "Class", ...){
   trainMethod <- paste("trainWrapper", class(wrapper), sep=".")
 
   checkDataset(train, "train")
   checkDataset(validation, "validation")
   checkDatasetClass(train, classAttr, "train")
-  if(any(! names(train) %in% names(validation)) ||
-     any(! names(validation) %in% names(train))){
-    stop("train and validation must have the same column names")
-  }
+  checkSameShape(train, validation, "train", "validation")
 
-  colTypes <- .colTypes(train, exclude = classAttr)
-  train <- .convertToNumeric(train, exclude = classAttr)
-  validation <- .convertToNumeric(validation, exclude = classAttr)
-
+  # Extract shape of the dataset and convert both train and validation to numeric
+  originalShape <- datasetStructure(train, classAttr)
+  train <- toNumeric(train, exclude = classAttr)
+  validation <- toNumeric(validation, exclude = classAttr)
   checkAllColumnsNumeric(train, exclude = classAttr, "train")
-  checkDatasetClass(train, classAttr, "train")
 
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
-     slideWin < 0 || threshold <= 0 || threshold >= 1)
+     slideWin <= 0 || threshold <= 0 || threshold >= 1)
     stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
   if(!trainMethod %in% utils::methods(trainWrapper))
     stop(paste("There doesn't exist a method "), trainMethod)
 
-  # Calcs minority class
-  minorityClass <- .whichMinorityClass(train, classAttr)
 
-  # Strip class column from both train and validation
-  minority <- train[train[, classAttr] == minorityClass, names(train) != classAttr]
+  # Strip class column from both train and validation, compute
+  # minority class and minority examples
+  minority <- selectMinority(train, classAttr)
+  minorityClass <- originalShape$minorityClass
   trainClass <- train[, classAttr]
   validationClass <- validation[, classAttr]
   train <- train[, names(train) != classAttr]
   validation <- validation[, names(validation) != classAttr]
-  attrs <- names(minority)
 
-  # Wrapper for the Gibbs sampler with input and outpus as data.frame
-  probDist <- .genDistribution(minority)
+  # Compute probability distribution of the minority class
+  probDist <- genDistribution(minority)
 
   # Value for lasts winSlides standard deviations
   lastSlides <- rep(Inf, slideWin)
 
-  model <- trainWrapper(wrapper, train, trainClass)
+  model <- trainWrapper(wrapper, train, trainClass, ...)
   predictMethod <- paste("predict", class(model), sep=".")
   if(!any(predictMethod %in% utils::methods(predict)))
     stop(paste("There must exist a method predict.class where class\n",
                "is any class of the model returned by", trainMethod))
 
-  minority <- data.matrix(minority)
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
     minority <- gibbsSampler(probDist, minority)
     prediction <- predict(model, data.frame(minority))
     misclassified <- minority[prediction != minorityClass, , drop = FALSE]
-    newSamples <- rbind.data.frame(newSamples, misclassified)
-    train <- rbind.data.frame(train, misclassified)
+    newSamples <- rbind(newSamples, misclassified)
+    train <- rbind(train, misclassified)
     trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
-    model <- trainWrapper(wrapper, train, trainClass)
+    model <- trainWrapper(wrapper, train, trainClass, ...)
     prediction <- predict(model, validation)
 
     # Measure of the quality of the newTrain
-    qMeasure <- .sensitivity(prediction, validationClass, minorityClass)
+    qMeasure <- sensitivity(prediction, validationClass, minorityClass)
     lastSlides <- c(qMeasure, lastSlides)
     lastSlides <- lastSlides[1:slideWin]
   }
 
-  .normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
+  normalizeNewSamples(originalShape, newSamples)
 }
 
 
@@ -204,7 +196,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 #' @param wrapper the wrapper instance
 #' @param train \code{data.frame} of the train dataset without the class column
 #' @param trainClass a vector containing the class column for \code{train}
-#'
+#' @param ... further arguments for \code{wrapper}
 #' @export
 #'
 #' @examples
@@ -212,7 +204,7 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 #' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
 #'   C50::C5.0(train, trainClass)
 #' }
-trainWrapper <- function(wrapper, train, trainClass){
+trainWrapper <- function(wrapper, train, trainClass, ...){
   UseMethod("trainWrapper")
 }
 
@@ -234,7 +226,7 @@ trainWrapper <- function(wrapper, train, trainClass){
 #' tree <- unname(DT[ seq(1, nrow(DT), 2), ])
 #' makeDirected(tree)
 #'
-.makeDirected <- function(tree){
+makeDirected <- function(tree){
   # Visit first two nodes, marking them as parents
   parents <- tree[1, ]
   directed <- tree[1, , drop = FALSE]
@@ -275,7 +267,7 @@ trainWrapper <- function(wrapper, train, trainClass){
 #'
 #' @return An S3 object with class \code{probDistribution}
 #' @noRd
-.genDistribution <- function(samples){
+genDistribution <- function(samples){
   attrs <- names(samples)
   DT <- bnlearn::chow.liu(samples)$arcs
   # Choose only one sense for the arcs (the odd ones) and make tree directed
@@ -284,7 +276,7 @@ trainWrapper <- function(wrapper, train, trainClass){
     which(attrs == attr)
   })
   attrs <- seq_along(attrs)
-  tree <- .makeDirected(tree)
+  tree <- makeDirected(tree)
   edges <- tree$edges
   root <- tree$root
 

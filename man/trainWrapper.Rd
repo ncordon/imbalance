@@ -4,7 +4,7 @@
 \alias{trainWrapper}
 \title{Generic methods to train classifiers}
 \usage{
-trainWrapper(wrapper, train, trainClass)
+trainWrapper(wrapper, train, trainClass, ...)
 }
 \arguments{
 \item{wrapper}{the wrapper instance}
@@ -12,6 +12,8 @@ trainWrapper(wrapper, train, trainClass)
 \item{train}{\code{data.frame} of the train dataset without the class column}
 
 \item{trainClass}{a vector containing the class column for \code{train}}
+
+\item{...}{further arguments for \code{wrapper}}
 }
 \description{
 Generic methods to train classifiers

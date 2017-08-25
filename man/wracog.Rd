@@ -5,7 +5,7 @@
 \title{Wrapper for Rapidy Converging Gibbs algorithm.}
 \usage{
 wracog(train, validation, wrapper, slideWin = 10, threshold = 0.02,
-  classAttr = "Class")
+  classAttr = "Class", ...)
 }
 \arguments{
 \item{train}{\code{data.frame}. A initial dataset to generate first model.
@@ -15,7 +15,7 @@ to numeric.}
 \item{validation}{\code{data.frame}. A dataset to compare results of
 consecutive classifiers. Must have the same structure of \code{train}.}
 
-\item{wrapper}{An \code{S3} object. There must be a method
+\item{wrapper}{An \code{S3} object. There must exist a method
 \code{\link{trainWrapper}} implemented for the class of the object, and a
 \code{\link[stats]{predict}} method implemented for the class of the model
 returned by \code{trainWrapper}.}
@@ -28,6 +28,8 @@ should reach. By default, 0.02.}
 
 \item{classAttr}{\code{character}. Indicates the class attribute from
 \code{dataset}. Must exist in it.}
+
+\item{...}{further arguments for \code{wrapper}}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
