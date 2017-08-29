@@ -54,17 +54,16 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                    classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
+  # Extracts shape of the dataset
+  originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
-  # Extracts shape of the dataset, calcs minority class and instances
-  originalShape <- datasetStructure(dataset, classAttr)
   # Compute minority and majority
   minority <- selectMinority(dataset, classAttr)
+  minorityIndexes <- whichMinority(dataset, classAttr)
   majority <- selectMajority(dataset, classAttr)
   dataset <- dataset[, colnames(dataset) != classAttr]
-  minorityIndexes <- rownames(minority)
-  minorityIndexes <- as.integer(minorityIndexes)
 
   dataset <- data.matrix(dataset)
   minority <- data.matrix(minority)
@@ -88,6 +87,8 @@ mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
   # Compute filtered minority examples, clustering and selection weights
   filteredMinority <- computeFilteredMinority(dataset, minority,
                                                minorityIndexes, kNoisy)
+  if(nrow(filteredMinority) == 0)
+    stop("Try with a lower kNoisy parameter")
   clusters <- computeClusters(minority, filteredMinority, cclustering)
   selectionWeights <- computeSelectionWeigths(cmax, threshold, minority, filteredMinority,
                                               kMinority, majority, kMajority)

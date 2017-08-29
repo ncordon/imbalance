@@ -39,6 +39,7 @@
 racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
+  originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
@@ -46,8 +47,7 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
      burnin <= 0 || lag <= 0 || numInstances <= 0)
     stop("burnin, lag and numInstances must be positive integers")
 
-  # Save original shape of the dataset and compute minority class
-  originalShape <- datasetStructure(dataset, classAttr)
+  # Compute minority class
   minority <- selectMinority(dataset, classAttr)
   probDist <- genDistribution(minority)
   minority <- data.matrix(minority)

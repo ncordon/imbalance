@@ -62,8 +62,7 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   originalShape <- datasetStructure(dataset, classAttr)
   # Compute minority indexes
   minority <- selectMinority(dataset, classAttr)
-  minorityIndexes <- rownames(minority)
-  minorityIndexes <- as.integer(minorityIndexes)
+  minorityIndexes <- whichMinority(dataset, classAttr)
   oldSize <- nrow(dataset)
 
   # Join dataset and newSamples and strip class attribute

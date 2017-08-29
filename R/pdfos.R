@@ -32,14 +32,14 @@
 pdfos <- function(dataset, numInstances, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
+  originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
   checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
 
   if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
-  # Extracts shape of the dataset, calcs minority class and instances
-  originalShape <- datasetStructure(dataset, classAttr)
+  # Calcs minority class and instances
   minority <- selectMinority(dataset, classAttr)
   minority <- data.matrix(minority)
 

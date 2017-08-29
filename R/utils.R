@@ -261,17 +261,20 @@ datasetStructure <- function(dataset, classAttr){
   datasetShape
 }
 
-selectMinority <- function(dataset, classAttr){
+whichMinority <- function(dataset, classAttr){
   minorityClass <- .whichMinorityClass(dataset, classAttr)
-  minority <- dataset[dataset[, classAttr] == minorityClass,
-                      colnames(dataset) != classAttr]
+  which(dataset[, classAttr] == .whichMinorityClass(dataset, classAttr))
+}
+
+selectMinority <- function(dataset, classAttr){
+  minority <- dataset[whichMinority(dataset, classAttr),
+                      names(dataset) != classAttr]
   minority
 }
 
 selectMajority <- function(dataset, classAttr){
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  majority <- dataset[- which(dataset[, classAttr] == minorityClass),
-                      colnames(dataset) != classAttr]
+  majority <- dataset[-whichMinority(dataset, classAttr),
+                       names(dataset) != classAttr]
   majority
 }
 

@@ -21,7 +21,6 @@ Imports:
     bnlearn,
     KernelKnn,
     ggplot2,
-    infotheo,
     utils,
     stats,
     mvtnorm,
