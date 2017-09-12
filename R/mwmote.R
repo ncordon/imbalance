@@ -1,4 +1,4 @@
-#' Majority Weighted Minority Oversampling Technique for imbalance dataset
+#' Majority weighted minority oversampling technique for imbalance dataset
 #' learning
 #'
 #' Modification for SMOTE technique which overcomes some of the problems of the
@@ -32,7 +32,7 @@
 #'   \code{dataset}. Must exist in it.
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
-#'   containing the synthetic examples generated.
+#'   containing the generated synthetic examples.
 #' @export
 #'
 #' @references

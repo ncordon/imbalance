@@ -8,33 +8,33 @@ plotComparison(dataset, anotherDataset, attrs, cols = 2,
   classAttr = "Class")
 }
 \arguments{
-\item{dataset}{A \code{data.frame}. The former and imbalanced dataset.}
+\item{dataset}{A \code{data.frame}. The former imbalanced dataset.}
 
-\item{anotherDataset}{A \code{data.frame}. The balanced dataset. \code{dataset}
-and \code{anotherDataset} must have the same columns.}
+\item{anotherDataset}{A \code{data.frame}. The balanced dataset.
+\code{dataset} and \code{anotherDataset} must have the same columns.}
 
-\item{attrs}{Vector of String. Attributes to compare. The function generates
-each posible combination of attributes.}
+\item{attrs}{Vector of \code{character}. Attributes to compare. The function
+generates each posible combination of attributes to build the comparison.}
 
 \item{cols}{Integer. It indicates the number of columns of resulting grid.
-Must be an even number. Default value of 2.}
+Must be an even number. By default, 2.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exsits in it.}
+\item{classAttr}{\code{character}. Indicates the class attribute from
+\code{dataset}. Must exist in it.}
 }
 \value{
 Plot of 2D comparison between the variables.
 }
 \description{
-It plots a grid of one to one variables placing the former dataset graphic
-next to the balanced one, for each pair of attributes.
+It plots a grid of one to one variable comparison, placing the former dataset
+graphics next to the balanced one, for each pair of attributes.
 }
 \examples{
 data(iris0)
 set.seed(12345)
 
 rwoSamples <- rwo(iris0, numInstances = 100)
-rwoBalanced <- rbind.data.frame(iris0, rwoSamples)
+rwoBalanced <- rbind(iris0, rwoSamples)
 plotComparison(iris0, rwoBalanced, names(iris0), cols = 2, classAttr = "Class")
 
 }

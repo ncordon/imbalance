@@ -2,7 +2,7 @@
 % Please edit documentation in R/mwmote.R
 \name{mwmote}
 \alias{mwmote}
-\title{Majority Weighted Minority Oversampling Technique for imbalance dataset
+\title{Majority weighted minority oversampling technique for imbalance dataset
 learning}
 \usage{
 mwmote(dataset, numInstances, kNoisy = 5, kMajority = 3, kMinority,
@@ -45,7 +45,7 @@ going to be the oversampling.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
-  containing the synthetic examples generated.
+  containing the generated synthetic examples.
 }
 \description{
 Modification for SMOTE technique which overcomes some of the problems of the

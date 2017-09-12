@@ -2,7 +2,7 @@
 % Please edit documentation in R/racog.R
 \name{racog}
 \alias{racog}
-\title{Rapidy Converging Gibbs algorithm.}
+\title{Rapidly converging Gibbs algorithm.}
 \usage{
 racog(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class")
 }
@@ -23,18 +23,19 @@ minority one. By default, 20.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
-  containing the synthetic examples generated.
+  containing the generated synthetic examples.
 }
 \description{
-Allows you to treat imabalanced discrete numeric datasets by generating
-synthetic minority examples by approximating their probability distribution.
+Allows you to treat imbalanced discrete numeric datasets by generating
+synthetic minority examples, approximating their probability distribution.
 }
 \details{
-Aproximates minority distribution using Gibbs Sampler. Dataset must be
+Approximates minority distribution using Gibbs Sampler. Dataset must be
 discretized and numeric. In each iteration, it builds a new sample using a
 Markov chain. It discards first \code{burnin} iterations, and from then on,
-it validates each \code{lag} example as a new minority example. It generates
-\eqn{d (iterations-burnin)/lag} where \eqn{d} is minority examples number.
+each \code{lag} iterations, it validates the example as a new minority
+example. It generates \eqn{d (iterations-burnin)/lag} where \eqn{d} is
+minority examples number.
 }
 \examples{
 data(iris0)

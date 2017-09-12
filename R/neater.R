@@ -1,26 +1,27 @@
 #' Fitering of oversampled data based on non-cooperative game theory
 #'
-#' Filter oversampled examples from a binary class \code{dataset} using game
+#' Filters oversampled examples from a binary class \code{dataset} using game
 #' theory to find out if keeping an example is worthy enough.
 #'
 #' Uses game theory and Nash equilibriums to calculate the minority examples
-#' probability of trully belongin to the minority class. It discards examples
-#' that at the final stage of the algorithm have more probability of been a
-#' mayority example than a minority one.
+#' probability of trully belonging to the minority class. It discards examples
+#' which at the final stage of the algorithm have more probability of being a
+#' majority example than a minority one.
 #'
 #' @param dataset The original \code{data.frame}. All columns, except
 #'   \code{classAttr} one, have to be numeric or coercible to numeric.
 #' @param newSamples A \code{data.frame} containing the samples to be filtered.
 #'   Must have the same structure as \code{dataset}.
 #' @param k Integer. Number of nearest neighbours to use in KNN algorithm to
-#'   rule out samples.
-#' @param iterations Integer. Number of iterations for the algorithm.
-#' @param smoothFactor A positive real. By default 1.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}
-#'   and \code{newSamples}.
+#'   rule out samples. By default, 3.
+#' @param iterations Integer. Number of iterations for the algorithm. By
+#'   default, 100.
+#' @param smoothFactor A positive \code{numeric}. By default, 1.
+#' @param classAttr \code{character}. Indicates the class attribute from
+#'   \code{dataset} and \code{newSamples}. Must exist in them.
 #'
-#' @return filtered samples as a \code{data.frame} of same structure as
-#'   \code{new.Samples}.
+#' @return Filtered samples as a \code{data.frame} with same structure as
+#'   \code{newSamples}.
 #' @export
 #'
 #' @references

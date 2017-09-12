@@ -1,21 +1,22 @@
-#' Random Walk Oversampling
+#' Random walk oversampling
 #'
-#' Generate synthetic minority examples for a dataset trying to preserve the
+#' Generates synthetic minority examples for a dataset trying to preserve the
 #' variance and mean of the minority class. Works on every type of dataset.
 #'
 #' Generates \code{numInstances} new minority examples for \code{dataset},
-#' adding to the each column of the j-th example its variance scalated by the
-#' inverse of the number of minority examples and a factor following a N(0,1)
-#' distribution which depends on the example.
+#' adding to the each numeric column of the j-th example its variance scalated
+#' by the inverse of the number of minority examples and a factor following a
+#' \eqn{N(0,1)} distribution which depends on the example. When the column is
+#' nominal, it uses a roulette scheme.
 #'
 #' @param dataset \code{data.frame} to treat. All columns, except
 #'   \code{classAttr} one, have to be numeric or coercible to numeric.
 #' @param numInstances Integer. Number of new minority examples to generate.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
-#'   Must exist in it.
+#' @param classAttr \code{character}. Indicates the class attribute from
+#'   \code{dataset}. Must exist in it.
 #'
 #' @return A \code{data.frame} with the same structure as \code{dataset},
-#'   containing the synthetic examples generated
+#'   containing the generated synthetic examples.
 #' @export
 #'
 #' @references

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pdfos.R
 \name{pdfos}
 \alias{pdfos}
-\title{Probability density function estimation based over-sampling}
+\title{Probability density function estimation based oversampling}
 \usage{
 pdfos(dataset, numInstances, classAttr = "Class")
 }
@@ -12,28 +12,29 @@ pdfos(dataset, numInstances, classAttr = "Class")
 
 \item{numInstances}{Integer. Number of new minority examples to generate.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exist in it.}
+\item{classAttr}{\code{character}. Indicates the class attribute from
+\code{dataset}. Must exist in it.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
-  containing the synthetic examples generated
+  containing the generated synthetic examples.
 }
 \description{
-Generate synthetic minority examples for a numerical dataset approximating a
+Generates synthetic minority examples for a numerical dataset approximating a
 Gaussian multivariate distribution which best fits the minority data.
 }
 \details{
-To generate the synthetic data it approximates a normal distribution of mean
-a given example of such class, and the variance of the minority class \eqn{S}
-multiplied by a parameter which is approximated to minimize Mean Integrated
-Squared Error of a Gaussian multivariate kernel function.
+To generate the synthetic data, it approximates a normal distribution with
+mean a given example belonging to the minority class, and whose variance is
+the minority class variance multiplied by a constant; that constant is
+computed so that it minimizes the mean integrated squared error of a Gaussian
+multivariate kernel function.
 }
 \examples{
 data(iris0)
 set.seed(12345)
 
-newSamples <- pdfos(iris0, numInstances = 100)
+newSamples <- pdfos(iris0, numInstances = 100, classAttr = "Class")
 
 }
 \references{

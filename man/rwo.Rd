@@ -2,7 +2,7 @@
 % Please edit documentation in R/rwo.R
 \name{rwo}
 \alias{rwo}
-\title{Random Walk Oversampling}
+\title{Random walk oversampling}
 \usage{
 rwo(dataset, numInstances, classAttr = "Class")
 }
@@ -12,22 +12,23 @@ rwo(dataset, numInstances, classAttr = "Class")
 
 \item{numInstances}{Integer. Number of new minority examples to generate.}
 
-\item{classAttr}{String. Indicates the class attribute from \code{dataset}.
-Must exist in it.}
+\item{classAttr}{\code{character}. Indicates the class attribute from
+\code{dataset}. Must exist in it.}
 }
 \value{
 A \code{data.frame} with the same structure as \code{dataset},
-  containing the synthetic examples generated
+  containing the generated synthetic examples.
 }
 \description{
-Generate synthetic minority examples for a dataset trying to preserve the
+Generates synthetic minority examples for a dataset trying to preserve the
 variance and mean of the minority class. Works on every type of dataset.
 }
 \details{
 Generates \code{numInstances} new minority examples for \code{dataset},
-adding to the each column of the j-th example its variance scalated by the
-inverse of the number of minority examples and a factor following a N(0,1)
-distribution which depends on the example.
+adding to the each numeric column of the j-th example its variance scalated
+by the inverse of the number of minority examples and a factor following a
+\eqn{N(0,1)} distribution which depends on the example. When the column is
+nominal, it uses a roulette scheme.
 }
 \examples{
 data(iris0)
