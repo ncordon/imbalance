@@ -1,30 +1,28 @@
 ---
-title: |
- | Working with imbalanced datasets:
- | **imbalance** package
 author: "Nacho Cordón"
-date: "`r Sys.Date()`"
+title: "Working with imbalanced datasets"
 output: rmarkdown::pdf_document
-geometry: margin=4cm
+geometry: margin=5cm
 papersize: A4
 vignette: >
   %\VignetteIndexEntry{Working with imbalanced dataset}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-header-includes:
-  - \usepackage{algorithm}
-  - \usepackage{algorithmic}
-  - \newcommand{\spos}{S^{+}}
-  - \newcommand{\sneg}{S^{-}}
-  - \makeatletter\def\NEWLINE{\STATE{}}\makeatother
-  - \DeclareMathOperator*{\argmin}{arg\,\min }
-  - \DeclareMathOperator*{\argmax}{arg\,\max }
-  - \newtheorem{theorem}{Theorem}
-  - \newcommand{\expect}{\mathbb{E}}
 ---
-# General outline of use
+# Imbalance classification problem
+Let:
 
-In the package, we have the following oversampling functions available:
+  * $S=\{(x_1, y_1), \ldots (x_m, y_m)\}$ be our training data for a classification problem.
+  * $S^{+} = \{(x,y) \in S: y=1\}$ be the positive or minority instances.
+  * $S^{-} = \{(x,y) \in S: y=-1\}$ be the negative or majority instances.
+
+If $|S^{+}| > |S^{-}|$, classification algorithms' performances are highly hindered, specially when it comes to the positive class. Therefore, methods to improve that performance are required. 
+
+Namely, `imbalance` package provides *oversampling* algorithms. Those family of procedures aim to generate a set $E$ of synthetic positive instances based on the training ones, so that we have a new classification problem with $\bar{S}^{+} = S^{+} \cup E$, $\bar{S}^{-} = S^{-}$ and $\bar{S} = \bar{S}^{+}\cup \bar{S}^{-}$ our new training set.
+
+# Contents of the package
+
+In the package, we have the following *oversampling* functions available:
 
 * `mwmote`
 * `racog`
@@ -32,22 +30,17 @@ In the package, we have the following oversampling functions available:
 * `rwo`
 * `pdfos`
 
-Each of this function can be used against the data included in the package, which are imbalanced datasets. For example, we can run `pdfos` algorithm on `newthyroid1` imbalanced dataset to get 80 examples:
+Each of these functions can be applied to the data included in the package, which are imbalanced datasets. For example, we can run `pdfos` algorithm on `newthyroid1` imbalanced dataset to get 80 examples:
 
 ```{r example-pdfos, fig.width = 10, fig.height = 10}
 library("imbalance")
-
 data(newthyroid1)
-set.seed(12345)
 
 newSamples <- pdfos(dataset = newthyroid1, numInstances = 80,
                     classAttr = "Class")
 ```
 
-All of the algorithms can be used with the minimal parameters `dataset`, `numInstances` and `classAttr`, except for 
-`wRACOG`, which does not have a `numInstances` parameters, because it adjusts this number itself, and needs
-two dataset (more accurately, two partitions of the same dataset), `train` and `validation` to work. For 
-further reading of the meaning of the other parameters, please read the `?` help for the function.
+All of the algorithms can be used with the minimal parameters `dataset`, `numInstances` and `classAttr`, except for `wRACOG`, which does not have a `numInstances` parameter. The latter adjusts this number itself, and needs two datasets (more accurately, two partitions of the same dataset), `train` and `validation` to work.
 
 The package also includes a method to plot a visual comparison between the oversampled dataset and the old
 imbalanced dataset:
@@ -55,78 +48,48 @@ imbalanced dataset:
 ```{r example-plot, fig.width = 10, fig.height = 10}
 # Bind a balanced dataset
 newDataset <- rbind(newthyroid1, newSamples)
-# Plot a visual comparison new and old dataset
-plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3], 
+# Plot a visual comparison between new and old dataset
+plotComparison(newthyroid1, newDataset, 
+               attrs = names(newthyroid1)[1:3], 
                cols = 2, classAttr = "Class")
 ```
 
-There is also a filtering example available, `neater`, which could be used with every oversampling method, 
-either included in this package or in another one:
+There is also a filtering example available, `neater`, which could be used with every oversampling method, either included in this package or in another one:
 
 ```{r example-neater, fig.width = 10, fig.height = 10}
-filteredSamples <- neater(newthyroid1, newSamples, iterations = 500)
+filteredSamples <- neater(newthyroid1, newSamples, 
+                          iterations = 500)
 filteredNewDataset <- rbind(newthyroid1, filteredSamples)
-plotComparison(newthyroid1, filteredNewDataset, attrs = names(newthyroid1)[1:3])
+plotComparison(newthyroid1, filteredNewDataset, 
+               attrs = names(newthyroid1)[1:3])
 ```
 
-# Algorithms scheme
+# Oversampling
 ## MWMOTE
-SMOTE does not detect noisy instances. Therefore it can generate synthetic examples out of noisy ones. 
-SMOTE can also generate instances between two minority classes, which if not cleansed up, they may end up 
-becoming more noisy examples inside a majority class cluster.
+SMOTE is a classic algorithm which generates new examples by filling empty areas among the positive instances, it updates the training set iteratively, by perfoming:
 
-MWMOTE (\textit{Majority Weighted Minority Oversampling Technique}) tries to overcome both those problems. 
-Let $\spos = \{x_1, \ldots x_m\}$, the minority class and $\sneg = \{y_1, \ldots y_m\}$ be the majority 
-class, with $S= \spos \cup \sneg$ the whole trainning set. A KNN algorithm will be used, where we call 
-$d(x,y)$ the euclidean distance between $x$ and $y$. Let $NN^{k}(x)\subseteq S$ be the $k$-neighbourhood
-of $x$ among the whole trainning set (the $k$ closest instances with euclidean distance). Let
-$NN_{+}^k(x) \subseteq \spos$ be its $k$ minority neighbourhood and $NN_{-}^k(x) \subseteq \sneg$ be its $k$ 
-majority neighbourhood.
+\[E:=E\cup\{r+(y-x)\}, \quad x,y\in S^{+}, r\sim N(0,1)\]
 
-\begin{algorithm}[ht]
-\begin{algorithmic}[1]
-  \REQUIRE $\spos = \{x_1, \ldots x_m\}$, minority instances
-  \REQUIRE $\sneg = \{y_1, \ldots y_m\}$, majority instances
-  \REQUIRE $T$, number of requested synthetic examples
-  \REQUIRE $k_{1}$, KNN parameter to filter noisy instanes of $\spos$
-  \REQUIRE $k_{2}$, KNN parameter to compute frontier $U \subseteq \sneg$
-  \REQUIRE $K_{3}$, KNN parameter to compute frontier $V \subseteq \spos$
-  \REQUIRE $\alpha$, tolerance for the closeness level to the borderline
-  \REQUIRE $C$, weight to the closeness factor respect to the borderline
-  \REQUIRE $C_{clust}$
-  \STATE{Initialize $S' = \emptyset$}
-  \STATE{For each $x\in \spos$, compute its $k_{1}$ KNN neighbourhood, $NN^{k_1}(x)$}
-  \STATE{Let $\spos_f = \spos - \{x\in \spos : NN^{k_1}(x) \cap \spos = \emptyset\}$}
-  \STATE{Compute $U = \underset{x\in \spos_f}{\bigcup} NN_{-}^{k_2}(x)$}
-  \STATE{Compute $V = \underset{x\in U}{\bigcup} NN_{+}^{k_3}(x)$}
-  \STATE{For each $x\in V$, compute $P(x) = \sum_{y\in U} I_{\alpha,C}(x,y)$}
-  \STATE{Normalize $P(x)$ for each $x\in V$, $P(x) = \frac{P(x)}{\sum_{z\in V} P(z)}$}
-  \STATE{Compute $T_{clust} = C_{clust} \cdot \frac{1}{|\spos_f|} \sum_{x\in \spos_f} \min_{y\in \spos_f, y\neq x} d(x,y)$}
-  \STATE{Let $L_1, \ldots L_M\subseteq \spos$ be the clusters for $\spos$, with $T_{clust}$ as threshold}
-  \NEWLINE
-  \FOR{$t=1, \ldots, T$}
-    \STATE{Pick $x\in V$ with respect to $P(x)$}
-    \STATE{Pick $y\in L_k$ uniformly inside $L_k \ni x$, where $x \in L_k$}
-    \STATE{Pick $r$ en $[0,1]$ uniformly}
-    \STATE{$S' = S'\cup \{x + r(y-x)\}$}
-  \ENDFOR
-  \NEWLINE
-  \RETURN{$S'$, synthetic examples}
-\end{algorithmic}
-\caption{MWMOTE oversampling}
-\label{alg:mwmote}
-\end{algorithm}
+It has a major setback though: it does not detect noisy instances. Therefore it can generate synthetic examples out of noisy ones or even between two minority classes, which if not cleansed up, may end up becoming noise inside a majority class cluster.
 
-$\spos_f \subseteq \spos$ is built in order to filter all noisy instances. Let $U$ the borderline of the 
-majority instances. A low $k_2$ is required in order to ensure we do not pick too many negative instances.
-For an opposite reason, a high $k_3$ must be selected to ensure we pick as many positive hard-to-learn 
-borderline examples as we can.
+```{r, out.width="60%", fig.align='center', fig.cap='SMOTE generating noise', echo=FALSE, fig.pos="h"}
+knitr::include_graphics("smote-flaws.png")
+```
 
-MWMOTE intents to give more weight to borderline instances, small size clusters instances and examples near
-the borderline of the two clases (always minority examples!, remember, our intent is to oversample the 
-minority class).
+MWMOTE (*Majority Weighted Minority Oversampling Technique*) tries to overcome both problems. It intends to give more weight to borderline instances, small size minority cluster instances and examples near the borderline of the two clases. 
 
-Let $I_{\alpha,C}(x,y) = C_f(x,y) \cdot D_f(x,y)$, where if $x \notin NN_{+}^{k_3}(y)$ then $I_{\alpha,C}w(x,y) = 0$. 
+Let us recall the header of the method:
+
+```
+mwmote(dataset, numInstances, kNoisy, kMajority, kMinority,
+       threshold, cmax, cclustering, classAttr)
+```
+
+A KNN algorithm will be used, where we call $d(x,y)$ the euclidean distance between $x$ and $y$. Let $NN^{k}(x)\subseteq S$ be the $k$-neighbourhood of $x$ among the whole trainning set (the $k$ closest instances with euclidean distance). Let $NN_{+}^k(x) \subseteq S^{+}$ be its $k$ minority neighbourhood and $NN_{-}^k(x) \subseteq S^{-}$ be its $k$ majority neighbourhood.
+
+For ease of notation, we will name $k_1:=$`KNoisy`, $k_2:=$`KMajority`, $k_3:=$`KMinority`, $\alpha:=$`threshold`, $C:=$`clust`, $C_{clust}:=$`cclustering`.
+
+We define $I_{\alpha,C}(x,y) = C_f(x,y) \cdot D_f(x,y)$, where if $x \notin NN_{+}^{k_3}(y)$ then $I_{\alpha,C}w(x,y) = 0$. 
 Otherwise:
 \[
   f(x) = \left\{\begin{array}{ll} 
@@ -135,32 +98,29 @@ Otherwise:
                \end{array}\right.,\qquad C_f(x,y) = \frac{C}{\alpha} \cdot f\left(\frac{d}{d(x,y)}\right)
 \]
 
-$C_f$ measures the closeness to $y$, that is, it measures the closeness of borderline instances 
+$C_f$ measures the closeness to $y$, that is, it will measure the closeness of borderline instances.
+
 $D_f(x,y) = \frac{C_f(x,y)}{\sum_{z\in V} C_f(z,y)}$ will represent a density factor so an instance belonging 
 to a compact cluster will have higher $\sum C_f(z,y)$ than another one belonging to a more sparse one.
 
-The last step is to make a mean-average agglomerative hierarchical clustering of the minority instances
-where $dist(L_i, L_j)$ represents the distance among two clusters, and:
-\[
-  dist(L_i, L_j) = \frac{1}{|L_i||L_j|} \sum_{x\in L_i} \sum_{y\in L_j} d(x,y)
-\]
+Let $T_{clust}:= C_{clust} \cdot \frac{1}{|S_f^{+}|} \sum_{x\in S_f^{+}} \underset{y\in S_f^{+}, y\neq x}{min} d(x,y)$. We will also use a mean-average agglomerative hierarchical clustering of the minority instances with threshold $T_{clust}$, that is, we will use a mean distance:
+\[dist(L_i, L_j) = \frac{1}{|L_i||L_j|} \sum_{x\in L_i} \sum_{y\in L_j} d(x,y)\]
+and having started with a cluster per instance, and will proceed to join nearest clusters until minimum of distances is lower than $T_{clust}$.  
+
+A general outline of the algorithm is:
+
+* Firstly, MWMOTE computes a set of filtered positive instances: $S_f^{+}$, by erasing those instances whose $k_1$-neighborhood does not contain any positive instance.
+* Secondly, it computes the positive boundary of $S_f^{+}$, that is, $U = \cup_{x \in S^{+}_f} NN_{-}^{k_2}(x)$ and the negative boundary by doing $V = \cup_{x \in U} NN_{+}^{k_3}(x)$.
+* For each $x\in V$ compute probability of picking $x$ by assigning: $P(x) = \sum_{y\in U} I_{\alpha, C}(x,y)$ and normalizing those probabilities.
+* Then, it calculates $L_1, \ldots, L_M$ clusters of $S^{+}$, with the aforementioned jerarquical agglomerative clustering algorithm and threshold $T_{clust}$.
+* Generate `numInstances` examples by iteratively picking $x\in V$ with respect to probability $P(x)$, and updating $E:=E\cup \{x+r(y-x)\}$, where $y\in L_k$ uniformly picked and $L_k$ is the cluster containing $x$.
 
 
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $\spos = \{x_1, \ldots x_m\}$, clase minoritaria
-  \STATE{Inicializar $L_i = \{x_i\}, i=1, \ldots, m$}
-  \WHILE{$\inf_{i,j, i\neq j} dist(L_i, L_j) \le T_{clust}$, y quede más de un clúster}
-    \STATE{Sean $(i,j) = \argmin_{i,j, i\neq j} dist(L_i, L_j)$}
-    \STATE{$L_i = L_i \cup L_j$. Elimina $L_j$}
-  \ENDWHILE
-  \RETURN{Clústeres $L_1, \ldots L_k, k\le m$}
-\end{algorithmic}
-\caption{Algoritmo de \textit{clustering} jerárquico}
-\label{alg:hclust}
-\end{algorithm}
+A few interesting considerations:
 
-The higher the $C_{clust}$ parameter, the less number and more-populated clusters we will get.
+* Low $k_2$ is required in order to ensure we do not pick too many negative instances.
+* For an opposite reason, a high $k_3$ must be selected to ensure we pick as many positive hard-to-learn borderline examples as we can.
+* The higher the $C_{clust}$ parameter, the less and more-populated clusters we will get.
 
 ## RACOG and wRACOG
 These set of algorithms assume that what we want to approximate is a discrete distribution $P(W_1, \ldots, W_d)$.
@@ -183,185 +143,16 @@ We recall the definition for the mutual information of two random discrete varia
   I(W_i, W_j) = \sum_{w_1\in W_1} \sum_{w_2\in W_2} p(w_1, w_2) \log\left(\frac{p(w_1,w_2)}{p(w_1) p(w_2)}\right)
 \]
 
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
- \REQUIRE $S = \{x_i=(w_1^{(i)}, \ldots w_d^{(i)})\}_{i=1}^m$, instances
- \FOR{Each pair $i, j$}
-   \STATE{Compute $I(w_i, w_j)$}
- \ENDFOR
- \STATE{Build $G$ minimum spanning tree with those weighted instances and convert it to a directed tree}
- \RETURN{$G = (E,V)$}
-\end{algorithmic}
-\caption{Chow-Liu's algorithm}
-\label{alg:chowliu}
-\end{algorithm}
-
 The algorithm to approximate the distribution becomes:
 
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $S = \{x_i=(w_1^{(i)}, \ldots, w_d^{(i)})\}_{i=1}^m$, instances
-  \STATE{Compute $G' = (E',V')$ Chow-Liu's tree}
-  \STATE{We define $P(W_r|n(r)) := P(W_r)$ with $r$ the root of the tree}
-  \FOR{$(u,v) \in E$}
-    \STATE{Let $n(v) = u$}
-    \STATE{Compute $P(W_v \mid W_u)$}
-    \STATE{Compute $P(W_u), P(W_v)$}
-  \ENDFOR
-  \RETURN{$\{P(W_v \mid W_u), P(W_u), P(W_v)\}_{(u,v)\in E}$}  
-\end{algorithmic}
-\caption{Algorithm to approximate the discrete distribution}
-\label{alg:aproxdist}
-\end{algorithm}
 
-We extract examples following that distribution with a Gibbs Sampler algorithm, which is classified as a 
-Monte Carlo method:
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $S = \{x_i=(w_1^{(i)}, \ldots, w_d^{(i)})\}_{i=1}^m$, instances
-  \REQUIRE $\{P(W_v \mid W_u), P(W_u)\}_{(u,v)\in E}$
-  \FOR{$i=1, \ldots, m$}
-    \FOR{$k=1,\ldots, d$}
-      \STATE{$\bar{w}_k^{(i)} \sim P(W_k \mid \bar{w}_1^{(i)}, \ldots, \bar{w}_{k-1}^{(i)}, w_{k+1}^{(i)} \ldots, w_{d}^{(i)})$}
-    \ENDFOR
-  \ENDFOR
-  \RETURN{$S = \{\bar{x}_i=(\bar{w}_1^{(i)}, \ldots \bar{w}_d^{(i)})\}_{i=1}^m$, newly generated instances from $S$ and $P$}
-\end{algorithmic}
-\caption{Gibbs Sampler algorithm}
-\label{alg:gibbs}
-\end{algorithm}
-
-![Markov chain generated by Gibbs Sampler]{imgs/monte-carlo.png}
+```{r, out.width="60%", fig.align='center', fig.cap='Markov chain', echo=FALSE}
+knitr::include_graphics("monte-carlo.png")
+```
 
 ### RACOG
 RACOG (\textit{Rapidly Converging Gibbs}) builds a Markov chain for each of the $m$ minority instances, 
 ruling out the first $\beta$ generated instances and selecting a badge of synthetic examples each $\alpha$ iterations. That allows to lose dependence of previous values.
 
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $S = \{x_1, \ldots x_m\}$, positive examples
-  \REQUIRE $\beta$, burnin
-  \REQUIRE $\alpha$, lag
-  \REQUIRE $T$, number of requested synthetic examples
-  \STATE{$P = \textrm{AproximarDistribución}(S)$}
-  \STATE{$S'= \emptyset$}
-  \STATE{$M = \left\lceil\frac{T}{m}\right\rceil \cdot \alpha + \beta$}
-  \NEWLINE
-  \FOR{$t=1,\ldots, M$}
-    \STATE{$S = \textrm{GibbsSampler}(S, P)$}
-    \NEWLINE
-    \IF{$t > \beta$ \AND $t\mod(\alpha) = 0$}
-      \STATE{$S' = S' \cup S$}
-    \ENDIF
-  \ENDFOR
-  \NEWLINE
-  \STATE{$S' =$ Pick $T$ random instances from $S'$}
-  \RETURN{$S'$, synthetic examples}    
-\end{algorithmic}
-\caption{RACOG oversampling}
-\label{alg:racog}
-\end{algorithm}
-
 ### wRACOG
 RACOG has a problem: it depends on $\alpha, \beta$ and the number of instances requested. wRACOG (\textit{wrapper-based RACOG}) tries to overcome that problem. Let \textit{wrapper} be a classifier.
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $S_{train} = \{z_1=(x_1, y_1), \ldots, z_m=(x_m, y_m)\}$, train instances
-  \REQUIRE $S_{val}$, validation instances
-  \REQUIRE $wrapper$
-  \REQUIRE $T$, number of requested synthetic examples
-  \REQUIRE $\alpha$, tolerance parameter
-  \STATE{$S = \spos_{train}$}
-  \STATE{$P = \textrm{AproximarDistribución}(S)$}
-  \STATE{Build a $model$ with $wrapper$ and $S_{train}$}
-  \STATE{Initialize $S'= \emptyset$}
-  \STATE{Initialize $\tau = (\underset{1)}{+\infty}, \ldots, \underset{T)}{+\infty})$}
-  \NEWLINE
-  \WHILE{The standard deviation of $\tau \ge \alpha$}
-    \STATE{$S = \textrm{GibbsSampler}(S, P)$}
-    \STATE{$S_{misc} =$ misclassified $S$ examples by $model$}
-    \STATE{Update $S' = S' \cup S_{misc}$}
-    \STATE{Update train set $S_{train} = S_{train} \cup S_{misc}$}
-    \STATE{Build a new $model$ with $wrapper$ and $S_{train}$}
-    \STATE{Let $s = $ sensitivity of $model$ over $S_{val}$}
-    \STATE{Let $\tau = (\tau_2, \ldots, \tau_T, s)$}
-  \ENDWHILE
-  \NEWLINE
-  \RETURN{$S'$, synthetic examples}    
-\end{algorithmic}
-\caption{wRACOG oversampling}
-\label{alg:wracog}
-\end{algorithm}
-
-## RWO
-RWO (\textit{Random Walk Oversampling}) tries to generate new instances, having its inspiration on the 
-central limite theorem:
-
-\begin{theorem}
- Let $\{W_1, \ldots, W_m\}$ a set of i.i.d. examples $\expect(W_i) = \mu$ and $Var(W_i) = \sigma^2 < \infty$. Then: 
- \[
-   \lim_{m} P\left[\frac{\sqrt{m}}{\sigma} \left(\underbrace{\frac{1}{m}\sum_{i=1}^m W_i}_{\overline{W}} - 
-   \mu \right) \le z \right] = \phi(z)
- \]
- 
- where $\phi$ is the distribution function for $N(0,1)$.
- 
- That is $\frac{\overline{W} - \mu}{\sigma/\sqrt{m}} \rightarrow N(0,1)$ in probability.
- 
- \label{th:tcl}
-\end{theorem}
-
-Let $d$ be the samples dimension. Fix a column $j\in \{1, \ldots d\}$. Let the positive class be 
-$\{x_i=(w_1^{(i)}, \ldots, w_d^{(i)})\}_{i=1}^m$. We will assume that $j$-th column follows a random variable
-$W_j$, with mean $\mu_j$ and standard deviation $\sigma_j < \infty$.
-
-Let $\mu_j', \sigma_j'$ samples mean and standard deviation. We will follow a generation scheme 
-$w_j'(i) = w_j^{(i)} - \frac{\sigma_j'}{\sqrt{m}} \cdot r$, with 
-$r\sim N(0,1)$, $i=1, 2, \ldots, m$. We will user the values we know for $W_j$ instead of $\mu_j$ and
-$\sigma_j'$ the biased standard deviation instead of $\sigma_j$.
-
-\begin{theorem}
- Expectation of the mean newly generated samples, $\{w_j^{'}(i)\}_{i=1}^m$, is $\mu_j$. 
- Expectation of the variance tends to $\sigma_j^2$ as $m \rightarrow \infty$.
- \label{th:asyn-guarantee}
-\end{theorem}
-
-For non-numerical attributes, we will simply make a roulette out of all the possible values.
-
-\begin{algorithm}[H]
-\begin{algorithmic}[1]
-  \REQUIRE $S = \{x_i=(w_1^{(i)}, \ldots w_d^{(i)})\}_{i=1}^m$, minority instances
-  \REQUIRE $T$, number of requested synthetic examples
-  \STATE{Initialize $S'= \emptyset$}
-  \NEWLINE
-  \FOR{$j=1, \ldots, d$}
-    \IF{$j$-th attribute is numerical}
-      \STATE{Compute $\sigma_j' = \sqrt{\frac{1}{m}\sum_{i=1}^m \left(w_j^{(i)} - \frac{\sum_{i=1}^m w_j^{(i)}}{m} \right)^2}$}
-    \ENDIF
-  \ENDFOR
-  \NEWLINE
-  \STATE{Let $M = \left\lceil T/m \right\rceil$}
-  \FOR{$t=1, \ldots, M$}
-    \FOR{$i=1,\ldots, m$}
-      \FOR{$j=1, \ldots, d$}
-         \IF{$j$-th attribute is numerical}
-           \STATE{Pick $r \sim N(0,1)$}
-	   \STATE{$w_j = w_j^{(i)} - \frac{\sigma_j'}{\sqrt{m}} \cdot r$}
-	 \ELSE
-	   \STATE{Pick $w_j$ uniformly over $\{w_j^{(1)}, \ldots w_j^{(m)}\}$}
-	 \ENDIF
-      \ENDFOR
-      \STATE{$S' = S' \cup \{(w_1, \ldots w_d)\}$}
-    \ENDFOR
-  \ENDFOR
-  \NEWLINE
-  \STATE{$S'=$ Pick $T$ random examples over $S'$}
-  \RETURN{$S'$, synthetic examples}
-\end{algorithmic}
-\caption{RWO oversampling}
-\label{alg:rwo}
-\end{algorithm}
-
-## PDFOS

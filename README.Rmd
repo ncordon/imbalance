@@ -36,9 +36,7 @@ Run `pdfos` algorithm on `newthyroid1` imbalanced dataset and plot a comparison 
 
 ```{r example-pdfos, fig.width = 10, fig.height = 10}
 library("imbalance")
-
 data(newthyroid1)
-set.seed(12345)
 
 newSamples <- pdfos(newthyroid1, numInstances = 80)
 # Join new samples with old imbalanced dataset

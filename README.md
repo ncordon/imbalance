@@ -24,9 +24,7 @@ Run `pdfos` algorithm on `newthyroid1` imbalanced dataset and plot a comparison 
 
 ``` r
 library("imbalance")
-
 data(newthyroid1)
-set.seed(12345)
 
 newSamples <- pdfos(newthyroid1, numInstances = 80)
 # Join new samples with old imbalanced dataset
@@ -41,7 +39,7 @@ After filtering examples with `neater`:
 
 ``` r
 filteredSamples <- neater(newthyroid1, newSamples, iterations = 500)
-#> [1] "14 samples filtered by NEATER"
+#> [1] "10 samples filtered by NEATER"
 filteredNewDataset <- rbind(newthyroid1, filteredSamples)
 plotComparison(newthyroid1, filteredNewDataset, attrs = names(newthyroid1)[1:3])
 ```

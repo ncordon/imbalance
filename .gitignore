@@ -27,7 +27,13 @@ vignettes/*.pdf
 packrat/lib*/
 # Ignore notes about package generation
 notes.org
+# Packrat and otherfiles
 packrat/src
 packrat/src/
 inst/doc
 /revdep/.cache.rds
+/revdep
+
+\#*\#
+docs/
+*~
