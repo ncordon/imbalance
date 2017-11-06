@@ -127,13 +127,11 @@ These set of algorithms assume that what we want to approximate is a discrete di
 
 Computing that distribution can be too expensive, because we have to compute:
 \[
-  |\{\textrm{Posibles valores para }W_1\}| \cdots |\{\textrm{Posibles valores para} W_d\}|
+  |\{\textrm{Feasible values for }W_1\}| \cdots |\{\textrm{Feasible values for} W_d\}|
 \]
-possible values.
+total values.
 
-We are going to approximate $P(W_1, \ldots, W_d)$ as $\prod_{i=1}^d P(W_i \mid W_{n(i)})$ where $n(i) \in 
-\{1, \ldots, d\}$. Chow-Liu's algorithm \ref{alg:chowliu} will be used to meet that purpose. This algorithm,
-minimizes Kullback-Leibler distance between two distributions:
+We are going to approximate $P(W_1, \ldots, W_d)$ as $\prod_{i=1}^d P(W_i \mid W_{n(i)})$ where $n(i) \in \{1, \ldots, d\}$. Chow-Liu's algorithm \ref{alg:chowliu} will be used to meet that purpose. This algorithm minimizes Kullback-Leibler distance between two distributions:
 \[
   D_{KL}(P \parallel Q) = \sum_{i} P(i) \left(\log P(i) - \log Q(i)\right)
 \]
@@ -143,16 +141,51 @@ We recall the definition for the mutual information of two random discrete varia
   I(W_i, W_j) = \sum_{w_1\in W_1} \sum_{w_2\in W_2} p(w_1, w_2) \log\left(\frac{p(w_1,w_2)}{p(w_1) p(w_2)}\right)
 \]
 
-The algorithm to approximate the distribution becomes:
+Let $S^{+}=\{x_i = (w_1^(i), \ldots, w_d^(i))\}_{i=1}^m$ be the unlabled positive instances. The algorithm to approximate the distribution that will be used is:
+
+* Compute $G'=(E',V')$, Chow Liu's dependence tree.
+* If $r$ is the root of the tree, we will define $P(W_r|n(r)):=P(W_r)$.
+* For each $(u,v) \in E$ arc in the tree, $n(v):=u$ and compute $P(W_v | W_{n(v)})$.
 
 
-```{r, out.width="60%", fig.align='center', fig.cap='Markov chain', echo=FALSE}
+```{r, out.width="50%", fig.align='center', fig.cap='Markov chain', echo=FALSE}
 knitr::include_graphics("monte-carlo.png")
 ```
 
+A Gibbs Sampling scheme would later be used to extract samples with respect to the approximated probability distribution, where a badge of new instances is obtained by performing:
+
+* Given a minority sample $x_m = (w_1^{(i)}, \ldots w_d^{(i)})$.
+* Iteratively construct for each attribute \[\bar{w}_k^{(i)} \sim P(W_k \mid \bar{w}_1^{(i)}, \ldots, \bar{w}_{k-1}^{(i)}, w_{k+1}^{(i)} \ldots, w_{d}^{(i)})\].
+* Return $S = \{\bar{x}_i=(\bar{w}_1^{(i)}, \ldots \bar{w}_d^{(i)})\}_{i=1}^m$.
+
+Let us recall the headers of `racog` and `wracog` functions:
+
+```
+racog(dataset, numInstances, burnin, lag, classAttr)
+```
+```
+wracog(train, validation, wrapper, slideWin, 
+       threshold, classAttr, ...)
+```
+
+
 ### RACOG
-RACOG (\textit{Rapidly Converging Gibbs}) builds a Markov chain for each of the $m$ minority instances, 
-ruling out the first $\beta$ generated instances and selecting a badge of synthetic examples each $\alpha$ iterations. That allows to lose dependence of previous values.
+RACOG (*Rapidly Converging Gibbs*) iteratively builds badges of synthetic instances using minority given ones. But it rules out first `burnin` generated badges and from that moment onwards, it picks a badge of newly-generated examples each `lag` iterations.
 
 ### wRACOG
-RACOG has a problem: it depends on $\alpha, \beta$ and the number of instances requested. wRACOG (\textit{wrapper-based RACOG}) tries to overcome that problem. Let \textit{wrapper} be a classifier.
+The downside of RACOG is that it clearly depends on `burnin`, `lag` and the requested number of instances `numInstances`. wRACOG (*wrapper-based RACOG*) tries to overcome that problem. Let `wrapper` be a classifier, that could be declared as it follows:
+
+```{r, results=FALSE}
+myWrapper <- structure(list(), class="C50Wrapper")
+trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
+  C50::C5.0(train, trainClass)
+}
+```
+
+
+That is, a `wrapper` should be an `S3` class with a method `trainWrapper` following the generic method:
+```
+trainWrapper(wrapper, train, trainClass, ...)
+```
+
+where `train` is the unlabeled tranining dataset, and `trainClass` are the labels for the training set.
