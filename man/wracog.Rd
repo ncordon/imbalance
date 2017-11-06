@@ -50,7 +50,6 @@ former train, to the train dataset. Initial model is built on initial
 }
 \examples{
 data(haberman)
-set.seed(12345)
 myWrapper <- structure(list(), class="C50Wrapper")
 trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
   C50::C5.0(train, trainClass)

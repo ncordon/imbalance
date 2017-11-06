@@ -1,7 +1,7 @@
 language: r
 r: devel
 sudo: required
-cache: packages
+#cache: packages
 dist: trusty
 
 warnings_are_errors: true
@@ -11,7 +11,6 @@ apt_packages:
 
 r_github_packages:
   - cran/callr
-  - hadley/devtools
   - hadley/pkgdown
 
 script:

@@ -26,7 +26,6 @@
 #'
 #' @examples
 #' data(iris0)
-#' set.seed(12345)
 #'
 #' newSamples <- pdfos(iris0, numInstances = 100, classAttr = "Class")
 #'

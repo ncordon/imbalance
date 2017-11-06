@@ -32,7 +32,6 @@
 #'
 #' @examples
 #' data(iris0)
-#' set.seed(12345)
 #'
 #' # Generates new minority examples
 #' newSamples <- racog(iris0, numInstances = 100, classAttr = "Class")
@@ -117,7 +116,6 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'
 #' @examples
 #' data(haberman)
-#' set.seed(12345)
 #' myWrapper <- structure(list(), class="C50Wrapper")
 #' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
 #'   C50::C5.0(train, trainClass)

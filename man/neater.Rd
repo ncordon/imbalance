@@ -41,7 +41,6 @@ majority example than a minority one.
 }
 \examples{
 data(iris0)
-set.seed(12345)
 
 newSamples <- smotefamily::SMOTE(iris0[,-5], iris0[,5])$syn_data
 # SMOTE overrides Class attr turning it into class

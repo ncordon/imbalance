@@ -44,7 +44,6 @@
 #'
 #' @examples
 #' data(iris0)
-#' set.seed(12345)
 #'
 #' # Generates new minority examples
 #' newSamples <- mwmote(iris0, numInstances = 100, classAttr = "Class")

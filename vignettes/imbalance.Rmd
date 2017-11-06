@@ -189,3 +189,130 @@ trainWrapper(wrapper, train, trainClass, ...)
 ```
 
 where `train` is the unlabeled tranining dataset, and `trainClass` are the labels for the training set.
+
+## RWO
+RWO (*Random Walk Oversampling*) generates synthetic instances so that mean and deviation of numerical attributes remain as close as possible to the original ones. This algorithm is inspired by the central limit theorem.
+
+### Central limit theorem
+Let $W_1, \ldots, W_m$ be a collection of independent and identically distributed random variables, with $\mathbb{E}(W_i) = \mu$ y 
+$Var(W_i) = \sigma^2 < \infty$. Hence: 
+ \[
+   \lim_{m} P\left[\frac{\sqrt{m}}{\sigma} \left(\underbrace{\frac{1}{m}\sum_{i=1}^m W_i}_{\overline{W}} - 
+   \mu \right) \le z \right] = \phi(z)
+ \]
+ 
+where $\phi$ is the distribution function of $N(0,1)$.
+ 
+That is, $\frac{\overline{W} - \mu}{\sigma/\sqrt{m}} \rightarrow N(0,1)$ probability-wise.
+
+
+Now, let's fix some $j\in \{1, \ldots d\}$, and let's assume that $j$-ith column follows a numerical random variable $W_j$, with mean $\mu_j$ and standard deviation $\sigma_j < \infty$. Let's compute $\sigma_j' = \sqrt{\frac{1}{m}\sum_{i=1}^m \left(w_j^{(i)} - \frac{\sum_{i=1}^m w_j^{(i)}}{m} \right)^2}$ the biased estimation of standard deviation. It can be proven that instances generated with $\bar{w}_j = w_j^{(i)} - \frac{\sigma_j'}{\sqrt{m}}\cdot r, r\sim N(0,1)$ have the same sample mean as the original ones, and their sample variance tends to the original one.
+
+### Outline of the algorithm
+Let $S^{+}= \{x_i = (w_1^{(i)}, \ldots w_d^{(i)})\}_{i=1}^m$ be the minority instances. Our algorithm will proceed as follows:
+
+* For each numerical attribute $j=1, \ldots, d$ compute the standard deviation of the column, $\sigma_j' = \sqrt{\frac{1}{m}\sum_{i=1}^m \left(w_j^{(i)} - \frac{\sum_{i=1}^m w_j^{(i)}}{m} \right)^2}$.
+* For a given instance $x_i=(w_1^{(i)}, \ldots, w_d^{(i)})$, for each attribute attribute $j$, generate:
+
+\[
+\bar{w}_j = \left\{\begin{array}{ll}
+w_j^{(i)} - \frac{\sigma_j'}{\sqrt{m}}\cdot r, r\sim N(0,1) & \textrm{if numerical attribute}\\
+\textrm{pick uniformly over } \{w_j^{(1)}, \ldots w_j^{(m)}\} & \textrm{otherwise}
+\end{array}\right.
+\]
+
+## PDFOS
+### Motivation
+Given a distribution function of a random variable $X$, namely $F(x)$, if that function has an almost surely derivative, then, almost surely, it holds:
+\[
+  f(x) = \lim_{h\rightarrow 0} \frac{F(x+h) - F(x-h)}{2h} = \lim_{h\rightarrow 0} \frac{P(x-h < X \le x+h)}{2h}
+\]
+
+Given random samples of $X$, $X_1, \ldots X_n$ y $x_1, \ldots x_n$, an estimator for $f$ could be:
+\[
+  \widehat{f}(x) = \frac{1}{2hn} \bigg[\textrm{Número de } x_1, \ldots, x_n \textrm{ que se quedan en ]x-h, x+h[}\bigg]
+\]
+
+If we define $\omega(x) = \left\{\begin{array}{ll} 
+                                \frac{1}{2} &, |x| < 1\\
+                                0 & \textrm{otherwise}
+                                \end{array}\right.$
+                                
+                                
+and $w_h(x) = w\left(\left|\frac{x}{h}\right|\right)$, then we could write $\widehat{f}$ as:
+\[
+  \widehat{f}(x) = \frac{1}{nh} \sum_{i=1}^n \omega_h(x-x_i)
+\]
+
+It we assume that $x_1, \ldots, x_n$ are equidistant with distance $2h$ (they are placed in the middle of $2h$ length intervals), $\widehat{f}$ could be seen as an histogram where each bar has a $2h$ width and a 
+$\frac{1}{2nh} \cdot \bigg[[\textrm{Number of samples } x_1, \ldots, x_n \textrm{ belonging to the interval}]\bigg]$ length. Parameter $h$
+is called *bandwidth*.
+
+In multivariate case, we define:
+\[
+  \widehat{f}(x) = \frac{1}{nh^d} \sum_{i=1}^n \omega_h(x-x_i)
+\]
+
+### Kernel methods
+If we took $w = \frac{1}{2} \Large{1}\normalsize_{]-1,1[}$, then $\widehat{f}$ would have jump discontinuities and we would have jump derivatives. On the other hand, we could took $\omega$, where $w\ge 0$, $\int_{\Omega} \omega(x) dx = 1$, $\Omega \subseteq X$ a domain, and $w$ is even, and that way we could have estimators with more suitable properties with respect to continuity and differentiability.
+
+$\widehat{f}$ can be evaluated through its MISE (*Mean Integral Squared Error*):
+\[
+  MISE(h) = \underset{x_1, \ldots, x_n}{\mathbb{E}} \int (\widehat{f}(x) - f(x))^2 dx
+\]
+
+```{r, out.width="60%", fig.align='center', fig.cap='Example of kernel estimation', echo=FALSE, fig.pos="h"}
+knitr::include_graphics("kernel-estimation.png")
+```
+
+#### Gaussian kernels
+PDFOS (*Probability Distribution density Function estimation based Oversampling*) uses multivariate Gaussian kernel methods. The probability density function of a $d$-Gaussian distribution 
+with mean $0$ and $\Psi$ as its covariance matrix is:
+\[
+  \phi^{\Psi}(x) = \frac{1}{\sqrt{(2\pi \cdot det(\Psi))^d}} exp\left(-\frac{1}{2} x \Psi^{-1} x^T \right)
+\]
+
+Let $S^{+} = \{x_i = (w_1^{(i)}, \ldots, w_d^{(i)})\}_{i=1}^m$ be the minority instances. The unbiased covariance estimator is:
+\[
+  U = \frac{1}{m-1} \sum_{i=1}^m (x_i - \overline{x})(x_i - \overline{x})^T, 
+  \qquad \textrm{where } \overline{x} = \frac{1}{m}\sum_{i=1}^m x_i
+\]
+  
+We will use kernel functions $\phi_h(x) = \phi^U\left(\frac{x}{h}\right)$, where $h$ ought to be optimized
+to minimize MISE. It is well-known that can be achieved by minimizing the following cross validation function:
+\[
+ M(h) = \frac{1}{m^2 h^d} \sum_{i=1}^m \sum_{j=1}^m \phi_h^{\ast} (x_i - x_j) + \frac{2}{m h^d} \phi_h(0)
+\]
+where $\phi_h^{\ast} \approx \phi_{h\sqrt{2}} - 2\phi_h$.
+
+Once a proper $h$ has been found, a suitable generating scheme could be to take $x_i + h R r$, where $x_i \in S^{+}$, $r\sim N^d(0,1)$ y $U = R\cdot R^T$. In case we have enough guarantees to decompose $U = R^T \cdot R$ ($U$ is a positive-definite matrix), we could use Choleski decomposition. In fact, we provide a sketch of proof showing that all covariance matrices are positive-semidefinite:
+
+\[
+y \in \mathbb{R}^d \Rightarrow: 
+y^T \left(\sum_{i=1}^m (x_i - \overline{x})(x_i - \overline{x})^T\right) y = \sum_{i=1}^m (\underbrace{(x_i - \overline{x})^T y}_{z_i^T})^T \underbrace{(x_i - \overline{x})^T y}_{z_i}) = \sum_{i=1}^m ||z_i||^2\ge 0
+\]
+
+### Search of optimal bandwidth
+We take a first approximation to $h$ as the value:
+\[
+  h_{Silverman} = \left(\frac{4}{m(d+2)}\right)^{\frac{1}{d+4}}
+\]
+where $d$ is number of attributes and $m$ the size of the minority class.
+
+Reshaping the equation of the cross validation function and deriving:
+\begin{align}
+M(h) &= \frac{1}{m^2 h^d} \sum_{i=1}^m \sum_{j=1}^m \phi_h^{\ast} (x_i - x_j) + \frac{2}{m h^d} \phi_h(0) \nonumber\\
+     &= \frac{1}{m^2 h^d} \sum_{i=1}^m \sum_{j=1, j\neq i}^m \phi_h^{\ast} (x_i - x_j) + \frac{1}{m h^{d}} \phi_{h\sqrt{2}}(0) \nonumber\\
+     &= \frac{2}{m^2 h^d} \sum_{j > i}^m \phi_h^{\ast} (x_i - x_j) + \frac{1}{m h^{d}} \phi_{h\sqrt{2}}(0)
+ \label{eq:cv-simp}
+\end{align}
+
+\begin{align}
+\frac{\partial M}{\partial h}(h) &= \frac{2}{m^2 h^d} \sum_{j>i}^m  \phi_h^{\ast} (x_i - x_j)
+ \bigg(-d h^{-1} + h^{-3} (x_i-x_j)^T U (x_i-x_j) \bigg) \nonumber
+ - \frac{dh^{-1}}{mh^{d}} \phi_{h\sqrt{2}}(0)
+ \label{eq:cross-val-df}
+\end{align}
+
+And a straightforward *gradient descendent* algorithm is used to find a good $h$ estimation.
+
