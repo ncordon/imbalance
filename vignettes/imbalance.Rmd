@@ -2,7 +2,7 @@
 author: "Nacho Cordón"
 title: "Working with imbalanced datasets"
 output: rmarkdown::pdf_document
-geometry: margin=5cm
+geometry: margin=4.5cm
 papersize: A4
 vignette: >
   %\VignetteIndexEntry{Working with imbalanced dataset}
@@ -94,7 +94,7 @@ Otherwise:
 \[
   f(x) = \left\{\begin{array}{ll} 
                 x &, x\le \alpha \\
-                C & \textrm{en otro caso}
+                C & \textrm{otherwise}
                \end{array}\right.,\qquad C_f(x,y) = \frac{C}{\alpha} \cdot f\left(\frac{d}{d(x,y)}\right)
 \]
 
@@ -230,7 +230,7 @@ Given a distribution function of a random variable $X$, namely $F(x)$, if that f
 
 Given random samples of $X$, $X_1, \ldots X_n$ y $x_1, \ldots x_n$, an estimator for $f$ could be:
 \[
-  \widehat{f}(x) = \frac{1}{2hn} \bigg[\textrm{Número de } x_1, \ldots, x_n \textrm{ que se quedan en ]x-h, x+h[}\bigg]
+  \widehat{f}(x) = \frac{1}{2hn} \bigg[\textrm{Number of samples } x_1, \ldots, x_n \textrm{ that belong to ]x-h, x+h[}\bigg]
 \]
 
 If we define $\omega(x) = \left\{\begin{array}{ll} 
@@ -245,7 +245,7 @@ and $w_h(x) = w\left(\left|\frac{x}{h}\right|\right)$, then we could write $\wid
 \]
 
 It we assume that $x_1, \ldots, x_n$ are equidistant with distance $2h$ (they are placed in the middle of $2h$ length intervals), $\widehat{f}$ could be seen as an histogram where each bar has a $2h$ width and a 
-$\frac{1}{2nh} \cdot \bigg[[\textrm{Number of samples } x_1, \ldots, x_n \textrm{ belonging to the interval}]\bigg]$ length. Parameter $h$
+$\frac{1}{2nh} \cdot \bigg[[\textrm{Number of samples } x_1, \ldots, x_n \textrm{ that belong to the interval}]\bigg]$ length. Parameter $h$
 is called *bandwidth*.
 
 In multivariate case, we define:
@@ -261,7 +261,7 @@ $\widehat{f}$ can be evaluated through its MISE (*Mean Integral Squared Error*):
   MISE(h) = \underset{x_1, \ldots, x_n}{\mathbb{E}} \int (\widehat{f}(x) - f(x))^2 dx
 \]
 
-```{r, out.width="60%", fig.align='center', fig.cap='Example of kernel estimation', echo=FALSE, fig.pos="h"}
+```{r, out.width="75%", fig.align='center', fig.cap='Example of kernel estimation', echo=FALSE, fig.pos="h"}
 knitr::include_graphics("kernel-estimation.png")
 ```
 
@@ -286,11 +286,10 @@ to minimize MISE. It is well-known that can be achieved by minimizing the follow
 where $\phi_h^{\ast} \approx \phi_{h\sqrt{2}} - 2\phi_h$.
 
 Once a proper $h$ has been found, a suitable generating scheme could be to take $x_i + h R r$, where $x_i \in S^{+}$, $r\sim N^d(0,1)$ y $U = R\cdot R^T$. In case we have enough guarantees to decompose $U = R^T \cdot R$ ($U$ is a positive-definite matrix), we could use Choleski decomposition. In fact, we provide a sketch of proof showing that all covariance matrices are positive-semidefinite:
-
 \[
-y \in \mathbb{R}^d \Rightarrow: 
 y^T \left(\sum_{i=1}^m (x_i - \overline{x})(x_i - \overline{x})^T\right) y = \sum_{i=1}^m (\underbrace{(x_i - \overline{x})^T y}_{z_i^T})^T \underbrace{(x_i - \overline{x})^T y}_{z_i}) = \sum_{i=1}^m ||z_i||^2\ge 0
 \]
+for arbitrary $y \in \mathbb{R}^d$.
 
 ### Search of optimal bandwidth
 We take a first approximation to $h$ as the value:
@@ -316,3 +315,59 @@ M(h) &= \frac{1}{m^2 h^d} \sum_{i=1}^m \sum_{j=1}^m \phi_h^{\ast} (x_i - x_j) + 
 
 And a straightforward *gradient descendent* algorithm is used to find a good $h$ estimation.
 
+# Filtering
+Once we have created synthetic examples, we should take care of which many of those instances are relevant to our problem. Filtering algorithms can be applied to *oversampled* datasets, to erase the least relevant instances.
+
+## NEATER
+NEATER (*filteriNg of ovErsampled dAta using non cooperaTive gamE theoRy*) is a filtering algorithm based on game theory.
+
+### Introduction to Game Theory
+Let $(P, T, f)$ be our game space. We would have a set of players, $P=\{1, \ldots, n\}$, and $T_i=\{1, \ldots, k_i\}$, set of feasible strategies for the $i$-th player, resulting in $T = T_1 \times \ldots \times T_n$. We can easily assign a payoff to each player taking into account his/her own strategy as well as other players' strategy. So $f$ will be given by the following equation:
+\[
+  \begin{array}{rll}
+  f: T &\longrightarrow& \mathbb{R}^n\\
+  t &\longmapsto& (f_1(t), \ldots, f_n(t))
+ \end{array}
+\]
+  
+$t_{-i}$ will be used to represent $(t_1, \ldots, t_{i-1}, t_{i+1}, \ldots, t_n)$ and similarly we can note $f_i(t_i, t_{-i})= f_i(t)$.
+
+An strategic *Nash equilibrium* is a tuple $(t_1, \ldots t_n)$ where $f_i(t_i, t_{-i}) \ge f_i(t'_{i}, t_{-i})$ for every other $t'\in T$, and all $i=1, \ldots, n$. That is, a Nash strategy maximizes the payoff for all the players.
+
+The strategy for each player will be picked with respect to a given probability $\delta_i \in \Delta_i = \{(\delta_i^{(1)}, \ldots, \delta_i^{(k_i)}) \in (R^{+})^k_i : \sum_{j=1}^{k_i} \delta_i^{(j)} = 1\}$. We define $\Delta_1 \times \ldots \times \Delta_n := \Delta$ and we call an element $\delta = (\delta_1, \ldots, \delta_n) \in \Delta$ strategy profile. Having a fixed strategy profile $\delta$, the overall payoff for the $i$-th player is defined as:
+\[
+  u_i(\delta) = \sum_{t\in T} \delta_i^{(t_i)} f_i(t)
+\]
+
+Given $u_i$ the payoff for a $\delta$ strategy profile in the $i$-th playter and $\delta\in \Delta$ we will denote
+$\delta_{-i} = (\delta_1, \ldots, \delta_{i-1}, \delta_{i+1}, \ldots, \delta_n)$, y $u_i(\delta_i, \delta_{-i})= u_i(\delta)$.
+
+A probabilistic Nash equilibrium is a strategy profile $x = (\delta_1, \ldots, \delta_n)$ verifying
+$u_i(\delta_i, \delta_{-i}) \ge u_i(\delta'_{i}, \delta_{-i})$ for every other $\delta'\in \Delta$, and all $i=1, \ldots, n$.
+
+A theorem ensures that every game space $(P,T,f)$ with finite players and strategies has a probabistic Nash equilibrium
+
+### Particularization to imbalance problem
+Let $S$ be the original training set, $E$ the synthetic generated instances. Our players would be $S \cup E$. Every player would be able to pick between two different strategies: $0$ being a negative instance and $1$ being a positive instance. Players of $S$ would always have a fixed strategy, where the $i$-th player would have $\delta_i = (0,1)$ (a $0$ strategy) in case it is a negative instance or $\delta_i = (1,0)$ (a $1$ strategy) otherwise.
+
+The payoff for a given instance is affected only by its own strategy and its $k$ nearest neighbors in $S\cup E$. That is, for every $x_i \in E$, we will have $u_i(\delta) = \sum_{j\in NN^k(x)} (x_i^T w_{ij} x_j)$ where $w_{ij} = g\left(d(x_i, x_j)\right)$, $g$ is a decresing function (the further, the lower payoff). In our implementation, we have considered $g(z) = \frac{1}{1+z^2}$, with $d$ the euclidean distance.
+
+Each step should involve an update to the strategy profiles of instances of $E$. Namely, if $x_i \in E$, the following equation will be used:
+\begin{align*}
+& \delta_i(0) = \left(\frac{1}{2}, \frac{1}{2}\right)\\
+& \delta_{i,1}(n+1) = \frac{\alpha + u_i((1,0))}{\alpha + u_i(\delta(n))} \delta_{i,1}(n)\\
+& \delta_{i,2}(n+1) = 1 - \delta_{i,1}(n+1)
+\end{align*}
+
+That is, we are reinforcing the strategy that is producing the higher payoff, in detriment to the opposite strategy. This method has enough convergence guarantees.
+
+Let's recall the header for `neater`:
+```
+neater(dataset, newSamples, k, iterations, smoothFactor, classAttr)
+```
+Then a rough sketch of the algorithm is:
+
+* Compute `k` nearest neighbors for every instance of $E:=$`newSamples`.
+* Initialize strategy profiles of `dataset`$\cup$`newSamples` .
+* Iterate `iterations` times updating payoffs with the aforementioned rule and strategy profiles.
+* Keep only those instances of `newSamples` with probability of being positive instances higher than $0.5$.
