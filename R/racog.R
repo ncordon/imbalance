@@ -173,7 +173,8 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
     minority <- gibbsSampler(probDist, minority)
     prediction <- predict(model, data.frame(minority))
-    misclassified <- minority[prediction != minorityClass, , drop = FALSE]
+    misclassified <- minority[as.character(prediction) != as.character(minorityClass), ,
+                              drop = FALSE]
     newSamples <- rbind(newSamples, misclassified)
     train <- rbind(train, misclassified)
     trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
