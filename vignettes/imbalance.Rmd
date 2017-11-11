@@ -383,16 +383,19 @@ An *strategic Nash equilibrium* is a tuple $(t_1, \ldots, t_n)$ where $f_i(t_i, 
 
 The strategy for each player will be picked with respect to a given probability: 
 \[
-\delta_i \in \Delta_i = \{(\delta_i^{(1)}, \ldots, \delta_i^{(k_i)}) \in (R^{+}_0)^{k_i} : \sum_{j=1}^{k_i} \delta_i^{(j)} = 1\}\]
+\delta_i \in \Delta_i = \{(\delta_i^{(1)}, \ldots, \delta_i^{(k_i)}) \in (R^{+}_0)^{k_i} : \sum_{j=1}^{k_i} \delta_i^{(j)} = 1\}
+\]
 We define $\Delta_1 \times \ldots \times \Delta_n := \Delta$ and we call an element $\delta = (\delta_1, \ldots, \delta_n) \in \Delta$ an strategy profile. Having a fixed strategy profile $\delta$, the overall payoff for the $i$-th player is defined as:
 \[
   u_i(\delta) = \sum_{(t_1, \ldots, t_n)\in T} \delta_i^{(t_i)} f_i(t)
 \]
 
 Given $u_i$ the payoff for a $\delta$ strategy profile in the $i$-th player and $\delta\in \Delta$ we will denote
-\[
-\delta_{-i} = (\delta_1, \ldots, \delta_{i-1}, \delta_{i+1}, \ldots, \delta_n)$, y $u_i(\delta_i, \delta_{-i})= u_i(\delta)
-\]
+
+\begin{align}
+\delta_{-i} &:= (\delta_1, \ldots, \delta_{i-1}, \delta_{i+1}, \ldots, \delta_n)\\
+u_i(\delta_i, \delta_{-i}) &:= u_i(\delta)
+\end{align}
 
 A *probabilistic Nash equilibrium* is a strategy profile $x = (\delta_1, \ldots, \delta_n)$ verifying
 $u_i(\delta_i, \delta_{-i}) \ge u_i(\delta'_{i}, \delta_{-i})$ for every other $\delta'\in \Delta$, and all $i=1, \ldots, n$.
