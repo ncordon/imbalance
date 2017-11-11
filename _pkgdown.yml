@@ -3,3 +3,20 @@ url: http://ncordon.github.io/imbalance
 template:
   params:
     bootswatch: cosmo
+
+navbar:
+  title: "imbalance"
+  type: default
+  left:
+    - text: "Home"
+      href: index.html
+      icon: fa-home
+    - text: "Quick reference"
+      icon: fa-bars
+      href: "reference/index.html"
+    - text: "Vignette"
+      icon: fa-book
+      href: "articles/imbalance.html"
+  right:
+    - icon: fa-github
+      href: https://github.com/ncordon/imbalance
