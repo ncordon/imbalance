@@ -197,6 +197,8 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 #' @param train \code{data.frame} of the train dataset without the class column
 #' @param trainClass a vector containing the class column for \code{train}
 #' @param ... further arguments for \code{wrapper}
+#' @return A model which is \code{\link[stats]{predict}} callable.
+#' @seealso \code{\link[stats]{predict}}
 #' @export
 #'
 #' @examples

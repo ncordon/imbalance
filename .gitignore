@@ -33,7 +33,6 @@ packrat/src/
 inst/doc
 /revdep/.cache.rds
 /revdep
-
 \#*\#
 docs/
 *~

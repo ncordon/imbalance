@@ -15,6 +15,9 @@ trainWrapper(wrapper, train, trainClass, ...)
 
 \item{...}{further arguments for \code{wrapper}}
 }
+\value{
+A model which is \code{\link[stats]{predict}} callable.
+}
 \description{
 Generic methods to train classifiers
 }
@@ -23,4 +26,7 @@ myWrapper <- structure(list(), class="C50Wrapper")
 trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
   C50::C5.0(train, trainClass)
 }
+}
+\seealso{
+\code{\link[stats]{predict}}
 }

@@ -1,8 +1,14 @@
 language: r
 r: devel
-sudo: required
-#cache: packages
-dist: trusty
+
+# Check on Ubuntu and OS X
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      #cache: packages
+      dist: trusty
+    - os: osx
 
 warnings_are_errors: true
 
@@ -17,14 +23,16 @@ script:
   - R CMD build . ${R_BUILD_ARGS}
   - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
   - R CMD INSTALL `ls -1t *.tar.gz | head -n 1`
-  - Rscript -e 'pkgdown::build_site()'
-  - mv docs ..
-  - rm -r *
-  - mv ../docs/* .
 
 notifications:
   email: false
 
+after_success:
+  - Rscript -e 'pkgdown::build_site()'
+  - mv docs ..
+  - rm -r *
+  - mv ../docs/* .
+  
 deploy:
   provider: pages
   skip_cleanup: true
