@@ -1,14 +1,8 @@
 language: r
 r: devel
-
-# Check on Ubuntu and OS X
-matrix:
-  include:
-    - os: linux
-      sudo: required
-      #cache: packages
-      dist: trusty
-    - os: osx
+#cache: packages
+dist: trusty
+sudo: required
 
 warnings_are_errors: true
 
