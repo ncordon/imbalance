@@ -32,7 +32,6 @@ nominal, it uses a roulette scheme.
 }
 \examples{
 data(iris0)
-set.seed(12345)
 
 newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 

@@ -3,9 +3,9 @@ Type: Package
 Title: Preprocessing Algorithms for Imbalanced Datasets
 Version: 0.1.0
 Authors@R: c(
-   person("Nacho","Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
+   person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
  )
-Maintainer: Nacho Cordón <nacho.cordon.castillo@gmail.com>
+Maintainer: Ignacio Cordón <nacho.cordon.castillo@gmail.com>
 Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
              the performance of the classifiers. Thus, it is important to treat data before
              applying a classifier algorith. This package includes recent preprocessing algorithms

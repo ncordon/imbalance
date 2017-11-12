@@ -1,5 +1,5 @@
 ---
-author: "Nacho Cordón"
+author: "Ignacio Cordón"
 title: "Working with imbalanced datasets"
 output: rmarkdown::pdf_document
 geometry: margin=3.8cm
@@ -8,6 +8,8 @@ vignette: >
   %\VignetteIndexEntry{Working with imbalanced dataset}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+csl: institute-of-mathematical-statistics.csl
 ---
 # Imbalance classification problem
 Let:
@@ -83,7 +85,7 @@ plotComparison(newthyroid1, filteredNewDataset,
 ```
 
 # Oversampling
-## MWMOTE
+## MWMOTE @Barua_2014
 SMOTE is a classic algorithm which generates new examples by filling empty areas among the positive instances. It updates the training set iteratively, by performing:
 
 \[
@@ -142,7 +144,7 @@ A few interesting considerations:
 * For an opposite reason, a high $k_3$ must be selected to ensure we pick as many positive hard-to-learn borderline examples as we can.
 * The higher the $C_{clust}$ parameter, the less and more-populated clusters we will get.
 
-## RACOG and wRACOG
+## RACOG and wRACOG @Das_2015
 These set of algorithms assume we want to approximate a discrete distribution $P(W_1, \ldots, W_d)$.
 
 Computing that distribution can be too expensive, because we have to compute:
@@ -239,7 +241,7 @@ newSamples <- wracog(haberman[trainFold, ], haberman[-trainFold, ],
 head(newSamples)
 ```
 
-## RWO
+## RWO @Zhang_2014
 RWO (*Random Walk Oversampling*) generates synthetic instances so that mean and deviation of numerical attributes remain as close as possible to the original ones. This algorithm is motivated by the central limit theorem.
 
 ### Central limit theorem
@@ -269,7 +271,7 @@ w_j^{(i)} - \frac{\sigma_j'}{\sqrt{m}}\cdot r, r\sim N(0,1) & \textrm{if numeric
 \end{array}\right.
 \]
 
-## PDFOS
+## PDFOS [-@Gao_2014]
 ### Motivation
 Given a distribution function of a random variable $X$, namely $F(x)$, if that function has an almost everywhere derivative, then, almost everywhere, it holds:
 \[
@@ -365,7 +367,7 @@ And a straightforward *gradient descendent* algorithm is used to find a good $h$
 # Filtering
 Once we have created synthetic examples, we should ask ourselves how many of those instances are in fact relevant to our problem. Filtering algorithms can be applied to *oversampled* datasets, to erase the least relevant instances.
 
-## NEATER
+## NEATER @Almogahed_2014
 NEATER (*filteriNg of ovErsampled dAta using non cooperaTive gamE theoRy*) is a filtering algorithm based on game theory.
 
 ### Introduction to Game Theory
@@ -426,3 +428,5 @@ Then a rough sketch of the algorithm is:
 * Initialize strategy profiles of `dataset`$\cup$`newSamples`.
 * Iterate `iterations` times updating payoffs with the aforementioned rule and strategy profiles.
 * Keep only those examples of `newSamples` with probability of being positive instances higher than $0.5$.
+
+# References
