@@ -33,7 +33,7 @@ newDataset <- rbind(newthyroid1, newSamples)
 plotComparison(newthyroid1, newDataset, attrs = names(newthyroid1)[1:3], cols = 2, classAttr = "Class")
 ```
 
-![](README-example-pdfos-1.png)
+![](man/figures/README-example-pdfos-1.png)
 
 After filtering examples with `neater`:
 
@@ -44,4 +44,4 @@ filteredNewDataset <- rbind(newthyroid1, filteredSamples)
 plotComparison(newthyroid1, filteredNewDataset, attrs = names(newthyroid1)[1:3])
 ```
 
-![](README-example-neater-1.png)
+![](man/figures/README-example-neater-1.png)

@@ -34,7 +34,7 @@ devtools::install_github("ncordon/imbalance")
 
 Run `pdfos` algorithm on `newthyroid1` imbalanced dataset and plot a comparison between attributes.
 
-```{r example-pdfos, fig.width = 10, fig.height = 10}
+```{r example-pdfos, fig.width = 10, fig.height = 10, fig.path = "./man"}
 library("imbalance")
 data(newthyroid1)
 
