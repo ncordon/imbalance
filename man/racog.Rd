@@ -41,8 +41,12 @@ minority examples number.
 data(iris0)
 
 # Generates new minority examples
-newSamples <- racog(iris0, numInstances = 100, classAttr = "Class")
 
+newSamples <- racog(iris0, numInstances = 40, burnin = 20, lag = 10,
+                    classAttr = "Class")
+\donttest{
+newSamples <- racog(iris0, numInstances = 100)
+}
 }
 \references{
 Das, Barnan; Krishnan, Narayanan C.; Cook, Diane J. Racog and Wracog: Two

@@ -1,3 +1,6 @@
+## Resubmission
+This is a resubmission. In this version I have fixed a problem with excessive execution time for the racog function examples.
+
 ## Test environments
 * local OS X, devel
 * ubuntu 14.04 (on travis-ci), devel and release

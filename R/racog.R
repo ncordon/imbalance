@@ -34,8 +34,12 @@
 #' data(iris0)
 #'
 #' # Generates new minority examples
-#' newSamples <- racog(iris0, numInstances = 100, classAttr = "Class")
 #'
+#' newSamples <- racog(iris0, numInstances = 40, burnin = 20, lag = 10,
+#'                     classAttr = "Class")
+#' \donttest{
+#' newSamples <- racog(iris0, numInstances = 100)
+#' }
 racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class"){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")

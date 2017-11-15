@@ -21,7 +21,7 @@ CrossEvaluation computeCV(arma::mat &dataset, arma::mat &covInv, double bandwidt
   double derivative = 0;
   double score = 0;
   int m = dataset.n_cols, d = dataset.n_rows;
-  double factor = 1.0 / pow(bandwidth, d + 1), sqrt_factor = 1.0 / pow(sqrt(2), d);
+  double factor = 1.0 / pow(bandwidth, d + 1), sqrt_factor = 1.0 / pow(sqrt(2.0), d);
   double first_ev_point, second_ev_point;
   arma::mat first_cov = 1.0 / (2 * bandwidth * bandwidth) * covInv;
   arma::mat second_cov = 1.0 / (bandwidth * bandwidth) * covInv;

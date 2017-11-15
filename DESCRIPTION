@@ -1,7 +1,7 @@
 Package: imbalance
 Type: Package
 Title: Preprocessing Algorithms for Imbalanced Datasets
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
    person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
  )
@@ -16,7 +16,7 @@ LazyData: true
 BugReports: http://github.com/ncordon/imbalance/issues
 URL: http://github.com/ncordon/imbalance
 Depends:
-    R (>= 3.4.0)
+    R (>= 3.3.0)
 Imports:
     bnlearn,
     KernelKnn,
