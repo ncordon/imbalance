@@ -7,9 +7,9 @@ Authors@R: c(
  )
 Maintainer: Ignacio Cordón <nacho.cordon.castillo@gmail.com>
 Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
-             the performance of the classifiers. Thus, it is important to treat data before
-             applying a classifier algorithm. This package includes recent preprocessing algorithms
-             in the literature.
+             the performance of classifiers. Thus, it is important to treat data before
+             applying a classifier algorithm. This package includes recent preprocessing
+             algorithms in the literature.
 License: GPL (>=2) | file LICENSE
 Encoding: UTF-8
 LazyData: true

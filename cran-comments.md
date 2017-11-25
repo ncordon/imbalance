@@ -1,5 +1,5 @@
-## Resubmission
-This is a resubmission. In this version I have fixed a problem with excessive execution time for the racog function examples.
+## Patch
+This is a patch to ensure C++ portability in relation to an ERROR that arose with the Solaris checks on CRAN
 
 ## Test environments
 * local OS X, devel
@@ -8,11 +8,7 @@ This is a resubmission. In this version I have fixed a problem with excessive ex
 * win-builder (devel and release)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
-
-There was 1 NOTE in Unix-based systems (Ubuntu, Arch and OS X):
-
-    * New submission
+There were no ERRORs or WARNINGs.
 
 Apart from that NOTE, there were some complains about mis-spelled words in DESCRIPTION: datasets and preprocessing, which I believe are technical field words.
 
