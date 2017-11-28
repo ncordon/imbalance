@@ -46,9 +46,10 @@ NULL
 #' @export
 #'
 #' @examples
-resample <- function(dataset, ratio = NA, method = c("racog", "wracog",
-                     "pdfos", "rwo", "mwmote", "ADASYN", "ANS", "SMOTE",
-                     "Borderline-SMOTE", "DBSMOTE", "SLS", "RSLS"),
+oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
+                     "PDFOS", "RWO", "ADASYN", "adaptative", "SMOTE",
+                     "MWMOTE", "borderline-SMOTE", "density-SMOTE",
+                     "SLMOTE", "relocating-SMOTE"),
                      filtering = FALSE, classAttr = "Class",
                      wrapper = NA, ...){
   checkDataset(dataset, "dataset")
@@ -61,8 +62,27 @@ resample <- function(dataset, ratio = NA, method = c("racog", "wracog",
   currentRatio <- minoritySize / majoritySize
   dupSize <- ceiling(ratio / currentRatio - 1)
   classIndex <- which(names(dataset) == classAttr)
+  method <- match.arg(method)
 
-  if(method %in% c("racog", "pdfos", "rwo", "mwmote")){
+  # Compute number of required synthetic positive instances
+  numInstances <- majoritySize * ratio - minoritySize
+
+  method <- switch(method,
+                   "RACOG"  = "racog",
+                   "wRACOG" = "wracog",
+                   "PDFOS"  = "pdfos",
+                   "RWO"    = "rwo",
+                   "ADASYN" = "ADAS",
+                   "adaptative" = "ANS",
+                   "SMOTE"  = "SMOTE",
+                   "MWMOTE" = "mwmote",
+                   "borderline-SMOTE" = "BLSMOTE",
+                   "density-SMOTE" = "DBSMOTE",
+                   "SLMOTE" = "SLS",
+                   "relocating-SMOTE" = "RSLS")
+
+  # ratio parameter is mandatory when ADASYN is not picked
+  if(method != "ADAS"){
     # Checks
     if(is.na(ratio))
       stop("ratio cannot be undefined for the selected method")
@@ -71,14 +91,16 @@ resample <- function(dataset, ratio = NA, method = c("racog", "wracog",
 
     if(ratio < currentRatio)
       stop("ratio must be greater than current ratio of imbalance to perform
-          an oversampling")
+            an oversampling")
+  }
 
-    # Compute number of required synthetic positive instances
-    numInstances <- majoritySize * ratio - minoritySize
 
+  if(method %in% c("racog", "pdfos", "rwo", "mwmote")){
     # Evaluate method
     selectedMethod <- eval(as.name(method))
-    newSamples <- selectedMethod(dataset, numInstances, classAttr)
+    newSamples <- selectedMethod(dataset = dataset,
+                                 numInstances = numInstances,
+                                 classAttr = classAttr)
   } else if(method == "wracog"){
       if(is.na(wrapper))
         stop("wrapper argument not found")
@@ -107,23 +129,23 @@ resample <- function(dataset, ratio = NA, method = c("racog", "wracog",
       trainfold <- sample(1:nrow(dataset), nrow(dataset)/2, FALSE)
       newSamples <- wracog(dataset[trainFold, ], dataset[-trainFold, ],
                            myWrapper, classAttr)
-  } else if(method == "ADASYN"){
-    newSamples <- smotefamily::ADAS(dataset[, -classIndex],
-                                    dataset[, classIndex])
-    newSamples <- newSamples$syn_data
-    newSamples <- newSamples[, -ncol(newSamples)]
-    newSamples <- normalizeNewSamples(originalShape, newSamples)
-  } else if(method == "ANS"){
-    newSamples <- smotefamily::ANS(dataset[, -classIndex],
-                                   dataset[, classIndex],
-                                   dupSize)
-    newSamples <- newSamples$syn_data
-    newSamples <- newSamples[, -ncol(newSamples)]
-    newSamples <- normalizeNewSamples(originalShape, newSamples)
-  } else if(method == "smotefamily"){
-    newSamples <- smotefamily::ANS(dataset[, -classIndex],
-                                   dataset[, classIndex],
-                                   dupSize)
+  } else{
+    selectedMethod <- eval(parse(text = paste("smotefamily::", method, sep = "")))
+
+    if(method == "ADAS"){
+      newSamples <- selectedMethod(X = dataset[, -classIndex],
+                                   target = dataset[, classIndex],
+                                   ...)
+    } else if(method == "SMOTE"){
+      newSamples <- selectedMethod(X = dataset[, -classIndex],
+                                   target = dataset[, classIndex],
+                                   dup_size = dupSize, ...)
+
+    } else{
+      newSamples <- selectedMethod(X = dataset[, -classIndex],
+                                   target = dataset[, classIndex],
+                                   dupSize = dupSize, ...)
+    }
     newSamples <- newSamples$syn_data
     newSamples <- newSamples[, -ncol(newSamples)]
     newSamples <- normalizeNewSamples(originalShape, newSamples)
