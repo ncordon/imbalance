@@ -60,12 +60,14 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
   minoritySize <- nrow(minority)
   majoritySize <- nrow(dataset) - minoritySize
   currentRatio <- minoritySize / majoritySize
-  dupSize <- ceiling(ratio / currentRatio - 1)
   classIndex <- which(names(dataset) == classAttr)
   method <- match.arg(method)
 
   # Compute number of required synthetic positive instances
-  numInstances <- majoritySize * ratio - minoritySize
+  numInstances <- ceiling(majoritySize * ratio - minoritySize)
+  # Compute duplication factor needed for smotefamily method in order to
+  # achieve an imbalance ratio equal to given one
+  dupSize <- ceiling(numInstances / minoritySize)
 
   method <- switch(method,
                    "RACOG"  = "racog",
@@ -147,6 +149,8 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                                    dupSize = dupSize, ...)
     }
     newSamples <- newSamples$syn_data
+    newSamples <- newSamples[sample(1:nrow(newSamples),
+                                    size = numInstances, replace = FALSE ), ]
     newSamples <- newSamples[, -ncol(newSamples)]
     newSamples <- normalizeNewSamples(originalShape, newSamples)
   }
