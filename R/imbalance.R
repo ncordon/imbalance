@@ -47,11 +47,11 @@ NULL
 #'
 #' @examples
 oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
-                     "PDFOS", "RWO", "ADASYN", "adaptative", "SMOTE",
-                     "MWMOTE", "borderline-SMOTE", "density-SMOTE",
-                     "SLMOTE", "relocating-SMOTE"),
-                     filtering = FALSE, classAttr = "Class",
-                     wrapper = NA, ...){
+                      "PDFOS", "RWO", "ADASYN", "adaptative", "SMOTE",
+                      "MWMOTE", "borderline-SMOTE", "density-SMOTE",
+                      "SLMOTE", "relocating-SMOTE"),
+                      filtering = FALSE, classAttr = "Class",
+                      wrapper = NA, ...){
   checkDataset(dataset, "dataset")
   checkDatasetClass(dataset, classAttr, "dataset")
   originalShape <- datasetStructure(dataset, classAttr)
@@ -65,9 +65,7 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
 
   # Compute number of required synthetic positive instances
   numInstances <- ceiling(majoritySize * ratio - minoritySize)
-  # Compute duplication factor needed for smotefamily method in order to
-  # achieve an imbalance ratio equal to given one
-  dupSize <- ceiling(numInstances / minoritySize)
+  dupSize <- 0 #ceiling(numInstances / minoritySize)
 
   method <- switch(method,
                    "RACOG"  = "racog",
@@ -128,7 +126,7 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
           }
         }
       }
-      trainfold <- sample(1:nrow(dataset), nrow(dataset)/2, FALSE)
+      trainFold <- sample(1:nrow(dataset), size = nrow(dataset)/2, replace = FALSE)
       newSamples <- wracog(dataset[trainFold, ], dataset[-trainFold, ],
                            myWrapper, classAttr)
   } else{
@@ -148,9 +146,17 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                                    target = dataset[, classIndex],
                                    dupSize = dupSize, ...)
     }
+
     newSamples <- newSamples$syn_data
-    newSamples <- newSamples[sample(1:nrow(newSamples),
-                                    size = numInstances, replace = FALSE ), ]
+
+    if(!is.na(ratio)){
+      if(numInstances <= nrow(newSamples) || method != "ADAS")
+      newSamples <- newSamples[sample(1:nrow(newSamples),
+                                      size = numInstances, replace = FALSE ), ]
+      else
+        warning("given ratio not achievable with ADASYN")
+    }
+
     newSamples <- newSamples[, -ncol(newSamples)]
     newSamples <- normalizeNewSamples(originalShape, newSamples)
   }

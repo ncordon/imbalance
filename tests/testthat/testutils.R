@@ -32,7 +32,15 @@ wrapperTestOutputRatio("PDFOS")
 wrapperTestOutputRatio("RWO")
 wrapperTestOutputRatio("MWMOTE")
 wrapperTestOutputRatio("SMOTE")
-#wrapperTestOutput("RACOG")
+# Be careful!, ADASYN can reach 0.8 of imbalance ratio in glass0, maybe not
+# in others dataset because number of synthetic examples cannot be indicated
+# to the method of smotefamily
+wrapperTestOutputRatio("ADASYN")
+wrapperTestOutputRatio("adaptative")
+wrapperTestOutputRatio("SLMOTE")
+wrapperTestOutputRatio("borderline-SMOTE")
+wrapperTestOutputRatio("density-SMOTE")
+#wrapperTestOutputRatio("RACOG")
 
 
 # test_that("Check of parameters is properly done in MWMOTE", {
