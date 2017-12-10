@@ -10,12 +10,6 @@ data(yeast4)
 
 context("Test utils(wrapper, ...)")
 
-imbalanceRatio <- function(dataset, classAttr = "Class"){
-  minorityClass <- .whichMinorityClass(dataset, classAttr)
-  howMuchMinority <- length(which(dataset$Class == minorityClass))
-
-  howMuchMinority / (nrow(dataset) - howMuchMinority)
-}
 ####################################################################
 # Tests for wrapper of methods
 ####################################################################
@@ -43,10 +37,20 @@ wrapperTestOutputRatio("density-SMOTE")
 #wrapperTestOutputRatio("RACOG")
 
 
-# test_that("Check of parameters is properly done in MWMOTE", {
-#   expect_error(mwmote(iris0, classAttr = "Species"))
-#   expect_error(mwmote(iris0, numInstances = "foo"))
-#   expect_error(mwmote("foo", numInstances = 100))
-#   expect_error(mwmote(iris0, numInstances = 100, kNoisy = -1))
-#   expect_error(mwmote(iris0, numInstances = 100, threshold = 0))
-# })
+test_that("Check of parameters is properly done in wrapper", {
+  # ratio not passed to the function
+  expect_error(oversample(glass0, method = "MWMOTE"))
+  # ADASYN does not need a ratio
+  expect_error(oversample(glass0, method = "ADASYN"), NA)
+  # ratio cannot be greater than 1
+  expect_error(oversample(glass0, ratio = 1.2, method = "SMOTE"))
+  # ratio cannot be lower than current ratio of imbalance
+  expect_error(oversample(glass0, ratio = 0.1, method = "SMOTE"))
+  # ADASYN is not going to be able to achieve that imbalance ratio (does not
+  # require such parameter in smotefamily package)
+  expect_warning(oversample(glass0, ratio = 0.99, method = "ADASYN"))
+  # wrapper not passed to the function
+  expect_error(oversample(glass0, method = "wRACOG"))
+  expect_error(oversample(glass0, method = "wRACOG", wrapper = "KNN"), NA)
+  expect_error(oversample(glass0, method = "wRACOG", wrapper = "C5.0"), NA)
+})

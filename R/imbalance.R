@@ -30,22 +30,29 @@ NULL
 #'   \eqn{\frac{|minority examples|}{|majority examples|}}
 #' @param method A \code{character} corresponding to method to apply. Possible
 #'   methods are: \code{\link{racog}}, \code{\link{wracog}}, \code{\link{rwo}},
-#'   \code{\link{pdfos}}, \code{\link{mwmote}},
-#'   \code{\link[smotefamily]{ADASYN}}, \code{\link[smotefamily]{ANS}},
-#'   \code{\link[smotefamily]{SMOTE}},
-#'   \code{\link[smotefamily]{Borderline-SMOTE}},
-#'   \code{\link[smotefamily]{DBSMOTE}}, \code{\link[smotefamily]{SLS}},
-#'   \code{\link[smotefamily]{RSLS}}
+#'   \code{\link{pdfos}}, \code{\link{mwmote}}, \code{\link[smotefamily]{ADAS}},
+#'   \code{\link[smotefamily]{ANS}}, \code{\link[smotefamily]{SMOTE}},
+#'   \code{\link[smotefamily]{BLSMOTE}}, \code{\link[smotefamily]{DBSMOTE}},
+#'   \code{\link[smotefamily]{SLS}}, \code{\link[smotefamily]{RSLS}}
 #' @param filtering Logical (TRUE or FALSE) indicating wheter to apply filtering
-#'   of oversampled instances with \code{\link{NEATER}} algorithm.
+#'   of oversampled instances with \code{\link{neater}} algorithm.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
+#' @param wrapper A \code{character} corresponding to wrapper to apply if
+#'   selected method is \code{\link{wracog}}. Possibilities are: \code{C5.0} and
+#'   \code{KNN}.
+#' @param ... Further arguments to apply in selected method
 #'
 #' @return A balanced \code{data.frame} with same structure as \code{dataset},
 #'   containing both original instances and new ones
 #' @export
 #'
 #' @examples
+#' data(glass0)
+#'
+#' # Oversample glass0 to get an imbalance ratio of 0.8
+#' newDataset <- oversample(glass0, ratio = 0.8, method = "MWMOTE")
+#'
 oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                       "PDFOS", "RWO", "ADASYN", "adaptative", "SMOTE",
                       "MWMOTE", "borderline-SMOTE", "density-SMOTE",
@@ -82,7 +89,7 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                    "relocating-SMOTE" = "RSLS")
 
   # ratio parameter is mandatory when ADASYN is not picked
-  if(method != "ADAS"){
+  if(! method %in% c("ADAS", "wracog")){
     # Checks
     if(is.na(ratio))
       stop("ratio cannot be undefined for the selected method")
@@ -104,21 +111,21 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
   } else if(method == "wracog"){
       if(is.na(wrapper))
         stop("wrapper argument not found")
-      if(! wrapper %in% c("C5.0", "Knn"))
-        stop("Possible values when using wracog are: C5.0, knn")
+      if(! wrapper %in% c("C5.0", "KNN"))
+        stop("Possible values when using wracog are: C5.0, KNN")
 
       if(wrapper == "C5.0"){
         myWrapper <- structure(list(), class="C50Wrapper")
-        trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
+        trainWrapper.C50Wrapper <<- function(wrapper, train, trainClass){
           C50::C5.0(train, trainClass, ...)
         }
       } else{
-        if(wrapper == "Knn"){
+        if(wrapper == "KNN"){
           myWrapper <- structure(list(), class = "KNNWrapper")
           predict.KNN <- function(model, test){
             FNN::knn(model$train, test, model$trainClass, ...)
           }
-          trainWrapper.KNNWrapper <- function(wrapper, train, trainClass){
+          trainWrapper.KNNWrapper <<- function(wrapper, train, trainClass){
             myKNN <- structure(list(), class = "KNN")
             myKNN$train <- train
             myKNN$trainClass <- trainClass
@@ -128,7 +135,7 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
       }
       trainFold <- sample(1:nrow(dataset), size = nrow(dataset)/2, replace = FALSE)
       newSamples <- wracog(dataset[trainFold, ], dataset[-trainFold, ],
-                           myWrapper, classAttr)
+                           wrapper = myWrapper, classAttr = classAttr)
   } else{
     selectedMethod <- eval(parse(text = paste("smotefamily::", method, sep = "")))
 

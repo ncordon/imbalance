@@ -330,3 +330,27 @@ checkSameShape <- function(first, second, firstName, secondName){
     stop(paste(firstName, "and", secondName, "must have the same column names"))
   }
 }
+
+
+#' Given a two-class \code{data.frame} \code{dataset}, it computes its imbalance
+#' ratio as \eqn{\frac{Number of minority class instances}{Number of majority
+#' class ones}}
+#'
+#' @param dataset A target \code{data.frame} to compute its imbalance ratio
+#' @param classAttr A \code{character} containing the class name attribute.
+#'
+#' @return A real number in [0,1] representing the imbalance ratio of
+#'   \code{dataset}
+#' @export
+#'
+#' @examples
+#' data(glass0)
+#'
+#' imbalanceRatio(glass0, "Class")
+imbalanceRatio <- function(dataset, classAttr = "Class"){
+  minorityClass <- .whichMinorityClass(dataset, classAttr)
+  howMuchMinority <- length(which(dataset[, classAttr] == minorityClass))
+
+  howMuchMinority / (nrow(dataset) - howMuchMinority)
+}
+
