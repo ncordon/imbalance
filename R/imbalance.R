@@ -26,14 +26,11 @@ NULL
 #'
 #' @param dataset A binary class \code{data.frame} to balance.
 #' @param ratio Number between 0 and 1 indicating the desired ratio between
-#'   minority examples and majority ones, that is, the quotient
-#'   \eqn{\frac{|minority examples|}{|majority examples|}}
+#'   minority examples and majority ones, that is, the quotient {size of
+#'   minority class}/{size of majority class}
 #' @param method A \code{character} corresponding to method to apply. Possible
-#'   methods are: \code{\link{racog}}, \code{\link{wracog}}, \code{\link{rwo}},
-#'   \code{\link{pdfos}}, \code{\link{mwmote}}, \code{\link[smotefamily]{ADAS}},
-#'   \code{\link[smotefamily]{ANS}}, \code{\link[smotefamily]{SMOTE}},
-#'   \code{\link[smotefamily]{BLSMOTE}}, \code{\link[smotefamily]{DBSMOTE}},
-#'   \code{\link[smotefamily]{SLS}}, \code{\link[smotefamily]{RSLS}}
+#'   methods are: RACOG, wRACOG, PDFOS, RWO, ADASYN, ANSMOTE, BLSMOTE, DBSMOTE,
+#'   BLSMOTE, DBSMOTE, SLMOTE, RSLSMOTE
 #' @param filtering Logical (TRUE or FALSE) indicating wheter to apply filtering
 #'   of oversampled instances with \code{\link{neater}} algorithm.
 #' @param classAttr String. Indicates the class attribute from \code{dataset}.
@@ -54,9 +51,9 @@ NULL
 #' newDataset <- oversample(glass0, ratio = 0.8, method = "MWMOTE")
 #'
 oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
-                      "PDFOS", "RWO", "ADASYN", "adaptative", "SMOTE",
-                      "MWMOTE", "borderline-SMOTE", "density-SMOTE",
-                      "SLMOTE", "relocating-SMOTE"),
+                      "PDFOS", "RWO", "ADASYN", "ANSMOTE", "SMOTE",
+                      "MWMOTE", "BLSMOTE", "DBSMOTE",
+                      "SLMOTE", "RSLSMOTE"),
                       filtering = FALSE, classAttr = "Class",
                       wrapper = NA, ...){
   checkDataset(dataset, "dataset")
@@ -80,13 +77,13 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                    "PDFOS"  = "pdfos",
                    "RWO"    = "rwo",
                    "ADASYN" = "ADAS",
-                   "adaptative" = "ANS",
+                   "ANSMOTE" = "ANS",
                    "SMOTE"  = "SMOTE",
                    "MWMOTE" = "mwmote",
-                   "borderline-SMOTE" = "BLSMOTE",
-                   "density-SMOTE" = "DBSMOTE",
+                   "BLSMOTE" = "BLSMOTE",
+                   "DBSMOTE" = "DBSMOTE",
                    "SLMOTE" = "SLS",
-                   "relocating-SMOTE" = "RSLS")
+                   "RSLSMOTE" = "RSLS")
 
   # ratio parameter is mandatory when ADASYN is not picked
   if(! method %in% c("ADAS", "wracog")){

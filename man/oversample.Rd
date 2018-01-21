@@ -6,23 +6,19 @@
 balancing preprocessing task for binary class datasets}
 \usage{
 oversample(dataset, ratio = NA, method = c("RACOG", "wRACOG", "PDFOS",
-  "RWO", "ADASYN", "adaptative", "SMOTE", "MWMOTE", "borderline-SMOTE",
-  "density-SMOTE", "SLMOTE", "relocating-SMOTE"), filtering = FALSE,
-  classAttr = "Class", wrapper = NA, ...)
+  "RWO", "ADASYN", "ANSMOTE", "SMOTE", "MWMOTE", "BLSMOTE", "DBSMOTE", "SLMOTE",
+  "RSLSMOTE"), filtering = FALSE, classAttr = "Class", wrapper = NA, ...)
 }
 \arguments{
 \item{dataset}{A binary class \code{data.frame} to balance.}
 
 \item{ratio}{Number between 0 and 1 indicating the desired ratio between
-minority examples and majority ones, that is, the quotient
-\eqn{\frac{|minority examples|}{|majority examples|}}}
+minority examples and majority ones, that is, the quotient {size of
+minority class}/{size of majority class}}
 
 \item{method}{A \code{character} corresponding to method to apply. Possible
-methods are: \code{\link{racog}}, \code{\link{wracog}}, \code{\link{rwo}},
-\code{\link{pdfos}}, \code{\link{mwmote}}, \code{\link[smotefamily]{ADAS}},
-\code{\link[smotefamily]{ANS}}, \code{\link[smotefamily]{SMOTE}},
-\code{\link[smotefamily]{BLSMOTE}}, \code{\link[smotefamily]{DBSMOTE}},
-\code{\link[smotefamily]{SLS}}, \code{\link[smotefamily]{RSLS}}}
+methods are: RACOG, wRACOG, PDFOS, RWO, ADASYN, ANSMOTE, BLSMOTE, DBSMOTE,
+BLSMOTE, DBSMOTE, SLMOTE, RSLSMOTE}
 
 \item{filtering}{Logical (TRUE or FALSE) indicating wheter to apply filtering
 of oversampled instances with \code{\link{neater}} algorithm.}
