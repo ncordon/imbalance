@@ -89,7 +89,7 @@ plotComparison(newthyroid1, filteredNewDataset,
 SMOTE is a classic algorithm which generates new examples by filling empty areas among the positive instances. It updates the training set iteratively, by performing:
 
 \[
-  E:=E\cup\{r+(y-x)\}, \quad x,y\in S^{+}, r\sim N(0,1)
+  E:=E\cup\{x + r(y-x)\}, \quad x,y\in S^{+}, r\sim N(0,1)
 \]
 
 It has a major setback though: it does not detect noisy instances. Therefore it can generate synthetic examples out of noisy ones or even between two minority classes, which if not cleansed up, may end up becoming noise inside a majority class cluster.
@@ -163,7 +163,7 @@ We recall the definition for the mutual information of two random discrete varia
   I(W_i, W_j) = \sum_{w_1\in W_1} \sum_{w_2\in W_2} p(w_1, w_2) \log\left(\frac{p(w_1,w_2)}{p(w_1) p(w_2)}\right)
 \]
 
-Let $S^{+}=\{x_i = (w_1^(i), \ldots, w_d^(i))\}_{i=1}^m$ be the unlabeled positive instances. The algorithm to approximate the distribution that will be used is:
+Let $S^{+}=\{x_i = (w_1^{(i)}, \ldots, w_d^{(i)})\}_{i=1}^m$ be the unlabeled positive instances. The algorithm to approximate the distribution that will be used is:
 
 * Compute $G'=(E',V')$, Chow Liu's dependence tree.
 * If $r$ is the root of the tree, we will define $P(W_r|n(r)):=P(W_r)$.
@@ -338,7 +338,7 @@ Once a proper $h$ has been found, a suitable generating scheme could be to take 
 \[
 y^T \left(\sum_{i=1}^m (x_i - \overline{x})(x_i - \overline{x})^T\right) y = \sum_{i=1}^m (\underbrace{(x_i - \overline{x})^T y}_{z_i^T})^T \underbrace{(x_i - \overline{x})^T y}_{z_i}) = \sum_{i=1}^m ||z_i||^2\ge 0
 \]
-for arbitrary $y \in \mathbb{R}^d$. We need a strict positive definite matrix, otherwise `rwo` would not provide a result and will stop its execution.
+for arbitrary $y \in \mathbb{R}^d$. We need a strict positive definite matrix, otherwise PDFOS would not provide a result and will stop its execution.
 
 ### Search of optimal bandwidth
 We take a first approximation to $h$ as the value:

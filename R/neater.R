@@ -42,9 +42,9 @@
 #'        smoothFactor = 1, classAttr = "Class")
 neater <- function(dataset, newSamples, k = 3, iterations = 100,
                    smoothFactor = 1, classAttr = "Class"){
-  checkDataset(dataset, "dataset")
-  checkDataset(newSamples, "newSamples")
-  checkDatasetClass(dataset, classAttr, "dataset")
+  checkDataset(dataset)
+  checkDataset(newSamples)
+  checkDatasetClass(dataset, classAttr)
 
   if(any(! names(dataset) %in% names(newSamples)) ||
      any(! names(newSamples) %in% names(dataset)))
@@ -73,8 +73,8 @@ neater <- function(dataset, newSamples, k = 3, iterations = 100,
   # Convert datasets to numeric
   dataset <- toNumeric(dataset, exclude = classAttr)
   newSamples <- toNumeric(newSamples, exclude = classAttr)
-  checkAllColumnsNumeric(newSamples, exclude = classAttr, "newSamples")
-  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  checkAllColumnsNumeric(newSamples, exclude = classAttr)
+  checkAllColumnsNumeric(dataset, exclude = classAttr)
 
   # Indexes in dataset for k nearest neighbours of each new sample
   knnInfo <- KernelKnn::knn.index.dist(dataset, newSamples,

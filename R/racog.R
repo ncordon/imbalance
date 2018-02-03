@@ -1,3 +1,5 @@
+presetWrappers <- c("KNN", "C5.0")
+
 #' Rapidly converging Gibbs algorithm.
 #'
 #' Allows you to treat imbalanced discrete numeric datasets by generating
@@ -41,11 +43,11 @@
 #' newSamples <- racog(iris0, numInstances = 100)
 #' }
 racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class"){
-  checkDataset(dataset, "dataset")
-  checkDatasetClass(dataset, classAttr, "dataset")
+  checkDataset(dataset)
+  checkDatasetClass(dataset, classAttr)
   originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
-  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  checkAllColumnsNumeric(dataset, exclude = classAttr)
 
   if(!is.numeric(burnin) || !is.numeric(lag) || !is.numeric(numInstances) ||
      burnin <= 0 || lag <= 0 || numInstances <= 0)
@@ -75,7 +77,6 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
   # normalizeNewSamples(newSamples, minorityClass, attrs, classAttr, colTypes)
   normalizeNewSamples(originalShape, newSamples)
 }
-
 
 #' Wrapper for rapidly converging Gibbs algorithm.
 #'
@@ -120,35 +121,52 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'
 #' @examples
 #' data(haberman)
-#' myWrapper <- structure(list(), class="C50Wrapper")
-#' trainWrapper.C50Wrapper <- function(wrapper, train, trainClass){
+#'
+#' # Create train and validation partitions of haberman
+#' trainFold <- sample(1:nrow(haberman), nrow(haberman)/2, FALSE)
+#' trainSet <- haberman[trainFold, ]
+#' validationSet <- haberman[-trainFold, ]
+#'
+#' # Defines our own wrapper with a C5.0 tree
+#' myWrapper <- structure(list(), class="TestWrapper")
+#' trainWrapper.TestWrapper <- function(wrapper, train, trainClass){
 #'   C50::C5.0(train, trainClass)
 #' }
 #'
-#' trainFold <- sample(1:nrow(haberman), nrow(haberman)/2, FALSE)
-#' newSamples <- wracog(haberman[trainFold, ], haberman[-trainFold, ],
-#'                      myWrapper, classAttr = "Class")
+#' # Execute wRACOG with our own wrapper
+#' newSamples <- wracog(trainSet, validationSet, myWrapper,
+#'                      classAttr = "Class")
+#'
+#'
+#' # Execute wRACOG with predifined wrappers for "KNN" or "C5.0"
+#' KNNSamples <- wracog(trainSet, validationSet, "KNN")
+#' C50Samples <- wracog(trainSet, validationSet, "C5.0")
 #'
 wracog <- function(train, validation, wrapper, slideWin = 10,
                    threshold = 0.02, classAttr = "Class", ...){
+  presetWrapper <- class(wrapper) == "character"
+
+  if(presetWrapper){
+    wrapper <- match.arg(wrapper, presetWrappers)
+    wrapper <- switch(wrapper, "KNN" = KNNWrapper, "C5.0" = C50Wrapper)
+  }
+
   trainMethod <- paste("trainWrapper", class(wrapper), sep=".")
 
-  checkDataset(train, "train")
-  checkDataset(validation, "validation")
-  checkDatasetClass(train, classAttr, "train")
-  checkSameShape(train, validation, "train", "validation")
+  checkDataset(train)
+  checkDataset(validation)
+  checkDatasetClass(train, classAttr)
+  checkSameShape(train, validation)
 
   # Extract shape of the dataset and convert both train and validation to numeric
   originalShape <- datasetStructure(train, classAttr)
   train <- toNumeric(train, exclude = classAttr)
   validation <- toNumeric(validation, exclude = classAttr)
-  checkAllColumnsNumeric(train, exclude = classAttr, "train")
+  checkAllColumnsNumeric(train, exclude = classAttr)
 
   if((!is.numeric(slideWin) || !is.numeric(threshold)) ||
      slideWin <= 0 || threshold <= 0 || threshold >= 1)
     stop("slideWin must be a positive integer \n  threshold must be in ]0,1[")
-  if(!trainMethod %in% utils::methods(trainWrapper))
-    stop(paste("There doesn't exist a method "), trainMethod)
 
 
   # Strip class column from both train and validation, compute
@@ -168,22 +186,30 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
 
   model <- trainWrapper(wrapper, train, trainClass, ...)
   predictMethod <- paste("predict", class(model), sep=".")
-  if(!any(predictMethod %in% utils::methods(predict)))
-    stop(paste("There must exist a method predict.class where class\n",
-               "is any class of the model returned by", trainMethod))
+
+  if(!presetWrapper){
+    if(!trainMethod %in% utils::methods(trainWrapper)){
+      stop(paste("There doesn't exist a method "), trainMethod)
+      presetWrapper <- FALSE
+    }
+    if(!any(predictMethod %in% utils::methods(predict))){
+      stop(paste("There must exist a method predict.class where class\n",
+                 "is any class of the model returned by", trainMethod))
+    }
+  }
 
   newSamples <- data.frame(matrix(ncol = ncol(minority), nrow = 0))
 
-  while(.naReplace(stats::sd(lastSlides), Inf) >= threshold){
+  while(naReplace(stats::sd(lastSlides), Inf) >= threshold){
     minority <- gibbsSampler(probDist, minority)
-    prediction <- predict(model, data.frame(minority))
+    prediction <- predict(model, data.frame(minority), ...)
     misclassified <- minority[as.character(prediction) != as.character(minorityClass), ,
                               drop = FALSE]
     newSamples <- rbind(newSamples, misclassified)
     train <- rbind(train, misclassified)
-    trainClass <- .appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
+    trainClass <- appendfactor(trainClass, rep(minorityClass, nrow(misclassified)))
     model <- trainWrapper(wrapper, train, trainClass, ...)
-    prediction <- predict(model, validation)
+    prediction <- predict(model, validation, ...)
 
     # Measure of the quality of the newTrain
     qMeasure <- sensitivity(prediction, validationClass, minorityClass)
@@ -214,6 +240,24 @@ trainWrapper <- function(wrapper, train, trainClass, ...){
   UseMethod("trainWrapper")
 }
 
+# Examples of wrapper for wRACOG: C5.0 and KNN
+C50Wrapper <- structure(list(), class = "C50Wrapper")
+KNNWrapper <- structure(list(), class = "KNNWrapper")
+
+trainWrapper.C50Wrapper <- function(wrapper, train, trainClass, ...){
+  C50::C5.0(train, trainClass, ...)
+}
+
+predict.KNN <- function(model, test, ...){
+  FNN::knn(model$train, test, model$trainClass, ...)
+}
+
+trainWrapper.KNNWrapper <- function(wrapper, train, trainClass, ...){
+  myKNN <- structure(list(), class = "KNN")
+  myKNN$train <- train
+  myKNN$trainClass <- trainClass
+  myKNN
+}
 
 #' Make a tree, represented as a matrix of edges nx2, directed.
 #'

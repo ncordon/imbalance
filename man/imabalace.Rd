@@ -10,17 +10,23 @@ Focused on binary class datasets, the \code{imbalance} package provides
 methods to generate synthetic examples and achieve balance between the
 minority and majority classes in dataset distributions
 }
-\section{Oversampling functions for the minority class}{
- \code{\link{racog}},
-  \code{\link{wracog}}, \code{\link{rwo}}, \code{\link{pdfos}}.
+\section{Oversampling}{
+
+  Methods to oversample the minority class: \code{\link{racog}},
+  \code{\link{wracog}}, \code{\link{rwo}}, \code{\link{pdfos}},
+  \code{\link{mwmote}}
 }
 
-\section{Methods to visually evaluate algorithms}{
+\section{Evaluation}{
 
-  \code{\link{plotComparison}}.
+  Method to measure imbalance ratio in a given two-class dataset:
+  \code{\link{imbalanceRatio}}.
+
+  Method to visually evaluate algorithms: \code{\link{plotComparison}}.
 }
 
-\section{Methods to filter oversampled instances \code{\link{neater}}.}{
-NA
+\section{Filtering}{
+
+  Methods to filter oversampled instances \code{\link{neater}}.
 }
 

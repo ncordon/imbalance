@@ -1,37 +1,39 @@
 Package: imbalance
 Type: Package
 Title: Preprocessing Algorithms for Imbalanced Datasets
-Version: 0.1.1
+Version: 1.0.0
 Authors@R: c(
-   person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre"))
+   person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre")),
+   person("Salvador", "García", role = "aut"),
+   person("Francisco", "Herrera", role = "aut")
  )
 Maintainer: Ignacio Cordón <nacho.cordon.castillo@gmail.com>
-Description: Algorithms to treat imbalanced datasets. Imbalanced datasets usually damage
-             the performance of classifiers. Thus, it is important to treat data before
-             applying a classifier algorithm. This package includes recent preprocessing
-             algorithms in the literature.
+Description: Imbalanced datasets usually damage the performance of classifiers. Thus, it is
+             important to treat data before applying a classifier algorithm. This package
+             includes recent resampling algorithms in the literature, as well as an useful
+             interface to perfom oversampling or undersampling.
 License: GPL (>=2) | file LICENSE
 Encoding: UTF-8
 LazyData: true
 BugReports: http://github.com/ncordon/imbalance/issues
 URL: http://github.com/ncordon/imbalance
 Depends:
-    R (>= 3.3.0)
+   R (>= 3.3.0)
 Imports:
-    bnlearn,
-    KernelKnn,
-    ggplot2,
-    utils,
-    stats,
-    mvtnorm,
-    Rcpp
+   bnlearn,
+   KernelKnn,
+   ggplot2,
+   utils,
+   stats,
+   mvtnorm,
+   Rcpp,
+   smotefamily,
+   FNN,
+   C50
 Suggests:
-    testthat,
-    C50,
-    knitr,
-    rmarkdown,
-    FNN,
-    smotefamily
+   testthat,
+   knitr,
+   rmarkdown
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo

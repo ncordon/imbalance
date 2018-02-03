@@ -188,3 +188,31 @@
 #' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
 #' @seealso Original available in \href{https://archive.ics.uci.edu/ml}{UCI ML Repository}.
 "yeast4"
+
+
+#' Binary banana dataset
+#'
+#' Dataset containing two attributes as well as a class one, that, if plotted, represent
+#' a banana shape
+#'
+#' @format
+#' \describe{
+#'   \item{At1}{First attribute.}
+#'   \item{At2}{Second attribute.}
+#'   \item{Class}{Two possible classes: positive (banana shape), negative (surrounding
+#'   of the banana).}
+#' }
+#'
+#' @source \href{http://sci2s.ugr.es/keel/datasets.php}{KEEL Repository}.
+#' @section Shape:
+#'   \code{banana}: A data frame with 2640 instances, 264 of which belong to positive class,
+#' and 3 variables
+"banana"
+
+
+#' @rdname banana
+#' @section Shape:
+#'   \code{banana_orig}: A data frame with 5300 instances, 2376 of which belong to positive
+#'  class, and 3 variables:
+"banana_orig"
+

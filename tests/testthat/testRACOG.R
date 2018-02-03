@@ -46,8 +46,8 @@ test_that("Check of parameters is properly done in RACOG", {
 # Tests for wRACOG
 ####################################################################
 
-myWrapper <<- structure(list(), class="C50Wrapper")
-trainWrapper.C50Wrapper <<- function(wrapper, train, trainClass){
+myWrapper <<- structure(list(), class="MyC50Wrapper")
+trainWrapper.MyC50Wrapper <<- function(wrapper, train, trainClass){
   C50::C5.0(train, trainClass)
 }
 

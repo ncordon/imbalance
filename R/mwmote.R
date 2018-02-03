@@ -51,12 +51,12 @@
 mwmote <- function(dataset, numInstances, kNoisy = 5, kMajority = 3,
                    kMinority, threshold = 5, cmax = 2, cclustering = 3,
                    classAttr = "Class"){
-  checkDataset(dataset, "dataset")
-  checkDatasetClass(dataset, classAttr, "dataset")
+  checkDataset(dataset)
+  checkDatasetClass(dataset, classAttr)
   # Extracts shape of the dataset
   originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
-  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  checkAllColumnsNumeric(dataset, exclude = classAttr)
 
   # Compute minority and majority
   minority <- selectMinority(dataset, classAttr)

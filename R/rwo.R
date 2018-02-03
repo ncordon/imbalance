@@ -31,11 +31,11 @@
 #' newSamples <- rwo(iris0, numInstances = 100, classAttr = "Class")
 #'
 rwo <- function(dataset, numInstances, classAttr = "Class"){
-  checkDataset(dataset, "dataset")
-  checkDatasetClass(dataset, classAttr, "dataset")
+  checkDataset(dataset)
+  checkDatasetClass(dataset, classAttr)
   originalShape <- datasetStructure(dataset, classAttr)
   dataset <- toNumeric(dataset, exclude = classAttr)
-  checkAllColumnsNumeric(dataset, exclude = classAttr, "dataset")
+  checkAllColumnsNumeric(dataset, exclude = classAttr)
   if(!is.numeric(numInstances) || numInstances <= 0)
     stop("numInstances must be a positive integer")
 
