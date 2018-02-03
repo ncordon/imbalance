@@ -4,13 +4,19 @@
 #' methods to generate synthetic examples and achieve balance between the
 #' minority and majority classes in dataset distributions
 #'
-#' @section Oversampling functions for the minority class: \code{\link{racog}},
-#'   \code{\link{wracog}}, \code{\link{rwo}}, \code{\link{pdfos}}.
+#' @section Oversampling:
+#'   Methods to oversample the minority class: \code{\link{racog}},
+#'   \code{\link{wracog}}, \code{\link{rwo}}, \code{\link{pdfos}},
+#'   \code{\link{mwmote}}
 #'
-#' @section Methods to visually evaluate algorithms:
-#'   \code{\link{plotComparison}}.
+#' @section Evaluation:
+#'   Method to measure imbalance ratio in a given two-class dataset:
+#'   \code{\link{imbalanceRatio}}.
 #'
-#' @section Methods to filter oversampled instances \code{\link{neater}}.
+#'   Method to visually evaluate algorithms: \code{\link{plotComparison}}.
+#'
+#' @section Filtering:
+#'   Methods to filter oversampled instances \code{\link{neater}}.
 #'
 #' @docType package
 #' @name imabalace
@@ -42,6 +48,7 @@ NULL
 #'
 #' @return A balanced \code{data.frame} with same structure as \code{dataset},
 #'   containing both original instances and new ones
+#' @import smotefamily
 #' @export
 #'
 #' @examples
@@ -55,9 +62,9 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                       "MWMOTE", "BLSMOTE", "DBSMOTE",
                       "SLMOTE", "RSLSMOTE"),
                       filtering = FALSE, classAttr = "Class",
-                      wrapper = NA, ...){
-  checkDataset(dataset, "dataset")
-  checkDatasetClass(dataset, classAttr, "dataset")
+                      wrapper = c("KNN", "C5.0"), ...){
+  checkDataset(dataset)
+  checkDatasetClass(dataset, classAttr)
   originalShape <- datasetStructure(dataset, classAttr)
 
   minority <- selectMinority(dataset, classAttr)
@@ -106,33 +113,10 @@ oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                                  numInstances = numInstances,
                                  classAttr = classAttr)
   } else if(method == "wracog"){
-      if(is.na(wrapper))
-        stop("wrapper argument not found")
-      if(! wrapper %in% c("C5.0", "KNN"))
-        stop("Possible values when using wracog are: C5.0, KNN")
-
-      if(wrapper == "C5.0"){
-        myWrapper <- structure(list(), class="C50Wrapper")
-        trainWrapper.C50Wrapper <<- function(wrapper, train, trainClass){
-          C50::C5.0(train, trainClass, ...)
-        }
-      } else{
-        if(wrapper == "KNN"){
-          myWrapper <- structure(list(), class = "KNNWrapper")
-          predict.KNN <- function(model, test){
-            FNN::knn(model$train, test, model$trainClass, ...)
-          }
-          trainWrapper.KNNWrapper <<- function(wrapper, train, trainClass){
-            myKNN <- structure(list(), class = "KNN")
-            myKNN$train <- train
-            myKNN$trainClass <- trainClass
-            myKNN
-          }
-        }
-      }
+      wrapper <- match.arg(wrapper, presetWrappers)
       trainFold <- sample(1:nrow(dataset), size = nrow(dataset)/2, replace = FALSE)
       newSamples <- wracog(dataset[trainFold, ], dataset[-trainFold, ],
-                           wrapper = myWrapper, classAttr = classAttr)
+                           wrapper, classAttr = classAttr, ...)
   } else{
     selectedMethod <- eval(parse(text = paste("smotefamily::", method, sep = "")))
 

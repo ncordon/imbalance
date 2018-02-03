@@ -22,5 +22,5 @@ minority class\}/\{Size of majority class\}
 \examples{
 data(glass0)
 
-imbalanceRatio(glass0, "Class")
+imbalanceRatio(glass0, classAttr = "Class")
 }

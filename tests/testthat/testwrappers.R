@@ -30,10 +30,10 @@ wrapperTestOutputRatio("SMOTE")
 # in others dataset because number of synthetic examples cannot be indicated
 # to the method of smotefamily
 wrapperTestOutputRatio("ADASYN")
-wrapperTestOutputRatio("adaptative")
+wrapperTestOutputRatio("ANSMOTE")
 wrapperTestOutputRatio("SLMOTE")
-wrapperTestOutputRatio("borderline-SMOTE")
-wrapperTestOutputRatio("density-SMOTE")
+wrapperTestOutputRatio("BLSMOTE")
+wrapperTestOutputRatio("DBSMOTE")
 #wrapperTestOutputRatio("RACOG")
 
 
@@ -49,8 +49,9 @@ test_that("Check of parameters is properly done in wrapper", {
   # ADASYN is not going to be able to achieve that imbalance ratio (does not
   # require such parameter in smotefamily package)
   expect_warning(oversample(glass0, ratio = 0.99, method = "ADASYN"))
-  # wrapper not passed to the function
-  expect_error(oversample(glass0, method = "wRACOG"))
-  expect_error(oversample(glass0, method = "wRACOG", wrapper = "KNN"), NA)
+  # non-existent wrapper
+  expect_error(oversample(glass0, method = "wRACOG", wrapper = "asdf"))
+  # Good calls to wRACOG
   expect_error(oversample(glass0, method = "wRACOG", wrapper = "C5.0"), NA)
+  expect_error(oversample(glass0, method = "wRACOG", wrapper = "KNN"), NA)
 })
