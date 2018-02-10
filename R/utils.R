@@ -204,8 +204,8 @@ toNumeric <- function(dataset, exclude = c()){
 #'
 #' @noRd
 checkDatasetClass <- function(dataset, classAttr){
-  if(!classAttr %in% names(dataset))
-    stop(paste(classAttr, "attribute not found in dataset"))
+  if(any(!classAttr %in% names(dataset)))
+    stop(paste("some of the class attribute(s) not found in dataset"))
 }
 
 
