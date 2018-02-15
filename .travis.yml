@@ -1,6 +1,6 @@
 language: r
 r: devel
-#cache: packages
+cache: packages
 dist: trusty
 sudo: required
 
@@ -9,13 +9,16 @@ warnings_are_errors: true
 apt_packages:
   - qpdf
 
+r_packages:
+  - devtools
+
 r_github_packages:
   - cran/callr
   - hadley/pkgdown
 
 script:
   - R CMD build . ${R_BUILD_ARGS}
-  - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
+  - R CMD check ${R_CHECK_ARGS}$ `ls -1t *.tar.gz | head -n 1`
   - R CMD INSTALL `ls -1t *.tar.gz | head -n 1`
 
 notifications:
@@ -37,7 +40,7 @@ deploy:
   
 env:
    global:
-     - R_BUILD_ARGS=""
-     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran --compact-vignettes=gs+qpdf"
+     - R_BUILD_ARGS="--compact-vignettes=gs+qpdf"
+     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
 
 cran: http://cran.rstudio.com
