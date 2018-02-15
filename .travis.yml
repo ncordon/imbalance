@@ -29,6 +29,9 @@ after_success:
   - mv docs ..
   - rm -r *
   - mv ../docs/* .
+
+after_failure:
+  - cat imbalance.Rcheck/00check.log
   
 deploy:
   provider: pages

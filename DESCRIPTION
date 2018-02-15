@@ -5,10 +5,11 @@ Version: 1.0.0
 Authors@R: c(
    person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre")),
    person("Salvador", "García", role = "aut"),
+   person("Alberto", "Fernández", role = "aut"),
    person("Francisco", "Herrera", role = "aut")
  )
 Maintainer: Ignacio Cordón <nacho.cordon.castillo@gmail.com>
-Description: Imbalanced datasets usually damage the performance of classifiers. Thus, it is
+Description: Class imbalance usually damages the performance of classifiers. Thus, it is
              important to treat data before applying a classifier algorithm. This package
              includes recent resampling algorithms in the literature, as well as an useful
              interface to perfom oversampling or undersampling.

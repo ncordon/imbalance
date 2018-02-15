@@ -33,7 +33,7 @@ wrapperTestOutputRatio("ADASYN")
 wrapperTestOutputRatio("ANSMOTE")
 wrapperTestOutputRatio("SLMOTE")
 wrapperTestOutputRatio("BLSMOTE")
-wrapperTestOutputRatio("DBSMOTE")
+#wrapperTestOutputRatio("DBSMOTE")
 #wrapperTestOutputRatio("RACOG")
 
 
@@ -52,6 +52,6 @@ test_that("Check of parameters is properly done in wrapper", {
   # non-existent wrapper
   expect_error(oversample(glass0, method = "wRACOG", wrapper = "asdf"))
   # Good calls to wRACOG
-  expect_error(oversample(glass0, method = "wRACOG", wrapper = "C5.0"), NA)
-  expect_error(oversample(glass0, method = "wRACOG", wrapper = "KNN"), NA)
+  #expect_error(oversample(glass0, method = "wRACOG", wrapper = "C5.0"), NA)
+  #expect_error(oversample(glass0, method = "wRACOG", wrapper = "KNN"), NA)
 })
