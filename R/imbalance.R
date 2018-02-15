@@ -24,6 +24,7 @@ NULL
 
 #' @useDynLib imbalance, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
+#' @import smotefamily
 NULL
 
 
@@ -48,7 +49,6 @@ NULL
 #'
 #' @return A balanced \code{data.frame} with same structure as \code{dataset},
 #'   containing both original instances and new ones
-#' @import smotefamily
 #' @export
 #'
 #' @examples
