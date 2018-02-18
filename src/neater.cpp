@@ -8,7 +8,6 @@ arma::mat computeGameProfiles(arma::mat probs, arma::umat knn_neighbours,
   // Adjust indexes to C++ indexes
   knn_neighbours = knn_neighbours - 1;
   int num_new_samples = knn_neighbours.n_rows;
-  int num_neighbours = knn_neighbours.n_cols;
   int first_new_sample = probs.n_rows - num_new_samples;
   //partial_payoffs = trans(partial_payoffs);
   partial_payoffs = trans(partial_payoffs);
@@ -18,7 +17,7 @@ arma::mat computeGameProfiles(arma::mat probs, arma::umat knn_neighbours,
   arma::rowvec min_probs(num_new_samples);
   arma::mat current_prob;
 
-  for(int i=0; i < iterations; i++){
+  for(int i = 0; i < iterations; i++){
     // Calculate total payoff for jth new sample
     for(int j=0; j < num_new_samples; j++){
       current_prob = probs.rows(knn_neighbours.row(j));

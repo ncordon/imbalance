@@ -11,8 +11,12 @@ Authors@R: c(
 Maintainer: Ignacio Cordón <nacho.cordon.castillo@gmail.com>
 Description: Class imbalance usually damages the performance of classifiers. Thus, it is
              important to treat data before applying a classifier algorithm. This package
-             includes recent resampling algorithms in the literature, as well as an useful
-             interface to perfom oversampling or undersampling.
+             includes recent resampling algorithms in the literature: (Barua et al. 2014)
+             <doi:10.1109/tkde.2012.232>; (Das et al. 2015) <doi:10.1109/tkde.2014.2324567>,
+             (Zhang et al. 2014) <doi:10.1016/j.inffus.2013.12.003>; (Gao et al. 2014)
+             <doi:10.1016/j.neucom.2014.02.006>; (Almogahed et al. 2014)
+             <doi:10.1007/s00500-014-1484-5>. It also includes an useful interface to
+             perform oversampling.
 License: GPL (>=2) | file LICENSE
 Encoding: UTF-8
 LazyData: true
