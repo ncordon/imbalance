@@ -18,7 +18,8 @@ consecutive classifiers. Must have the same structure of \code{train}.}
 \item{wrapper}{An \code{S3} object. There must exist a method
 \code{\link{trainWrapper}} implemented for the class of the object, and a
 \code{\link[stats]{predict}} method implemented for the class of the model
-returned by \code{trainWrapper}.}
+returned by \code{trainWrapper}. Alternatively, it can the name of one of
+the wrappers distributed with the package, \code{"KNN"} or \code{"C5.0"}.}
 
 \item{slideWin}{Number of last sensitivities to take into account to meet the
 stopping criteria. By default, 10.}

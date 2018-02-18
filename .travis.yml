@@ -1,5 +1,7 @@
 language: r
-r: devel
+r:
+  - devel
+  - release
 cache: packages
 dist: trusty
 sudo: required

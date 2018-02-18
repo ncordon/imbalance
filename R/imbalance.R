@@ -34,17 +34,18 @@ NULL
 #' @param dataset A binary class \code{data.frame} to balance.
 #' @param ratio Number between 0 and 1 indicating the desired ratio between
 #'   minority examples and majority ones, that is, the quotient {size of
-#'   minority class}/{size of majority class}
+#'   minority class}/{size of majority class}. There are methods, such as
+#'   \code{ADASYN} or \code{wRACOG} to which this parameter does not apply.
 #' @param method A \code{character} corresponding to method to apply. Possible
 #'   methods are: RACOG, wRACOG, PDFOS, RWO, ADASYN, ANSMOTE, BLSMOTE, DBSMOTE,
 #'   BLSMOTE, DBSMOTE, SLMOTE, RSLSMOTE
 #' @param filtering Logical (TRUE or FALSE) indicating wheter to apply filtering
 #'   of oversampled instances with \code{\link{neater}} algorithm.
-#' @param classAttr String. Indicates the class attribute from \code{dataset}.
+#' @param classAttr \code{character}. Indicates the class attribute from \code{dataset}.
 #'   Must exist in it.
 #' @param wrapper A \code{character} corresponding to wrapper to apply if
-#'   selected method is \code{\link{wracog}}. Possibilities are: \code{C5.0} and
-#'   \code{KNN}.
+#'   selected method is \code{\link{wracog}}. Possibilities are: \code{"C5.0"}
+#'   and \code{"KNN"}.
 #' @param ... Further arguments to apply in selected method
 #'
 #' @return A balanced \code{data.frame} with same structure as \code{dataset},
@@ -55,7 +56,12 @@ NULL
 #' data(glass0)
 #'
 #' # Oversample glass0 to get an imbalance ratio of 0.8
+#' imbalanceRatio(glass0)
+#' # 0.4861111
 #' newDataset <- oversample(glass0, ratio = 0.8, method = "MWMOTE")
+#' imbalanceRatio(newDataset)
+#' newDataset <- oversample(glass0, method = "ADASYN")
+#' newDataset <- oversample(glass0, ratio = 0.8, method = "SMOTE")
 #'
 oversample <- function(dataset, ratio = NA, method = c("RACOG", "wRACOG",
                       "PDFOS", "RWO", "ADASYN", "ANSMOTE", "SMOTE",

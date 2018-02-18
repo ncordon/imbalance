@@ -99,7 +99,8 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #' @param wrapper An \code{S3} object. There must exist a method
 #'   \code{\link{trainWrapper}} implemented for the class of the object, and a
 #'   \code{\link[stats]{predict}} method implemented for the class of the model
-#'   returned by \code{trainWrapper}.
+#'   returned by \code{trainWrapper}. Alternatively, it can the name of one of
+#'   the wrappers distributed with the package, \code{"KNN"} or \code{"C5.0"}.
 #' @param slideWin Number of last sensitivities to take into account to meet the
 #'   stopping criteria. By default, 10.
 #' @param threshold Threshold that the last \code{slideWin} sensitivities mean
@@ -144,9 +145,9 @@ racog <- function(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Cl
 #'
 wracog <- function(train, validation, wrapper, slideWin = 10,
                    threshold = 0.02, classAttr = "Class", ...){
-  presetWrapper <- class(wrapper) == "character"
+  wrapperByName <- class(wrapper) == "character"
 
-  if(presetWrapper){
+  if(wrapperByName){
     wrapper <- match.arg(wrapper, presetWrappers)
     wrapper <- switch(wrapper, "KNN" = KNNWrapper, "C5.0" = C50Wrapper)
   }
@@ -187,10 +188,10 @@ wracog <- function(train, validation, wrapper, slideWin = 10,
   model <- trainWrapper(wrapper, train, trainClass, ...)
   predictMethod <- paste("predict", class(model), sep=".")
 
-  if(!presetWrapper){
+  if(!wrapperByName){
     if(!trainMethod %in% utils::methods(trainWrapper)){
       stop(paste("There doesn't exist a method "), trainMethod)
-      presetWrapper <- FALSE
+      wrapperByName <- FALSE
     }
     if(!any(predictMethod %in% utils::methods(predict))){
       stop(paste("There must exist a method predict.class where class\n",
