@@ -37,7 +37,7 @@ NULL
 #'   minority class}/{size of majority class}. There are methods, such as
 #'   \code{ADASYN} or \code{wRACOG} to which this parameter does not apply.
 #' @param method A \code{character} corresponding to method to apply. Possible
-#'   methods are: RACOG, wRACOG, PDFOS, RWO, ADASYN, ANSMOTE, BLSMOTE, DBSMOTE,
+#'   methods are: RACOG, wRACOG, PDFOS, RWO, ADASYN, ANSMOTE, SMOTE, MWMOTE,
 #'   BLSMOTE, DBSMOTE, SLMOTE, RSLSMOTE
 #' @param filtering Logical (TRUE or FALSE) indicating wheter to apply filtering
 #'   of oversampled instances with \code{\link{neater}} algorithm.
