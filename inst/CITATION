@@ -1,0 +1,17 @@
+citHeader("To cite package imbalance in publications use:")
+
+citEntry(
+  entry = "Article",
+  title = "Imbalance: Oversampling algorithms for imbalanced classification in R",
+  author = c(person("Ignacio", "Cordón"),
+             person("Salvador", "García"),
+             person("Alberto", "Fernández"),
+             person("Francisco", "Herrera")),
+  month = "12",
+  year = "2018",
+  pages = "329-341",
+  journal = "Knowledge-Based Systems",
+  volume = 161,
+  url = "https://doi.org/10.1016/j.knosys.2018.07.035",
+  textVersion = 'Cordón I, García S, Fernández A, Herrera F (2018). "Imbalance: Oversampling algorithms for imbalanced classification in R", Knowledge-Based Systems, volume 161, pages 329-341'
+)
