@@ -1,10 +1,9 @@
-# Patch
-Fixes mispelled word in DESCRIPTION and adds doi of implemented methods
+## Patch
+Adds citation info to the package
 
 ## Test environments
-* local OS X, devel
 * ubuntu 14.04 (on travis-ci), devel and release
-* local Arch Linux 4.9.56-1-lts, R 3.4.3
+* local Arch Linux 4.14.90-1-lts, devel and release
 * win-builder (devel and release)
 
 ## R CMD check results
