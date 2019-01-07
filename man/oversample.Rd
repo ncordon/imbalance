@@ -6,9 +6,9 @@
 balancing preprocessing task for binary class datasets}
 \usage{
 oversample(dataset, ratio = NA, method = c("RACOG", "wRACOG", "PDFOS",
-  "RWO", "ADASYN", "ANSMOTE", "SMOTE", "MWMOTE", "BLSMOTE", "DBSMOTE", "SLMOTE",
-  "RSLSMOTE"), filtering = FALSE, classAttr = "Class", wrapper = c("KNN",
-  "C5.0"), ...)
+  "RWO", "ADASYN", "ANSMOTE", "SMOTE", "MWMOTE", "BLSMOTE", "DBSMOTE",
+  "SLMOTE", "RSLSMOTE"), filtering = FALSE, classAttr = "Class",
+  wrapper = c("KNN", "C5.0"), ...)
 }
 \arguments{
 \item{dataset}{A binary class \code{data.frame} to balance.}
