@@ -1,7 +1,7 @@
 Package: imbalance
 Type: Package
 Title: Preprocessing Algorithms for Imbalanced Datasets
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
    person("Ignacio", "Cordón", email = "nacho.cordon.castillo@gmail.com", role = c("aut", "cre")),
    person("Salvador", "García", role = "aut"),
