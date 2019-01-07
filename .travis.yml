@@ -1,7 +1,5 @@
 language: r
-r:
-  - devel
-  - release
+r: bioc-devel
 cache: packages
 dist: trusty
 sudo: required
@@ -10,42 +8,39 @@ warnings_are_errors: true
 
 apt_packages:
   - qpdf
-
-r_packages:
-  - devtools
-
-r_github_packages:
-  - cran/callr
-  - hadley/pkgdown
-
+  
 script:
   - R CMD build . ${R_BUILD_ARGS}
-  - R CMD check ${R_CHECK_ARGS}$ `ls -1t *.tar.gz | head -n 1`
-  - R CMD INSTALL `ls -1t *.tar.gz | head -n 1`
+  - export PKG_TARBALL=`ls -1t *.tar.gz | head -n 1`
+  - R CMD check ${PKG_TARBALL} ${R_CHECK_ARGS}
 
 notifications:
   email: false
 
-after_success:
-  - Rscript -e 'pkgdown::build_site()'
-  - mv docs ..
-  - rm -r *
-  - mv ../docs/* .
-
-after_failure:
-  - cat imbalance.Rcheck/00check.log
-  
-deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $GITHUB_API_TOKEN
-  on:
-    branch: master
-  target_branch: gh-pages
+matrix:
+  include:
+  - r: devel  
+  - r: release
+    
+    after_success:
+      - R CMD INSTALL ${PKG_TARBALL}
+      - Rscript -e 'install.packages("pkgdown")'
+      - Rscript -e 'pkgdown::build_site()'
+      - mv docs ..
+      - rm -r *
+      - mv ../docs/* .
+      
+    deploy:
+      provider: pages
+      skip_cleanup: true
+      github_token: $GITHUB_API_TOKEN
+      on:
+        branch: master
+        target_branch: gh-pages
   
 env:
    global:
-     - R_BUILD_ARGS="--compact-vignettes=gs+qpdf"
-     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
+     - R_BUILD_ARGS=""
+     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran --compact-vignettes=gs+qpdf"
 
 cran: http://cran.rstudio.com
