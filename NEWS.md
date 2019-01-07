@@ -1,6 +1,9 @@
+# imbalance 1.0.1
+  * Adds citation info
+
 # imbalance 1.0.0
   * Wrapper oversample for algorithms in other packages
-  * Added default wrappers for wracog, changed parameters for this method
+  * Adds default wrappers for wracog, changed parameters for this method
 
 # imbalance 0.1.1
   * Small patch for C++ portability under different OSs

@@ -10,6 +10,5 @@
 ^_pkgdown\.yml$
 ^revdep$
 ^cran-comments.md$
-^NEWS\.md$
 ^.*\.tar\.gz$
 ^article$
