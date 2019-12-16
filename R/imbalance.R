@@ -19,7 +19,7 @@
 #'   Methods to filter oversampled instances \code{\link{neater}}.
 #'
 #' @docType package
-#' @name imabalace
+#' @name imbalance
 NULL
 
 #' @useDynLib imbalance, .registration = TRUE

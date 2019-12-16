@@ -48,7 +48,7 @@ pdfos <- function(dataset, numInstances, classAttr = "Class"){
 
   # Try to find an inverse matrix for the positive class, if it exists
   covInverse <- try(solve(covariance))
-  if(class(covInverse) == "try-error")
+  if(inherits(covInverse, "try-error"))
     stop(paste("Not a valid method for this dataset.",
                "Variance of the positive class is not an invertible matrix"))
 
