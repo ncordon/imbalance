@@ -73,10 +73,11 @@ public:
     // Erase column and row corresponding to jth cluster
     distance_matrix.shed_row(cluster_j);
     distance_matrix.shed_col(cluster_j);
-
+    
     // Merge clusters
-    clusters[cluster_i].insert(clusters[cluster_i].end(),
-                               clusters[cluster_j].begin(), clusters[cluster_j].end());
+    for (auto elem : clusters[cluster_j])
+      clusters[cluster_i].push_back(elem);
+    
     clusters.erase(clusters.begin() + cluster_j);
   }
 

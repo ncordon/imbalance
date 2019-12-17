@@ -4,8 +4,15 @@
 \alias{wracog}
 \title{Wrapper for rapidly converging Gibbs algorithm.}
 \usage{
-wracog(train, validation, wrapper, slideWin = 10, threshold = 0.02,
-  classAttr = "Class", ...)
+wracog(
+  train,
+  validation,
+  wrapper,
+  slideWin = 10,
+  threshold = 0.02,
+  classAttr = "Class",
+  ...
+)
 }
 \arguments{
 \item{train}{\code{data.frame}. A initial dataset to generate first model.

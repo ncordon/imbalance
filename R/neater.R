@@ -4,7 +4,7 @@
 #' theory to find out if keeping an example is worthy enough.
 #'
 #' Uses game theory and Nash equilibriums to calculate the minority examples
-#' probability of trully belonging to the minority class. It discards examples
+#' probability of truly belonging to the minority class. It discards examples
 #' which at the final stage of the algorithm have more probability of being a
 #' majority example than a minority one.
 #'

@@ -5,8 +5,17 @@
 \title{Majority weighted minority oversampling technique for imbalance dataset
 learning}
 \usage{
-mwmote(dataset, numInstances, kNoisy = 5, kMajority = 3, kMinority,
-  threshold = 5, cmax = 2, cclustering = 3, classAttr = "Class")
+mwmote(
+  dataset,
+  numInstances,
+  kNoisy = 5,
+  kMajority = 3,
+  kMinority,
+  threshold = 5,
+  cmax = 2,
+  cclustering = 3,
+  classAttr = "Class"
+)
 }
 \arguments{
 \item{dataset}{\code{data.frame} to treat. All columns, except

@@ -34,7 +34,7 @@
 #' Imbalanced binary classification dataset containing variables to
 #' identify types of glass.
 #'
-#' @format A data frame with 214 instances, 70 of which belong to positve class,
+#' @format A data frame with 214 instances, 70 of which belong to positive class,
 #' and 10 variables:
 #'
 #' \describe{

@@ -1,3 +1,7 @@
+# imbalance 1.0.2
+  * Minor fixes regarding compilation flags
+  * Adapts code to work with `class(matrix)` returning `c(array, matrix)`
+
 # imbalance 1.0.1
   * Adds citation info
 

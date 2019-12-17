@@ -4,8 +4,7 @@
 \alias{racog}
 \title{Rapidly converging Gibbs algorithm.}
 \usage{
-racog(dataset, numInstances, burnin = 100, lag = 20,
-  classAttr = "Class")
+racog(dataset, numInstances, burnin = 100, lag = 20, classAttr = "Class")
 }
 \arguments{
 \item{dataset}{\code{data.frame} to treat. All columns, except

@@ -4,8 +4,7 @@
 \alias{plotComparison}
 \title{Plots comparison between the original and the new balanced dataset.}
 \usage{
-plotComparison(dataset, anotherDataset, attrs, cols = 2,
-  classAttr = "Class")
+plotComparison(dataset, anotherDataset, attrs, cols = 2, classAttr = "Class")
 }
 \arguments{
 \item{dataset}{A \code{data.frame}. The former imbalanced dataset.}
