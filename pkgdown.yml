@@ -1,0 +1,9 @@
+pandoc: '2.2'
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  imbalance: imbalance.html
+urls:
+  reference: http://ncordon.github.io/imbalance/reference
+  article: http://ncordon.github.io/imbalance/articles
+
